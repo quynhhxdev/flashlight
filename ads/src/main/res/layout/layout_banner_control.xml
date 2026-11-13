@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shimmer_container_banner"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card_ads"
+    app:shimmer_auto_start="true"
+    app:shimmer_base_alpha="0.85"
+    app:shimmer_base_color="#6D4C87"
+    app:shimmer_highlight_alpha="1.0"
+    app:shimmer_highlight_color="#9575CD">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#6D4C87">
+
+        <!-- Nhãn "Ad" màu vàng bo góc trên cùng bên trái -->
+        <TextView
+            android:id="@+id/tv_ad_badge"
+            style="@style/AppTheme.Ads"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/ads_ic_banner"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="1dp"
+            android:text="Ad"
+            android:textColor="#FFFFFF"
+            android:textSize="6sp"
+            android:fontFamily="@font/sf_pro_display_medium" />
+
+        <!-- Cụm icon nhỏ góc trên bên phải (AdChoices / Close) -->
+        <LinearLayout
+            android:id="@+id/layout_ad_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="11dp"
+                android:layout_height="11dp"
+                android:layout_marginEnd="1dp"
+                android:background="#80FFFFFF" />
+
+            <View
+                android:layout_width="11dp"
+                android:layout_height="11dp"
+                android:background="#80FFFFFF" />
+        </LinearLayout>
+
+        <!-- Khối hình minh họa bên phải -->
+        <ImageView
+            android:id="@+id/iv_banner_graphic"
+            android:layout_width="110dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="8dp"
+            android:background="#26FFFFFF"
+            android:scaleType="centerCrop" />
+
+        <!-- Khối tiêu đề lớn bên trái (2 dòng) -->
+        <LinearLayout
+            android:id="@+id/layout_banner_headline"
+            android:layout_width="115dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_ad_badge"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="3dp"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="11dp"
+                android:background="#4DFFFFFF" />
+
+            <View
+                android:layout_width="82dp"
+                android:layout_height="11dp"
+                android:layout_marginTop="4dp"
+                android:background="#4DFFFFFF" />
+        </LinearLayout>
+
+        <!-- Khối mô tả ở giữa (3 dòng) -->
+        <LinearLayout
+            android:id="@+id/layout_banner_body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/iv_banner_graphic"
+            android:layout_toEndOf="@id/layout_banner_headline"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#33FFFFFF" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="4dp"
+                android:background="#33FFFFFF" />
+
+            <View
+                android:layout_width="70dp"
+                android:layout_height="8dp"
+                android:layout_marginTop="4dp"
+                android:background="#33FFFFFF" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</com.facebook.shimmer.ShimmerFrameLayout>

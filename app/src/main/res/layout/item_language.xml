@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/itemContainer"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/_62dp"
+    android:layout_marginHorizontal="@dimen/_16dp"
+    android:layout_marginVertical="@dimen/_4dp"
+    android:background="@drawable/bg_language"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/_12dp">
+
+    <!-- Circular Flag Icon -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imgFlag"
+        android:layout_width="@dimen/_44dp"
+        android:layout_height="@dimen/_44dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_eng" />
+
+    <!-- Language Name -->
+    <TextView
+        android:id="@+id/tvLanguageName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_16dp"
+        android:layout_weight="1"
+        android:fontFamily="@font/nunito_medium"
+        android:text="English"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/_16sp" />
+
+    <!-- Selection Indicator -->
+    <ImageView
+        android:id="@+id/ivSelection"
+        android:layout_width="@dimen/_24dp"
+        android:layout_height="@dimen/_24dp"
+        android:layout_marginStart="@dimen/_8dp"
+        android:background="@drawable/ic_language_check"
+        android:contentDescription="Language selected"
+        android:clickable="false"
+        android:focusable="false" />
+
+</LinearLayout>

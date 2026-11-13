@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "257825669609",
+    "project_id": "flashlight-f0593",
+    "storage_bucket": "flashlight-f0593.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257825669609:android:b96fbf41ea972040050b78",
+        "android_client_info": {
+          "package_name": "com.kt.flash.light.led.banner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC4xdvUvzEuioI1li65QYYPYMBYd13kkg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

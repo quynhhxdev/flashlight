@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight app icon</string>
+    <string name="splash_ad_indicator">Ad</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Your flashlight is ready.</string>
+
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Do you like \"%1$s\"?</string>
+    <string name="rating_desc_default">Your feedback helps us improve. Please take a moment to rate your experience.</string>
+    <string name="rating_title_1">Oh no! We\'re sorry to hear that.</string>
+    <string name="rating_desc_1">Your feedback is crucial for us to improve. Could you please tell us what went wrong?</string>
+    <string name="rating_title_2">Heartbreaking!</string>
+    <string name="rating_desc_2">What could we do to earn a 5-star rating from you?</string>
+    <string name="rating_title_3">Thanks for the feedback!</string>
+    <string name="rating_desc_3">We\'d love to know how we can make your experience better.</string>
+    <string name="rating_title_4">Thanks for your support!</string>
+    <string name="rating_desc_4">We\'re glad you\'re enjoying the app! Public reviews help us grow.</string>
+    <string name="rating_title_5">Awesome! You made our day!</string>
+    <string name="rating_desc_5">Your satisfaction makes all of our hard work worthwhile.</string>
+    <string name="rating_submit">Submit</string>
+    <string name="english">English</string>
+    <string name="vietnamese">Vietnamese</string>
+    <string name="hindi">Hindi</string>
+    <string name="spanish">Spanish</string>
+    <string name="french">French</string>
+    <string name="portuguese">Portuguese</string>
+    <string name="allow_notification_title">Allow Notifications</string>
+    <string name="allow_notification_content">Allow notifications to receive updates.</string>
+    <string name="allow_record_audio_title">Allow Record Audio</string>
+    <string name="allow_record_audio_content">Allow recording audio for flashlight features.</string>
+    <string name="allow_camera_title">Allow Camera</string>
+    <string name="allow_camera_content">Allow camera access for flashlight LED.</string>
+    <string name="choose_one">Choose One</string>
+
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+</resources>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="#111111"
+    android:padding="19dp">
+
+    <!-- Main Card -->
+    <LinearLayout
+        android:id="@+id/layoutNoInternetCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:background="@drawable/bg_no_internet_card"
+        android:paddingStart="9dp"
+        android:paddingEnd="9dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp">
+
+        <!-- Icon -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivNoInternet"
+            android:layout_width="138dp"
+            android:layout_height="148dp"
+            android:src="@drawable/ic_no_internet2"
+            android:scaleType="fitCenter"
+            android:contentDescription="No Internet" />
+
+        <!-- Title -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNoInternetTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Oops, No Internet Connection"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:gravity="center" />
+
+        <!-- Description -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNoInternetDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Make sure wifi or cellular data is turned on\nand then try again."
+            android:textColor="#A9A9A9"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans_regular"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp" />
+
+        <!-- Go to Settings -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnGoToSettings"
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:layout_marginTop="20dp"
+            android:text="Go to Settings"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_yelllow_btn"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:padding="0dp" />
+
+        <!-- Cancel -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Cancel"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:textColor="#C1C7D0"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:padding="4dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

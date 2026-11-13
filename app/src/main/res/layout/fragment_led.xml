@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#111111">
+
+    <!-- 1. Header Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="LED"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 2. Scrollable Content Area -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollViewLed"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/layoutBottomNav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
+
+            <!-- Card 1: LED Preview Screen -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardLedPreview"
+                android:layout_width="match_parent"
+                android:layout_height="192dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_no_internet_card"
+                    android:padding="12dp">
+
+                    <!-- Glowing LED Text -->
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvLedPreview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        android:ellipsize="none"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:gravity="center"
+                        android:letterSpacing="0.06"
+                        android:shadowColor="#FFD54F"
+                        android:textColor="#FDE047"
+                        android:shadowDx="0"
+                        android:shadowDy="0"
+                        android:shadowRadius="20"
+                        android:text="HELLO WORLD aaaaaaâ"
+                        android:textSize="32sp"
+                        android:fontFamily="@font/orbitron_black" />
+
+                    <!-- Fullscreen Button -->
+                    <ImageView
+                        android:id="@+id/btnFullScreen"
+                        android:layout_width="48dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="12dp"
+                        android:background="@drawable/bg_no_internet_card"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_zoom_vector"/>
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card 2: Text Input -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="139dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="139dp"
+                    android:background="@drawable/bg_no_internet_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Text"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/etLedText"
+                        android:layout_width="match_parent"
+                        android:layout_height="57dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:background="@drawable/bg_edit_text_led"
+                        android:hint="Enter LED text..."
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:paddingHorizontal="14dp"
+                        android:text="HELLO WORLD"
+                        android:textColor="#ECEFF3"
+                        android:textColorHint="#ECEFF3"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card 4: Font Size & Scroll Speed -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#1E232B"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_no_internet_card"
+                    android:padding="16dp">
+
+                    <!-- Font Size -->
+                    <TextView
+                        android:id="@+id/tvFontSizeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Font Size"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvFontSizeValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="64px"
+                        android:textColor="@color/bg_yellow_switch"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatSeekBar
+                        android:id="@+id/sbFontSize"
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="10dp"
+                        android:max="180"
+                        android:minHeight="8dp"
+                        android:maxHeight="8dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:progress="64"
+                        android:progressDrawable="@drawable/bg_brightness_seekbar_track"
+                        android:splitTrack="false"
+                        android:thumb="@drawable/bg_brightness_thumb"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvFontSizeLabel" />
+
+                    <!-- Scroll Speed -->
+                    <TextView
+                        android:id="@+id/tvScrollSpeedLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:text="Scroll Speed"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/sbFontSize" />
+
+                    <TextView
+                        android:id="@+id/tvScrollSpeedValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:text="5s"
+                        android:textColor="@color/bg_yellow_switch"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@id/tvScrollSpeedLabel"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvScrollSpeedLabel" />
+
+                    <androidx.appcompat.widget.AppCompatSeekBar
+                        android:id="@+id/sbScrollSpeed"
+                        android:layout_width="0dp"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="10dp"
+                        android:max="10"
+                        android:minHeight="8dp"
+                        android:maxHeight="8dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:progress="5"
+                        android:progressDrawable="@drawable/bg_brightness_seekbar_track"
+                        android:splitTrack="false"
+                        android:thumb="@drawable/bg_brightness_thumb"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvScrollSpeedLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card 5: Color Selection -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#1E232B"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="184dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_no_internet_card"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Color"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+
+                    <!-- Color Row 1 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="start|center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Custom Color Picker Icon -->
+                        <ImageView
+                            android:id="@+id/btnCustomColor"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_icon_color"
+                            android:padding="11dp"
+                            android:src="@drawable/ic_color_vector"
+                            app:tint="#FACC15" />
+
+                        <!-- Cyan -->
+                        <View
+                            android:id="@+id/colorCyan"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_color_circle" />
+
+                        <!-- White -->
+                        <View
+                            android:id="@+id/colorWhite"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_color_circle" />
+
+                        <!-- Yellow -->
+                        <View
+                            android:id="@+id/colorYellow"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_color_circle" />
+
+                        <!-- Green -->
+                        <View
+                            android:id="@+id/colorGreen"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_color_circle" />
+                    </LinearLayout>
+
+                    <!-- Color Row 2 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="start|center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Purple -->
+                        <View
+                            android:id="@+id/colorPurple"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_color_circle" />
+
+                        <!-- Coral Red -->
+                        <View
+                            android:id="@+id/colorCoral"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_color_circle" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card 6: Direction -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="145dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="145dp"
+                    android:background="@drawable/bg_no_internet_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Direction"
+                        android:textColor="#FFFFFF"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:weightSum="4">
+
+                        <!-- Right -->
+                        <FrameLayout
+                            android:id="@+id/btnDirRight"
+                            android:layout_width="0dp"
+                            android:layout_height="63dp"
+                            android:layout_marginEnd="16dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_option_drec_unselected">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_direction_right"
+                                app:tint="@color/bg_no_select_btn" />
+                        </FrameLayout>
+
+                        <!-- Left (Selected) -->
+                        <FrameLayout
+                            android:id="@+id/btnDirLeft"
+                            android:layout_width="0dp"
+                            android:layout_height="63dp"
+                            android:layout_marginEnd="20dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_option_drec_unselected">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_direction_left"
+                                app:tint="@color/bg_no_select_btn" />
+                        </FrameLayout>
+
+                        <!-- Down -->
+                        <FrameLayout
+                            android:id="@+id/btnDirDown"
+                            android:layout_width="0dp"
+                            android:layout_height="63dp"
+                            android:layout_marginEnd="20dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_option_drec_unselected">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_direction_down"
+                                app:tint="@color/bg_no_select_btn" />
+                        </FrameLayout>
+
+                        <!-- Up -->
+                        <FrameLayout
+                            android:id="@+id/btnDirUp"
+                            android:layout_width="0dp"
+                            android:layout_height="63dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_option_drec_unselected">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_direction_up"
+                                app:tint="@color/bg_no_select_btn" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card 7: Visual Effects -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    style=""
+                    android:layout_height="184dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_no_internet_card"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Visual Effects"
+                        android:textColor="#FFFFFF"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <!-- Glow (Selected) -->
+                        <TextView
+                            android:id="@+id/btnEffectGlow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/bg_pill_selected"
+                            android:gravity="center"
+                            android:paddingHorizontal="20dp"
+                            android:text="Glow"
+                            android:textColor="@color/bg_yellow_switch"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/plus_jakarta_sans_regular" />
+
+                        <!-- Blink -->
+                        <TextView
+                            android:id="@+id/btnEffectBlink"
+                            android:layout_width="wrap_content"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/bg_pill_unselected"
+                            android:gravity="center"
+                            android:paddingHorizontal="20dp"
+                            android:text="Blink"
+                            android:textColor="@color/bg_no_select_btn"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/plus_jakarta_sans_regular" />
+
+                        <!-- Neon -->
+                        <TextView
+                            android:id="@+id/btnEffectNeon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/bg_pill_unselected"
+                            android:gravity="center"
+                            android:paddingHorizontal="20dp"
+                            android:text="Neon"
+                            android:textColor="@color/bg_no_select_btn"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/plus_jakarta_sans_regular" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_12dp">
+                        <!-- Fade -->
+                        <TextView
+                            android:id="@+id/btnEffectfade"
+                            android:layout_width="wrap_content"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_pill_unselected"
+                            android:gravity="center"
+                            android:paddingHorizontal="20dp"
+                            android:text="Fade"
+                            android:textColor="@color/bg_no_select_btn"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/plus_jakarta_sans_regular" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 3. Bottom Navigation Bar -->
+    <include
+        android:id="@+id/layoutBottomNav"
+        layout="@layout/layout_bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

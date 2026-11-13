@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Outer soft blur glow layer 1 (glow radius ~ 10px, alpha ~ 10%) -->
+    <item>
+        <shape android:shape="oval">
+            <size android:width="32dp" android:height="32dp" />
+            <solid android:color="#1AFFD54F" />
+        </shape>
+    </item>
+
+    <!-- Outer soft blur glow layer 2 (alpha ~ 25%) -->
+    <item
+        android:bottom="1.5dp"
+        android:left="1.5dp"
+        android:right="1.5dp"
+        android:top="1.5dp">
+        <shape android:shape="oval">
+            <solid android:color="#40FFD54F" />
+        </shape>
+    </item>
+
+    <!-- Inner soft blur glow layer 3 (box-shadow: 0px 0px 10px 0px #FFD54F80 -> 50% opacity #80FFD54F) -->
+    <item
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp">
+        <shape android:shape="oval">
+            <solid android:color="#80FFD54F" />
+        </shape>
+    </item>
+
+    <!-- Center solid yellow thumb circle (24x24 dp) -->
+    <item
+        android:bottom="4dp"
+        android:left="4dp"
+        android:right="4dp"
+        android:top="4dp">
+        <shape android:shape="oval">
+            <size android:width="24dp" android:height="24dp" />
+            <solid android:color="#FFD54F" />
+        </shape>
+    </item>
+
+</layer-list>

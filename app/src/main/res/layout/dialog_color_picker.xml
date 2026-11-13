@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 2D Color/Gradient Palette Container -->
+        <FrameLayout
+            android:id="@+id/layoutPaletteContainer"
+            android:layout_width="match_parent"
+            android:layout_height="269dp">
+
+            <ImageView
+                android:id="@+id/ivColorPalette"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY" />
+
+            <!-- Selector Pointer -->
+            <View
+                android:id="@+id/viewColorPointer"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_picker_thumb" />
+        </FrameLayout>
+
+        <!-- Hue Gradient + SeekBar -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_marginTop="8dp">
+
+            <!-- Rainbow gradient background -->
+            <View
+                android:id="@+id/viewHueGradient"
+                android:layout_width="match_parent"
+                android:layout_height="17dp"
+                android:layout_gravity="center_vertical" />
+
+            <!-- SeekBar: thumb and touch handling -->
+            <SeekBar
+                android:id="@+id/sbHue"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:max="360"
+                android:progress="270"
+                android:background="@null"
+                android:progressDrawable="@android:color/transparent"
+                android:splitTrack="false"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:thumb="@drawable/thumb_color_slider" />
+
+        </FrameLayout>
+
+        <!-- Alpha / Transparency Slider Bar -->
+        <SeekBar
+            android:id="@+id/sbAlpha"
+            android:layout_width="match_parent"
+            android:layout_height="17dp"
+            android:layout_marginTop="8dp"
+            android:max="255"
+            android:maxHeight="17dp"
+            android:minHeight="17dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:progress="220"
+            android:progressDrawable="@drawable/bg_alpha_slider"
+            android:splitTrack="false"
+            android:thumb="@drawable/thumb_color_slider" />
+
+        <!-- HEX and RGB Value Inputs -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <!-- HEX -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.6"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:text="HEX"
+                    android:textColor="#141414"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etHex"
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:gravity="center"
+                    android:text="#9751F2"
+                    android:textColor="#141414"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- RGB Section -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="vertical">
+
+                <!-- Nhóm 1: 3 chữ R, G, B -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/plus_jakarta_sans_regular"
+                        android:text="R"
+                        android:textColor="#141414"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/plus_jakarta_sans_regular"
+                        android:text="G"
+                        android:textColor="#141414"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/plus_jakarta_sans_regular"
+                        android:text="B"
+                        android:textColor="#141414"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Nhóm 2: Khung viền RGB -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/etR"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="@font/plus_jakarta_sans_regular"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:text="151"
+                        android:textColor="#141414"
+                        android:textSize="16sp" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#E2E8F0" />
+
+                    <EditText
+                        android:id="@+id/etG"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="@font/plus_jakarta_sans_regular"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:text="81"
+                        android:textColor="#141414"
+                        android:textSize="16sp" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#E2E8F0" />
+
+                    <EditText
+                        android:id="@+id/etB"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="@font/plus_jakarta_sans_regular"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:text="242"
+                        android:textColor="#141414"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Choose Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnChooseColor"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_yelllow_btn"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:text="Choose"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

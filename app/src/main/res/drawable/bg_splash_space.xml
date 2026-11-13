@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background" />
+    <item>
+        <shape>
+            <gradient
+                android:centerX="0.12"
+                android:centerY="0.52"
+                android:endColor="#004C2BE8"
+                android:gradientRadius="@dimen/splash_glow_radius"
+                android:startColor="@color/splash_glow_purple"
+                android:type="radial" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:centerX="0.9"
+                android:centerY="0.55"
+                android:endColor="#004FC3F7"
+                android:gradientRadius="@dimen/splash_glow_radius"
+                android:startColor="@color/splash_glow_blue"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>

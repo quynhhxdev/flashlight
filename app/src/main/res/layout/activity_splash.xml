@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/splash_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash">
+
+    <LinearLayout
+        android:id="@+id/brand_group"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/_153dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/loading_group"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="@dimen/_110dp"
+            android:layout_height="@dimen/_110dp"
+            android:background="@drawable/bg_radius_24dp"
+            android:contentDescription="@string/splash_logo_description"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_31dp"
+            android:layout_marginTop="@dimen/_12dp"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/splash_app_name"
+            android:textColor="@color/splash_yellow"
+            android:textSize="@dimen/_24sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/loading_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_16dp"
+        android:layout_marginEnd="@dimen/_16dp"
+        android:layout_marginBottom="@dimen/_4dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/banner_slot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/loading_percentage"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:includeFontPadding="false"
+            android:text="@string/splash_loading_initial"
+            android:textColor="@color/splash_yellow"
+            android:textSize="@dimen/_16sp" />
+
+        <ProgressBar
+            android:id="@+id/loading_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_4dp"
+            android:layout_marginTop="@dimen/_4dp"
+            android:layout_marginHorizontal="28dp"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/splash_progress" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_21dp"
+            android:text="This action may container advertisement"
+            android:textSize="@dimen/_14sp"
+            android:layout_marginTop="@dimen/_8dp"
+            android:fontFamily="@font/plus_jakarta_sans_regular"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/banner_slot"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <FrameLayout
+            android:id="@+id/banner_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                layout="@layout/layout_banner_control"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/ad_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:visibility="visible">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/splash_ad_badge"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="@string/splash_ad_indicator"
+                android:textColor="@color/white"
+                android:textSize="6sp"
+                android:textStyle="bold"
+                tools:ignore="SmallSp" />
+        </FrameLayout>
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
