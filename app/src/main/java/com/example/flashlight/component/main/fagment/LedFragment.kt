@@ -1,6 +1,6 @@
 package com.example.flashlight.component.main.fagment
 
-import android.animation.ValueAnimator
+import android.app.Dialog
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -15,16 +15,23 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.CycleInterpolator
-import android.view.animation.LinearInterpolator
+import android.widget.FrameLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.main.dialog.ColorPickerDialog
-import com.example.flashlight.utils.SpManager
+import com.example.flashlight.component.main.fagment.led.LedConfig
+import com.example.flashlight.component.main.fagment.led.LedConfigViewModel
+import com.example.flashlight.component.main.fagment.led.LedScrollController
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentLedBinding
+import kotlinx.coroutines.launch
 
 class LedFragment : BaseFragment<FragmentLedBinding>() {
 
@@ -33,9 +40,15 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
     private var currentSpeed = 5
     private var currentEffectId = R.id.btnEffectGlow
     private var currentDirectionId = R.id.btnDirLeft
-
-    private var previewAnimator: ValueAnimator? = null
-    private var fullScreenAnimator: ValueAnimator? = null
+    private lateinit var ledConfigViewModel: LedConfigViewModel
+    private var currentConfig = LedConfig()
+    private var isApplyingConfig = false
+    private var hasAppliedConfig = false
+    private var previewScroller: LedScrollController? = null
+    private var fullScreenScroller: LedScrollController? = null
+    private var fullScreenTextView: TextView? = null
+    private var fullScreenDialog: Dialog? = null
+    private var previousRequestedOrientation: Int? = null
 
     private val colorViews by lazy {
         listOf(
@@ -53,228 +66,166 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     override fun initViews() {
         viewBinding.layoutBottomNav.root.isVisible = false
+        ledConfigViewModel = ViewModelProvider(requireActivity())[LedConfigViewModel::class.java]
+        currentConfig = ledConfigViewModel.config.value
+        previewScroller = LedScrollController(
+            viewBinding.tvLedPreview,
+            viewBinding.tvLedPreview.parent as View
+        ) { currentConfig }
+        updateLedConfig(currentConfig)
 
-        val spManager = SpManager.getInstance(requireContext())
-
-        // Load persisted settings
-        val savedText = spManager.getLedText("HELLO WORLD")
-        val savedFontSize = spManager.getLedFontSize(32)
-        val savedScrollSpeed = spManager.getLedScrollSpeed(5)
-        val savedColor = spManager.getLedColor(DEFAULT_TEXT_COLOR)
-        val savedDirection = spManager.getLedDirection(R.id.btnDirLeft)
-        val savedEffect = spManager.getLedEffect(R.id.btnEffectGlow)
-
-        currentSpeed = savedScrollSpeed
-        currentEffectId = savedEffect
-        currentDirectionId = savedDirection
-
-        viewBinding.etLedText.setText(savedText)
-        viewBinding.tvLedPreview.text = savedText
-        viewBinding.sbFontSize.progress = savedFontSize
-        viewBinding.sbScrollSpeed.progress = savedScrollSpeed
-
-        val size = savedFontSize.coerceAtLeast(14).toFloat()
-        viewBinding.tvFontSizeValue.text = "${size.toInt()}px"
-        viewBinding.tvLedPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-
-        viewBinding.tvScrollSpeedValue.text = "${savedScrollSpeed}s"
-
-        currentTextColor = savedColor
-        applyTextShadow(viewBinding.tvLedPreview)
-
-        // Find and select corresponding color view or custom color
-        var matchedColorView: View? = null
-        colorViews.forEach { (view, color, _) ->
-            if (color == savedColor) {
-                matchedColorView = view
-            }
-        }
-        if (matchedColorView != null) {
-            selectColor(matchedColorView!!, savedColor)
-        } else {
-            setLedTextColor(savedColor)
-            colorViews.forEach { (view, viewColor, _) ->
-                view.backgroundTintList = null
-                view.background = createUnselectedColorDrawable(viewColor)
-            }
-        }
-
-        // Apply saved direction & effect
-        selectDirection(savedDirection)
-        selectEffect(savedEffect)
-        startScrollingAnimation(viewBinding.tvLedPreview, currentSpeed)
-
-        // Text input binding with persistence
         viewBinding.etLedText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val t = if (s.isNullOrEmpty()) "HELLO WORLD" else s.toString()
-                viewBinding.tvLedPreview.text = t
-                startScrollingAnimation(viewBinding.tvLedPreview, currentSpeed)
-                spManager.saveLedText(t)
+                if (!isApplyingConfig) {
+                    val text = s?.toString().orEmpty()
+                    if (text != currentConfig.text) {
+                        updateLedConfig(currentConfig.copy(text = text))
+                        ledConfigViewModel.setText(text)
+                    }
+                }
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) = Unit
         })
 
-        // Font size seekbar with persistence
         viewBinding.sbFontSize.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val size = progress.coerceAtLeast(14).toFloat()
-                viewBinding.tvFontSizeValue.text = "${size.toInt()}px"
-                viewBinding.tvLedPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-                startScrollingAnimation(viewBinding.tvLedPreview, currentSpeed)
-                spManager.saveLedFontSize(progress)
+                if (!isApplyingConfig) {
+                    val size = progress.coerceAtLeast(14)
+                    updateLedConfig(currentConfig.copy(fontSizeSp = size))
+                    ledConfigViewModel.setFontSizeSp(size)
+                }
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
         })
 
-        // Scroll speed seekbar with persistence
         viewBinding.sbScrollSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val speed = progress.coerceIn(1, 10)
-                currentSpeed = speed
-                viewBinding.tvScrollSpeedValue.text = "${speed}s"
-                startScrollingAnimation(viewBinding.tvLedPreview, currentSpeed)
-                spManager.saveLedScrollSpeed(speed)
+                if (!isApplyingConfig) {
+                    val speed = progress.coerceIn(1, 10)
+                    updateLedConfig(currentConfig.copy(scrollSpeed = speed))
+                    ledConfigViewModel.setScrollSpeed(speed)
+                }
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
         })
 
-        // Color selection listeners with persistence
-        viewBinding.colorCyan.setOnClickListener { selectColor(it, Color.parseColor("#00E5FF")); spManager.saveLedColor(Color.parseColor("#00E5FF")) }
-        viewBinding.colorWhite.setOnClickListener { selectColor(it, Color.WHITE); spManager.saveLedColor(Color.WHITE) }
-        viewBinding.colorYellow.setOnClickListener { selectColor(it, DEFAULT_TEXT_COLOR); spManager.saveLedColor(DEFAULT_TEXT_COLOR) }
-        viewBinding.colorGreen.setOnClickListener { selectColor(it, Color.parseColor("#81C784")); spManager.saveLedColor(Color.parseColor("#81C784")) }
-        viewBinding.colorPurple.setOnClickListener { selectColor(it, Color.parseColor("#BA68C8")); spManager.saveLedColor(Color.parseColor("#BA68C8")) }
-        viewBinding.colorCoral.setOnClickListener { selectColor(it, Color.parseColor("#E57373")); spManager.saveLedColor(Color.parseColor("#E57373")) }
+        viewBinding.colorCyan.setOnClickListener { chooseColor(Color.parseColor("#00E5FF")) }
+        viewBinding.colorWhite.setOnClickListener { chooseColor(Color.WHITE) }
+        viewBinding.colorYellow.setOnClickListener { chooseColor(DEFAULT_TEXT_COLOR) }
+        viewBinding.colorGreen.setOnClickListener { chooseColor(Color.parseColor("#81C784")) }
+        viewBinding.colorPurple.setOnClickListener { chooseColor(Color.parseColor("#BA68C8")) }
+        viewBinding.colorCoral.setOnClickListener { chooseColor(Color.parseColor("#E57373")) }
 
-        // Custom color picker icon
         viewBinding.btnCustomColor.setOnClickListener {
-            val dialog = ColorPickerDialog(requireContext(), currentTextColor) { chosenColor ->
-                setLedTextColor(chosenColor)
-                spManager.saveLedColor(chosenColor)
-                colorViews.forEach { (view, viewColor, _) ->
-                    view.backgroundTintList = null
-                    view.background = createUnselectedColorDrawable(viewColor)
+            ColorPickerDialog(requireContext(), currentTextColor) { chosenColor ->
+                updateLedConfig(currentConfig.copy(textColor = chosenColor))
+                ledConfigViewModel.setTextColor(chosenColor)
+            }.show()
+        }
+
+        viewBinding.btnDirRight.setOnClickListener { chooseDirection(R.id.btnDirRight) }
+        viewBinding.btnDirLeft.setOnClickListener { chooseDirection(R.id.btnDirLeft) }
+        viewBinding.btnDirDown.setOnClickListener { chooseDirection(R.id.btnDirDown) }
+        viewBinding.btnDirUp.setOnClickListener { chooseDirection(R.id.btnDirUp) }
+
+        viewBinding.btnEffectGlow.setOnClickListener { chooseEffect(R.id.btnEffectGlow) }
+        viewBinding.btnEffectBlink.setOnClickListener { chooseEffect(R.id.btnEffectBlink) }
+        viewBinding.btnEffectNeon.setOnClickListener { chooseEffect(R.id.btnEffectNeon) }
+        viewBinding.btnEffectfade.setOnClickListener { chooseEffect(R.id.btnEffectfade) }
+        viewBinding.btnFullScreen.setOnClickListener { showFullScreenLed() }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                ledConfigViewModel.config.collect { config ->
+                    updateLedConfig(config)
                 }
             }
-            dialog.show()
-        }
-
-        // Direction listeners with persistence
-        viewBinding.btnDirRight.setOnClickListener { selectDirection(R.id.btnDirRight); spManager.saveLedDirection(R.id.btnDirRight) }
-        viewBinding.btnDirLeft.setOnClickListener { selectDirection(R.id.btnDirLeft); spManager.saveLedDirection(R.id.btnDirLeft) }
-        viewBinding.btnDirDown.setOnClickListener { selectDirection(R.id.btnDirDown); spManager.saveLedDirection(R.id.btnDirDown) }
-        viewBinding.btnDirUp.setOnClickListener { selectDirection(R.id.btnDirUp); spManager.saveLedDirection(R.id.btnDirUp) }
-
-        // Visual Effect listeners with persistence
-        viewBinding.btnEffectGlow.setOnClickListener { selectEffect(R.id.btnEffectGlow); spManager.saveLedEffect(R.id.btnEffectGlow) }
-        viewBinding.btnEffectBlink.setOnClickListener { selectEffect(R.id.btnEffectBlink); spManager.saveLedEffect(R.id.btnEffectBlink) }
-        viewBinding.btnEffectNeon.setOnClickListener { selectEffect(R.id.btnEffectNeon); spManager.saveLedEffect(R.id.btnEffectNeon) }
-        viewBinding.btnEffectfade.setOnClickListener { selectEffect(R.id.btnEffectfade); spManager.saveLedEffect(R.id.btnEffectfade) }
-
-        // Full screen LED button
-        viewBinding.btnFullScreen.setOnClickListener {
-            showFullScreenLed()
         }
     }
 
-    private fun startScrollingAnimation(textView: TextView, speed: Int) {
-        textView.post {
-            val parentWidth = (textView.parent as? View)?.width ?: 1000
-            val parentHeight = (textView.parent as? View)?.height ?: 500
-            val textWidth = textView.paint.measureText(textView.text.toString()).coerceAtLeast(100f) + 100f
-            val textHeight = textView.textSize * 1.5f
+    private fun chooseColor(color: Int) {
+        updateLedConfig(currentConfig.copy(textColor = color))
+        ledConfigViewModel.setTextColor(color)
+    }
 
-            textView.translationX = 0f
-            textView.translationY = 0f
+    private fun chooseDirection(directionId: Int) {
+        updateLedConfig(currentConfig.copy(directionId = directionId))
+        ledConfigViewModel.setDirection(directionId)
+    }
 
-            previewAnimator?.cancel()
-            previewAnimator = when (currentDirectionId) {
-                R.id.btnDirLeft -> {
-                    ValueAnimator.ofFloat(parentWidth.toFloat(), -textWidth).apply {
-                        duration = ((11 - speed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = animator.animatedValue as Float
-                            textView.translationY = 0f
-                        }
-                    }
-                }
-                R.id.btnDirRight -> {
-                    ValueAnimator.ofFloat(-textWidth, parentWidth.toFloat()).apply {
-                        duration = ((11 - speed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = animator.animatedValue as Float
-                            textView.translationY = 0f
-                        }
-                    }
-                }
-                R.id.btnDirUp -> {
-                    ValueAnimator.ofFloat(parentHeight.toFloat(), -textHeight).apply {
-                        duration = ((11 - speed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = 0f
-                            textView.translationY = animator.animatedValue as Float
-                        }
-                    }
-                }
-                R.id.btnDirDown -> {
-                    ValueAnimator.ofFloat(-textHeight, parentHeight.toFloat()).apply {
-                        duration = ((11 - speed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = 0f
-                            textView.translationY = animator.animatedValue as Float
-                        }
-                    }
-                }
-                else -> {
-                    ValueAnimator.ofFloat(parentWidth.toFloat(), -textWidth).apply {
-                        duration = ((11 - speed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = animator.animatedValue as Float
-                            textView.translationY = 0f
-                        }
-                    }
-                }
+    private fun chooseEffect(effectId: Int) {
+        updateLedConfig(currentConfig.copy(effectId = effectId))
+        ledConfigViewModel.setEffect(effectId)
+    }
+
+    private fun updateLedConfig(config: LedConfig) {
+        val previousConfig = currentConfig
+        val directionChanged = config.directionId != previousConfig.directionId
+        val previewEffectChanged = !hasAppliedConfig ||
+            config.effectId != previousConfig.effectId || config.textColor != previousConfig.textColor
+        currentConfig = config
+        currentTextColor = config.textColor
+        currentSpeed = config.scrollSpeed.coerceIn(1, 10)
+        currentEffectId = config.effectId
+        currentDirectionId = config.directionId
+
+        isApplyingConfig = true
+        try {
+            if (viewBinding.etLedText.text.toString() != config.text) {
+                viewBinding.etLedText.setText(config.text)
+                viewBinding.etLedText.setSelection(config.text.length)
             }
-            previewAnimator?.start()
+            viewBinding.sbFontSize.progress = config.fontSizeSp
+            viewBinding.sbScrollSpeed.progress = config.scrollSpeed
+            viewBinding.tvFontSizeValue.text = "${config.fontSizeSp.coerceAtLeast(14)}px"
+            viewBinding.tvScrollSpeedValue.text = "${currentSpeed}s"
+
+            applyTextConfiguration(
+                viewBinding.tvLedPreview,
+                config,
+                applyEffect = previewEffectChanged
+            )
+            selectColorView(config.textColor)
+            selectDirection(config.directionId)
+            selectEffect(config.effectId)
+            previewScroller?.updateTextMetrics()
+            if (directionChanged) previewScroller?.start(resetPosition = true)
+
+            fullScreenTextView?.let { textView ->
+                applyTextConfiguration(textView, config, applyEffect = previewEffectChanged)
+                fullScreenScroller?.updateTextMetrics()
+                if (directionChanged) fullScreenScroller?.start(resetPosition = true)
+            }
+            hasAppliedConfig = true
+        } finally {
+            isApplyingConfig = false
         }
     }
 
-    private fun setLedTextColor(color: Int) {
-        currentTextColor = color
-        viewBinding.tvLedPreview.setTextColor(color)
-        applyTextShadow(viewBinding.tvLedPreview)
-    }
-
-    private fun selectColor(targetView: View, color: Int) {
-        setLedTextColor(color)
-
+    private fun selectColorView(color: Int) {
+        val selectedView = colorViews.firstOrNull { it.second == color }?.first
         colorViews.forEach { (view, viewColor, _) ->
             view.backgroundTintList = null
-            if (view == targetView) {
-                view.background = createSelectedColorDrawable(viewColor)
+            view.background = if (view == selectedView) {
+                createSelectedColorDrawable(viewColor)
             } else {
-                view.background = createUnselectedColorDrawable(viewColor)
+                createUnselectedColorDrawable(viewColor)
             }
         }
+    }
+
+    private fun applyTextConfiguration(textView: TextView, config: LedConfig, applyEffect: Boolean) {
+        textView.text = config.text.ifEmpty { "HELLO WORLD" }
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, config.fontSizeSp.coerceAtLeast(14).toFloat())
+        textView.setTextColor(config.textColor)
+        textView.maxLines = 1
+        textView.isSingleLine = true
+        textView.setHorizontallyScrolling(true)
+        textView.ellipsize = null
+        if (applyEffect) applyEffectToTextView(textView, config.effectId)
     }
 
     private fun selectDirection(directionId: Int) {
@@ -287,7 +238,6 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
                 v.setBackgroundResource(R.drawable.bg_option_drec_unselected)
             }
         }
-        startScrollingAnimation(viewBinding.tvLedPreview, currentSpeed)
     }
 
     private fun selectEffect(effectId: Int) {
@@ -303,7 +253,6 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
             }
         }
 
-        applyEffectToTextView(viewBinding.tvLedPreview, effectId)
     }
 
     private fun applyEffectToTextView(textView: TextView, effectId: Int) {
@@ -371,116 +320,75 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     private fun showFullScreenLed() {
         val act = activity ?: return
+        if (fullScreenDialog?.isShowing == true) return
+
+        previewScroller?.stop()
+        previousRequestedOrientation = act.requestedOrientation
         act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-        val dialog = android.app.Dialog(act, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-        val previewSp = viewBinding.tvLedPreview.textSize / resources.displayMetrics.scaledDensity
-
-        val textView = TextView(act).apply {
-            text = viewBinding.tvLedPreview.text
-            setTextColor(currentTextColor)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, previewSp * 1.5f)
-            typeface = viewBinding.tvLedPreview.typeface
-            isSingleLine = true
-            gravity = Gravity.CENTER
+        val dialog = Dialog(act, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        val viewport = FrameLayout(act).apply {
             setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            clipToPadding = true
         }
-
-        applyEffectToTextView(textView, currentEffectId)
-
-        // Start animation on full screen text view
-        textView.post {
-            val parentWidth = act.resources.displayMetrics.widthPixels.toFloat()
-            val parentHeight = act.resources.displayMetrics.heightPixels.toFloat()
-            val textWidth = textView.paint.measureText(textView.text.toString()).coerceAtLeast(100f) + 100f
-            val textHeight = textView.textSize * 1.5f
-
-            textView.translationX = 0f
-            textView.translationY = 0f
-
-            fullScreenAnimator?.cancel()
-            fullScreenAnimator = when (currentDirectionId) {
-                R.id.btnDirLeft -> {
-                    ValueAnimator.ofFloat(parentWidth, -textWidth).apply {
-                        duration = ((11 - currentSpeed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = animator.animatedValue as Float
-                            textView.translationY = 0f
-                        }
-                    }
-                }
-                R.id.btnDirRight -> {
-                    ValueAnimator.ofFloat(-textWidth, parentWidth).apply {
-                        duration = ((11 - currentSpeed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = animator.animatedValue as Float
-                            textView.translationY = 0f
-                        }
-                    }
-                }
-                R.id.btnDirUp -> {
-                    ValueAnimator.ofFloat(parentHeight, -textHeight).apply {
-                        duration = ((11 - currentSpeed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = 0f
-                            textView.translationY = animator.animatedValue as Float
-                        }
-                    }
-                }
-                R.id.btnDirDown -> {
-                    ValueAnimator.ofFloat(-textHeight, parentHeight).apply {
-                        duration = ((11 - currentSpeed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = 0f
-                            textView.translationY = animator.animatedValue as Float
-                        }
-                    }
-                }
-                else -> {
-                    ValueAnimator.ofFloat(parentWidth, -textWidth).apply {
-                        duration = ((11 - currentSpeed) * 900L).coerceIn(800L, 10000L)
-                        repeatCount = ValueAnimator.INFINITE
-                        repeatMode = ValueAnimator.RESTART
-                        interpolator = LinearInterpolator()
-                        addUpdateListener { animator ->
-                            textView.translationX = animator.animatedValue as Float
-                            textView.translationY = animator.animatedValue as Float
-                        }
-                    }
-                }
-            }
-            fullScreenAnimator?.start()
+        val textView = TextView(act).apply {
+            typeface = viewBinding.tvLedPreview.typeface
+            gravity = Gravity.CENTER
+            setBackgroundColor(Color.TRANSPARENT)
         }
+        viewport.addView(
+            textView,
+            FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER)
+        )
+        applyTextConfiguration(textView, currentConfig, applyEffect = true)
 
-        textView.setOnClickListener {
-            fullScreenAnimator?.cancel()
-            dialog.dismiss()
-        }
+        val scroller = LedScrollController(textView, viewport) { currentConfig }
+        fullScreenDialog = dialog
+        fullScreenTextView = textView
+        fullScreenScroller = scroller
 
-        dialog.setContentView(textView)
+        textView.setOnClickListener { dialog.dismiss() }
+        dialog.setContentView(viewport)
         dialog.setOnDismissListener {
-            fullScreenAnimator?.cancel()
-            act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            fullScreenScroller?.dispose()
+            fullScreenScroller = null
+            fullScreenTextView = null
+            fullScreenDialog = null
+            previousRequestedOrientation?.let { act.requestedOrientation = it }
+            previousRequestedOrientation = null
+            if (isResumed) previewScroller?.start()
         }
         dialog.show()
+        viewport.post {
+            scroller.updateTextMetrics()
+            scroller.start()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (fullScreenDialog?.isShowing == true) {
+            fullScreenScroller?.start()
+        } else {
+            previewScroller?.start()
+        }
+    }
+
+    override fun onPause() {
+        previewScroller?.stop()
+        fullScreenScroller?.stop()
+        super.onPause()
     }
 
     override fun onDestroyView() {
-        previewAnimator?.cancel()
-        fullScreenAnimator?.cancel()
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        previewScroller?.dispose()
+        previewScroller = null
+        fullScreenScroller?.dispose()
+        fullScreenScroller = null
+        fullScreenDialog?.dismiss()
+        fullScreenDialog = null
+        fullScreenTextView = null
         super.onDestroyView()
     }
 

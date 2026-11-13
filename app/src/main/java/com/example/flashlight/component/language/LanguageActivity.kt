@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flashlight.base.activity.BaseActivity
 import com.example.flashlight.component.onboard.OnboardingActivity
 import com.example.flashlight.data.model.Language
+import com.example.flashlight.data.model.LanguageOptions
 import com.example.flashlight.utils.LocaleHelper
 import com.example.flashlight.utils.SpManager
 import com.kt.flashlight.R
@@ -45,14 +46,7 @@ class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
         val currentLang = spManager.getLanguage()
         selectedLanguage = currentLang
 
-        val languages = listOf(
-            Language("en", R.drawable.ic_eng, R.string.english),
-            Language("vi", R.drawable.ic_vn, R.string.vietnamese),
-            Language("hi", R.drawable.ic_hin, R.string.hindi),
-            Language("es", R.drawable.ic_span, R.string.spanish),
-            Language("fr", R.drawable.ic_french, R.string.french),
-            Language("pt", R.drawable.ic_portu, R.string.portuguese)
-        )
+        val languages = LanguageOptions.all
 
         adapter = LanguageAdapter(languages) { selected ->
             selectedLanguage = selected

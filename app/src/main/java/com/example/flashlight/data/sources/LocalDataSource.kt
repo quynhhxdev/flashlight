@@ -5,6 +5,7 @@ import com.kt.flashlight.R
 import com.example.flashlight.data.database.AppDatabase
 import com.example.flashlight.data.database.table.TableTest
 import com.example.flashlight.data.model.Language
+import com.example.flashlight.data.model.LanguageOptions
 import com.example.flashlight.data.model.OnBoarding
 import com.example.flashlight.data.model.PermissionModel
 import com.example.flashlight.utils.Permission as PermissionRequest
@@ -12,14 +13,7 @@ import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(private val appDatabase: AppDatabase) {
     fun getListLanguage(): List<Language> {
-        return listOf(
-            Language("en", R.drawable.ic_eng, R.string.english),
-            Language("vi", R.drawable.ic_vn, R.string.vietnamese),
-            Language("hi", R.drawable.ic_hin, R.string.hindi),
-            Language("es", R.drawable.ic_span, R.string.spanish),
-            Language("fr", R.drawable.ic_french, R.string.french),
-            Language("pt", R.drawable.ic_portu, R.string.portuguese)
-        )
+        return LanguageOptions.all
     }
 
     fun getListOnBoarding(): List<OnBoarding> {

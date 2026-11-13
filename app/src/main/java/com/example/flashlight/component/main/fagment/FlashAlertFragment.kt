@@ -7,26 +7,24 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.language.LanguageActivity
-import com.example.flashlight.component.main.MainActivity
 import com.example.flashlight.component.main.dialog.RatingDialog
 import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.openBrowser
 import com.example.flashlight.utils.share
-import com.kt.flashlight.databinding.FragmentSettingsBinding
+import com.kt.flashlight.databinding.FragmentFlashAlertBinding
 
-class FlashAlertFragment : BaseFragment<FragmentSettingsBinding>() {
+class FlashAlertFragment : BaseFragment<FragmentFlashAlertBinding>() {
 
     private val languageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             updateCurrentLanguageText()
-            (activity as? MainActivity)?.selectTab(MainActivity.TAB_SETTINGS)
         }
     }
 
     override fun provideViewBinding(container: ViewGroup?) =
-        FragmentSettingsBinding.inflate(layoutInflater, container, false)
+        FragmentFlashAlertBinding.inflate(layoutInflater, container, false)
 
     override fun initViews() {
         viewBinding.layoutBottomNav.root.isVisible = false
@@ -67,7 +65,6 @@ class FlashAlertFragment : BaseFragment<FragmentSettingsBinding>() {
     override fun onResume() {
         super.onResume()
         updateCurrentLanguageText()
-        (activity as? MainActivity)?.selectTab(MainActivity.TAB_SETTINGS)
     }
 
     private fun updateCurrentLanguageText() {

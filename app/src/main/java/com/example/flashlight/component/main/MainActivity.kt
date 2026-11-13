@@ -28,7 +28,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
         if (savedInstanceState == null) {
             selectTab(TAB_FLASHLIGHT)
+        } else {
+            currentTab = savedInstanceState.getInt(KEY_SELECTED_TAB, TAB_FLASHLIGHT)
+            updateNavState(currentTab)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_SELECTED_TAB, currentTab)
     }
 
     private fun setupBottomNavigation() = with(binding.layoutBottomNav) {
@@ -91,6 +99,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     companion object {
+        private const val KEY_SELECTED_TAB = "selected_tab"
+
         const val TAB_FLASHLIGHT = 1
         const val TAB_SCREEN_LIGHT = 2
         const val TAB_LED = 3
