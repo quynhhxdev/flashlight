@@ -26,6 +26,14 @@ class LedConfigViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setFontSizeSp(size: Int) {
+        persistFontSizeSp(size)
+    }
+
+    fun updateFontSizeInMemory(size: Int) {
+        _config.update { it.copy(fontSizeSp = size) }
+    }
+
+    fun persistFontSizeSp(size: Int) {
         _config.update { it.copy(fontSizeSp = size) }
         viewModelScope.launch { repository.setFontSizeSp(size) }
     }
@@ -35,7 +43,20 @@ class LedConfigViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch { repository.setTextColor(color) }
     }
 
+    fun setShadowColor(color: Int) {
+        _config.update { it.copy(shadowColor = color) }
+        viewModelScope.launch { repository.setShadowColor(color) }
+    }
+
     fun setScrollSpeed(speed: Int) {
+        persistScrollSpeed(speed)
+    }
+
+    fun updateScrollSpeedInMemory(speed: Int) {
+        _config.update { it.copy(scrollSpeed = speed) }
+    }
+
+    fun persistScrollSpeed(speed: Int) {
         _config.update { it.copy(scrollSpeed = speed) }
         viewModelScope.launch { repository.setScrollSpeed(speed) }
     }

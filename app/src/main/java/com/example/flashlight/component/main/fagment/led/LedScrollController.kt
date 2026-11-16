@@ -20,10 +20,24 @@ class LedScrollController(
     private var isDisposed = false
     private var lastFrameTimeNanos = 0L
 
+    private var cachedViewportWidth = 0f
+    private var cachedViewportHeight = 0f
+    private var cachedDirectionId = 0
+    private var cachedIsVertical = false
+    private var cachedIsScrollable = false
+    private var cachedTargetLeft = 0f
+    private var cachedTargetTop = 0f
+    private var cachedStaticTargetLeft = 0f
+    private var cachedStaticTargetTop = 0f
+    private var cachedBaseLeft = 0f
+    private var cachedBaseTop = 0f
+    private var cachedDurationSeconds = 5f
+
     private val viewportLayoutChangeListener = View.OnLayoutChangeListener {
             _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
         if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
             updateTextMetrics()
+            start(resetPosition = false)
         }
     }
 
@@ -35,20 +49,24 @@ class LedScrollController(
                 return
             }
 
-            val viewportWidth = (viewport.width - viewport.paddingLeft - viewport.paddingRight).toFloat()
-            val viewportHeight = (viewport.height - viewport.paddingTop - viewport.paddingBottom).toFloat()
-            if (viewportWidth <= 0f || viewportHeight <= 0f || textWidthPx <= 0 || textHeightPx <= 0) {
+            if (cachedViewportWidth <= 0f || cachedViewportHeight <= 0f || textWidthPx <= 0 || textHeightPx <= 0) {
+                viewport.postOnAnimation(this)
+                return
+            }
+
+            if (!cachedIsScrollable) {
+                applyPosition()
                 viewport.postOnAnimation(this)
                 return
             }
 
             val nowNanos = System.nanoTime()
             if (!positionInitialized) {
-                resetPosition(viewportWidth, viewportHeight)
+                resetPosition(cachedViewportWidth, cachedViewportHeight)
                 positionInitialized = true
             } else if (lastFrameTimeNanos > 0L) {
-                val elapsedSeconds = (nowNanos - lastFrameTimeNanos) / 1_000_000_000f
-                advancePosition(elapsedSeconds, viewportWidth, viewportHeight)
+                val elapsedSeconds = ((nowNanos - lastFrameTimeNanos) / 1_000_000_000f).coerceIn(0.001f, 0.05f)
+                advancePosition(elapsedSeconds, cachedViewportWidth, cachedViewportHeight)
             }
             lastFrameTimeNanos = nowNanos
             applyPosition()
@@ -62,16 +80,26 @@ class LedScrollController(
     }
 
     fun updateTextMetrics() {
-        val contentWidth = ceil(Layout.getDesiredWidth(textView.text, textView.paint).toDouble())
-            .toInt()
-            .coerceAtLeast(0)
-        val requiredWidth = (contentWidth + textView.compoundPaddingLeft + textView.compoundPaddingRight)
-            .coerceAtLeast(1)
+        val paint = textView.paint
+        val textCharSequence = textView.text ?: ""
+        val textStr = textCharSequence.toString()
+
+        val desiredWidth = ceil(Layout.getDesiredWidth(textCharSequence, paint).toDouble()).toInt()
+        val paintWidth = ceil(paint.measureText(textStr).toDouble()).toInt()
+        val contentWidth = maxOf(desiredWidth, paintWidth).coerceAtLeast(0)
+
+        val shadowBuffer = ceil(textView.shadowRadius * 2f).toInt()
+        val overhangBuffer = ceil(paint.textSize * 0.1f).toInt()
+        val extraBuffer = (shadowBuffer + overhangBuffer + 16).coerceAtLeast(16)
+
+        val paddingHorizontal = textView.compoundPaddingLeft + textView.compoundPaddingRight
+        val requiredWidth = (contentWidth + paddingHorizontal + extraBuffer).coerceAtLeast(1)
 
         val layoutParams = textView.layoutParams
         if (layoutParams != null && layoutParams.width != requiredWidth) {
             layoutParams.width = requiredWidth
             textView.layoutParams = layoutParams
+            textView.requestLayout()
         }
 
         textView.measure(
@@ -79,11 +107,40 @@ class LedScrollController(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
         textWidthPx = requiredWidth
-        textHeightPx = textView.measuredHeight
+        textHeightPx = textView.measuredHeight.coerceAtLeast(1)
+        recalculateCache()
+    }
+
+    private fun recalculateCache() {
+        val current = config()
+        cachedViewportWidth = (viewport.width - viewport.paddingLeft - viewport.paddingRight).toFloat().coerceAtLeast(0f)
+        cachedViewportHeight = (viewport.height - viewport.paddingTop - viewport.paddingBottom).toFloat().coerceAtLeast(0f)
+        cachedDirectionId = current.directionId
+        cachedIsVertical = cachedDirectionId == R.id.btnDirUp || cachedDirectionId == R.id.btnDirDown
+        cachedIsScrollable = cachedIsVertical || textWidthPx > cachedViewportWidth
+
+        cachedDurationSeconds = ((11 - current.scrollSpeed.coerceIn(1, 10)) * 900L).coerceIn(800L, 10000L) / 1000f
+
+        cachedStaticTargetLeft = viewport.paddingLeft + (cachedViewportWidth - textWidthPx) / 2f
+        cachedStaticTargetTop = viewport.paddingTop + (cachedViewportHeight - textHeightPx) / 2f
+
+        cachedBaseLeft = (textView.left - viewport.paddingLeft).toFloat()
+        cachedBaseTop = (textView.top - viewport.paddingTop).toFloat()
+
+        if (cachedIsVertical) {
+            cachedTargetLeft = if (textWidthPx > cachedViewportWidth) {
+                viewport.paddingLeft.toFloat()
+            } else {
+                viewport.paddingLeft + (cachedViewportWidth - textWidthPx) / 2f
+            }
+        } else {
+            cachedTargetTop = viewport.paddingTop + (cachedViewportHeight - textHeightPx) / 2f
+        }
     }
 
     fun start(resetPosition: Boolean = false) {
         if (isDisposed) return
+        recalculateCache()
         if (resetPosition) {
             positionInitialized = false
             stop()
@@ -108,13 +165,13 @@ class LedScrollController(
     }
 
     private fun resetPosition(viewportWidth: Float, viewportHeight: Float) {
-        when (config().directionId) {
-            R.id.btnDirLeft -> {
-                translationX = viewportWidth
-                translationY = 0f
-            }
+        when (cachedDirectionId) {
             R.id.btnDirRight -> {
                 translationX = -textWidthPx.toFloat()
+                translationY = 0f
+            }
+            R.id.btnDirLeft -> {
+                translationX = viewportWidth
                 translationY = 0f
             }
             R.id.btnDirUp -> {
@@ -126,78 +183,81 @@ class LedScrollController(
                 translationY = -textHeightPx.toFloat()
             }
             else -> {
-                translationX = viewportWidth
+                translationX = -textWidthPx.toFloat()
                 translationY = 0f
             }
         }
     }
 
     private fun advancePosition(elapsedSeconds: Float, viewportWidth: Float, viewportHeight: Float) {
-        val current = config()
         val textWidth = textWidthPx.toFloat()
         val textHeight = textHeightPx.toFloat()
-        val durationSeconds = ((11 - current.scrollSpeed) * 900L)
-            .coerceIn(800L, 10000L) / 1000f
+        val durationSeconds = cachedDurationSeconds
 
-        when (current.directionId) {
+        when (cachedDirectionId) {
             R.id.btnDirRight -> {
-                if (translationX >= viewportWidth) translationX = -textWidth
                 val cycleDistance = viewportWidth + textWidth
-                val travelDistance = cycleDistance * elapsedSeconds / durationSeconds
-                val distanceToExit = (viewportWidth - translationX).coerceAtLeast(0f)
-                translationX = if (travelDistance < distanceToExit) {
-                    translationX + travelDistance
-                } else {
-                    -textWidth + ((travelDistance - distanceToExit) % cycleDistance)
+                val travelDistance = cycleDistance * (elapsedSeconds / durationSeconds)
+                translationX += travelDistance
+                if (translationX >= viewportWidth) {
+                    val overflow = (translationX - viewportWidth) % cycleDistance
+                    translationX = -textWidth + overflow
+                }
+            }
+            R.id.btnDirLeft -> {
+                val cycleDistance = viewportWidth + textWidth
+                val travelDistance = cycleDistance * (elapsedSeconds / durationSeconds)
+                translationX -= travelDistance
+                if (translationX + textWidth <= 0f) {
+                    val overflow = (-textWidth - translationX) % cycleDistance
+                    translationX = viewportWidth - overflow
                 }
             }
             R.id.btnDirUp -> {
-                if (translationY + textHeight <= 0f) translationY = viewportHeight
                 val cycleDistance = viewportHeight + textHeight
-                val travelDistance = cycleDistance * elapsedSeconds / durationSeconds
-                val distanceToExit = (translationY + textHeight).coerceAtLeast(0f)
-                translationY = if (travelDistance < distanceToExit) {
-                    translationY - travelDistance
-                } else {
-                    viewportHeight - ((travelDistance - distanceToExit) % cycleDistance)
+                val travelDistance = cycleDistance * (elapsedSeconds / durationSeconds)
+                translationY -= travelDistance
+                if (translationY + textHeight <= 0f) {
+                    val overflow = (-textHeight - translationY) % cycleDistance
+                    translationY = viewportHeight - overflow
                 }
             }
             R.id.btnDirDown -> {
-                if (translationY >= viewportHeight) translationY = -textHeight
                 val cycleDistance = viewportHeight + textHeight
-                val travelDistance = cycleDistance * elapsedSeconds / durationSeconds
-                val distanceToExit = (viewportHeight - translationY).coerceAtLeast(0f)
-                translationY = if (travelDistance < distanceToExit) {
-                    translationY + travelDistance
-                } else {
-                    -textHeight + ((travelDistance - distanceToExit) % cycleDistance)
+                val travelDistance = cycleDistance * (elapsedSeconds / durationSeconds)
+                translationY += travelDistance
+                if (translationY >= viewportHeight) {
+                    val overflow = (translationY - viewportHeight) % cycleDistance
+                    translationY = -textHeight + overflow
                 }
             }
             else -> {
-                if (translationX + textWidth <= 0f) translationX = viewportWidth
                 val cycleDistance = viewportWidth + textWidth
-                val travelDistance = cycleDistance * elapsedSeconds / durationSeconds
-                val distanceToExit = (translationX + textWidth).coerceAtLeast(0f)
-                translationX = if (travelDistance < distanceToExit) {
-                    translationX - travelDistance
-                } else {
-                    viewportWidth - ((travelDistance - distanceToExit) % cycleDistance)
+                val travelDistance = cycleDistance * (elapsedSeconds / durationSeconds)
+                translationX += travelDistance
+                if (translationX >= viewportWidth) {
+                    val overflow = (translationX - viewportWidth) % cycleDistance
+                    translationX = -textWidth + overflow
                 }
             }
         }
     }
 
     private fun applyPosition() {
-        val direction = config().directionId
-        val isVertical = direction == R.id.btnDirUp || direction == R.id.btnDirDown
-        if (isVertical) {
-            textView.translationX = 0f
-            val baseTop = (textView.top - viewport.paddingTop).toFloat()
-            textView.translationY = translationY - baseTop
+        if (cachedViewportWidth <= 0f || cachedViewportHeight <= 0f) return
+
+        if (!cachedIsScrollable) {
+            textView.translationX = cachedStaticTargetLeft - textView.left
+            textView.translationY = cachedStaticTargetTop - textView.top
+            return
+        }
+
+        if (cachedIsVertical) {
+            textView.translationX = cachedTargetLeft - textView.left
+            textView.translationY = translationY - cachedBaseTop
         } else {
-            val baseLeft = (textView.left - viewport.paddingLeft).toFloat()
-            textView.translationX = translationX - baseLeft
-            textView.translationY = 0f
+            textView.translationY = cachedTargetTop - textView.top
+            textView.translationX = translationX - cachedBaseLeft
         }
     }
 }

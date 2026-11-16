@@ -29,6 +29,7 @@ import com.example.flashlight.component.main.dialog.ColorPickerDialog
 import com.example.flashlight.component.main.fagment.led.LedConfig
 import com.example.flashlight.component.main.fagment.led.LedConfigViewModel
 import com.example.flashlight.component.main.fagment.led.LedScrollController
+import com.example.flashlight.utils.SpManager
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentLedBinding
 import kotlinx.coroutines.launch
@@ -36,10 +37,10 @@ import kotlinx.coroutines.launch
 class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     private var currentTextColor = DEFAULT_TEXT_COLOR
-    private val shadowColor = SHADOW_COLOR
+    private var currentShadowColor: Int? = null
     private var currentSpeed = 5
     private var currentEffectId = R.id.btnEffectGlow
-    private var currentDirectionId = R.id.btnDirLeft
+    private var currentDirectionId = R.id.btnDirRight
     private lateinit var ledConfigViewModel: LedConfigViewModel
     private var currentConfig = LedConfig()
     private var isApplyingConfig = false
@@ -66,8 +67,11 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     override fun initViews() {
         viewBinding.layoutBottomNav.root.isVisible = false
+        val spManager = SpManager.getInstance(requireContext())
         ledConfigViewModel = ViewModelProvider(requireActivity())[LedConfigViewModel::class.java]
         currentConfig = ledConfigViewModel.config.value
+        currentTextColor = currentConfig.textColor
+        currentShadowColor = currentConfig.shadowColor
         previewScroller = LedScrollController(
             viewBinding.tvLedPreview,
             viewBinding.tvLedPreview.parent as View
@@ -92,25 +96,52 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (!isApplyingConfig) {
                     val size = progress.coerceAtLeast(14)
-                    updateLedConfig(currentConfig.copy(fontSizeSp = size))
-                    ledConfigViewModel.setFontSizeSp(size)
+                    if (size != currentConfig.fontSizeSp) {
+                        val newConfig = currentConfig.copy(fontSizeSp = size)
+                        updateLedConfig(newConfig)
+                        if (fromUser) {
+                            ledConfigViewModel.updateFontSizeInMemory(size)
+                        }
+                    }
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                val size = (seekBar?.progress ?: currentConfig.fontSizeSp).coerceAtLeast(14)
+                ledConfigViewModel.persistFontSizeSp(size)
+            }
         })
 
         viewBinding.sbScrollSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (!isApplyingConfig) {
                     val speed = progress.coerceIn(1, 10)
-                    updateLedConfig(currentConfig.copy(scrollSpeed = speed))
-                    ledConfigViewModel.setScrollSpeed(speed)
+                    if (speed != currentConfig.scrollSpeed) {
+                        val newConfig = currentConfig.copy(scrollSpeed = speed)
+                        updateLedConfig(newConfig)
+                        if (fromUser) {
+                            ledConfigViewModel.updateScrollSpeedInMemory(speed)
+                        }
+                    }
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                val speed = (seekBar?.progress ?: currentConfig.scrollSpeed).coerceIn(1, 10)
+                ledConfigViewModel.persistScrollSpeed(speed)
+            }
         })
+
+        viewBinding.cardLedPreview.setOnClickListener {
+            val initialColor = currentConfig.shadowColor
+                ?: if (currentConfig.effectId == R.id.btnEffectNeon) currentTextColor else DEFAULT_SHADOW_COLOR
+            val dialog = ColorPickerDialog(requireContext(), initialColor) { chosenColor ->
+                spManager.saveLedShadowColor(chosenColor)
+                updateLedConfig(currentConfig.copy(shadowColor = chosenColor))
+                ledConfigViewModel.setShadowColor(chosenColor)
+            }
+            dialog.show()
+        }
 
         viewBinding.colorCyan.setOnClickListener { chooseColor(Color.parseColor("#00E5FF")) }
         viewBinding.colorWhite.setOnClickListener { chooseColor(Color.WHITE) }
@@ -163,11 +194,14 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     private fun updateLedConfig(config: LedConfig) {
         val previousConfig = currentConfig
-        val directionChanged = config.directionId != previousConfig.directionId
-        val previewEffectChanged = !hasAppliedConfig ||
-            config.effectId != previousConfig.effectId || config.textColor != previousConfig.textColor
+        val directionChanged = !hasAppliedConfig || config.directionId != previousConfig.directionId
+        val colorChanged = !hasAppliedConfig || config.textColor != previousConfig.textColor
+        val shadowColorChanged = !hasAppliedConfig || config.shadowColor != previousConfig.shadowColor
+        val effectChanged = !hasAppliedConfig || config.effectId != previousConfig.effectId
+
         currentConfig = config
         currentTextColor = config.textColor
+        currentShadowColor = config.shadowColor
         currentSpeed = config.scrollSpeed.coerceIn(1, 10)
         currentEffectId = config.effectId
         currentDirectionId = config.directionId
@@ -178,26 +212,41 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
                 viewBinding.etLedText.setText(config.text)
                 viewBinding.etLedText.setSelection(config.text.length)
             }
-            viewBinding.sbFontSize.progress = config.fontSizeSp
-            viewBinding.sbScrollSpeed.progress = config.scrollSpeed
+            if (viewBinding.sbFontSize.progress != config.fontSizeSp) {
+                viewBinding.sbFontSize.progress = config.fontSizeSp
+            }
+            if (viewBinding.sbScrollSpeed.progress != config.scrollSpeed) {
+                viewBinding.sbScrollSpeed.progress = config.scrollSpeed
+            }
             viewBinding.tvFontSizeValue.text = "${config.fontSizeSp.coerceAtLeast(14)}px"
             viewBinding.tvScrollSpeedValue.text = "${currentSpeed}s"
 
+            val previewViewport = viewBinding.tvLedPreview.parent as? View
             applyTextConfiguration(
                 viewBinding.tvLedPreview,
                 config,
-                applyEffect = previewEffectChanged
+                applyEffect = effectChanged || colorChanged || shadowColorChanged,
+                viewport = previewViewport
             )
-            selectColorView(config.textColor)
-            selectDirection(config.directionId)
-            selectEffect(config.effectId)
+
+            if (colorChanged) selectColorView(config.textColor)
+            if (directionChanged) selectDirection(config.directionId)
+            if (effectChanged) selectEffect(config.effectId)
+
             previewScroller?.updateTextMetrics()
-            if (directionChanged) previewScroller?.start(resetPosition = true)
+            val resetPos = directionChanged || !hasAppliedConfig
+            previewScroller?.start(resetPosition = resetPos)
 
             fullScreenTextView?.let { textView ->
-                applyTextConfiguration(textView, config, applyEffect = previewEffectChanged)
+                val fullScreenViewport = textView.parent as? View
+                applyTextConfiguration(
+                    textView,
+                    config,
+                    applyEffect = effectChanged || colorChanged || shadowColorChanged,
+                    viewport = fullScreenViewport
+                )
                 fullScreenScroller?.updateTextMetrics()
-                if (directionChanged) fullScreenScroller?.start(resetPosition = true)
+                fullScreenScroller?.start(resetPosition = resetPos)
             }
             hasAppliedConfig = true
         } finally {
@@ -217,15 +266,54 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         }
     }
 
-    private fun applyTextConfiguration(textView: TextView, config: LedConfig, applyEffect: Boolean) {
-        textView.text = config.text.ifEmpty { "HELLO WORLD" }
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, config.fontSizeSp.coerceAtLeast(14).toFloat())
-        textView.setTextColor(config.textColor)
+    private fun applyTextConfiguration(
+        textView: TextView,
+        config: LedConfig,
+        applyEffect: Boolean,
+        viewport: View? = null
+    ) {
+        val targetText = config.text.ifEmpty { "HELLO WORLD" }
+        if (textView.text?.toString() != targetText) {
+            textView.text = targetText
+        }
         textView.maxLines = 1
         textView.isSingleLine = true
         textView.setHorizontallyScrolling(true)
         textView.ellipsize = null
-        if (applyEffect) applyEffectToTextView(textView, config.effectId)
+        textView.setTextColor(config.textColor)
+
+        val targetSp = config.fontSizeSp.coerceAtLeast(14).toFloat()
+        val effectiveSp = calculateEffectiveFontSizeSp(textView, targetSp, viewport)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, effectiveSp)
+
+        if (applyEffect) applyEffectToTextView(textView, config.effectId, config.shadowColor)
+    }
+
+    private fun calculateEffectiveFontSizeSp(
+        textView: TextView,
+        targetSp: Float,
+        viewport: View?
+    ): Float {
+        if (viewport == null) return targetSp
+        val viewportHeight = viewport.height - viewport.paddingTop - viewport.paddingBottom
+        if (viewportHeight <= 0) return targetSp
+
+        val shadowRadius = textView.shadowRadius
+        val extraMargin = dpToPx(12) + (shadowRadius * 2f).toInt()
+        val maxAllowedHeight = (viewportHeight - extraMargin).coerceAtLeast(30)
+
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, targetSp)
+        textView.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        val measuredH = textView.measuredHeight
+        if (measuredH <= maxAllowedHeight || measuredH <= 0) {
+            return targetSp
+        }
+
+        val scale = maxAllowedHeight.toFloat() / measuredH.toFloat()
+        return (targetSp * scale).coerceAtLeast(14f)
     }
 
     private fun selectDirection(directionId: Int) {
@@ -255,17 +343,21 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     }
 
-    private fun applyEffectToTextView(textView: TextView, effectId: Int) {
+    private fun applyEffectToTextView(
+        textView: TextView,
+        effectId: Int,
+        shadowColor: Int? = currentShadowColor
+    ) {
         textView.clearAnimation()
         textView.alpha = 1.0f
-        textView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        textView.setLayerType(View.LAYER_TYPE_NONE, null)
 
         when (effectId) {
             R.id.btnEffectGlow -> {
-                applyTextShadow(textView)
+                applyTextShadow(textView, shadowColor ?: DEFAULT_SHADOW_COLOR)
             }
             R.id.btnEffectBlink -> {
-                applyTextShadow(textView)
+                applyTextShadow(textView, shadowColor ?: DEFAULT_SHADOW_COLOR)
                 val anim = AlphaAnimation(1f, 0f).apply {
                     duration = 200
                     repeatCount = Animation.INFINITE
@@ -275,10 +367,11 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
                 textView.startAnimation(anim)
             }
             R.id.btnEffectNeon -> {
-                textView.setShadowLayer(40f, 0f, 0f, currentTextColor)
+                val neonShadowColor = shadowColor ?: currentTextColor
+                textView.setShadowLayer(40f, 0f, 0f, neonShadowColor)
             }
             R.id.btnEffectfade -> {
-                applyTextShadow(textView)
+                applyTextShadow(textView, shadowColor ?: DEFAULT_SHADOW_COLOR)
                 val anim = AlphaAnimation(0.2f, 1f).apply {
                     duration = 1000
                     repeatCount = Animation.INFINITE
@@ -286,6 +379,9 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
                     interpolator = AccelerateDecelerateInterpolator()
                 }
                 textView.startAnimation(anim)
+            }
+            else -> {
+                applyTextShadow(textView, shadowColor ?: DEFAULT_SHADOW_COLOR)
             }
         }
     }
@@ -314,7 +410,10 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         return (dp * resources.displayMetrics.density).toInt()
     }
 
-    private fun applyTextShadow(textView: TextView) {
+    private fun applyTextShadow(
+        textView: TextView,
+        shadowColor: Int = currentShadowColor ?: DEFAULT_SHADOW_COLOR
+    ) {
         textView.setShadowLayer(20f, 0f, 0f, shadowColor)
     }
 
@@ -341,7 +440,7 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
             textView,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER)
         )
-        applyTextConfiguration(textView, currentConfig, applyEffect = true)
+        applyTextConfiguration(textView, currentConfig, applyEffect = true, viewport = viewport)
 
         val scroller = LedScrollController(textView, viewport) { currentConfig }
         fullScreenDialog = dialog
@@ -361,8 +460,9 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         }
         dialog.show()
         viewport.post {
+            applyTextConfiguration(textView, currentConfig, applyEffect = true, viewport = viewport)
             scroller.updateTextMetrics()
-            scroller.start()
+            scroller.start(resetPosition = true)
         }
     }
 
@@ -394,7 +494,7 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     companion object {
         private val DEFAULT_TEXT_COLOR = Color.parseColor("#FDE047")
-        private val SHADOW_COLOR = Color.parseColor("#FFD54F")
+        private val DEFAULT_SHADOW_COLOR = Color.parseColor("#FFD54F")
         fun newInstance() = LedFragment()
     }
 }

@@ -56,14 +56,13 @@
                 android:maxLines="1"
                 android:gravity="center"
                 android:paddingHorizontal="24dp"
-                android:paddingVertical="24dp"
                 android:letterSpacing="0.06"
                 android:shadowColor="#FFD54F"
                 android:textColor="#FDE047"
                 android:shadowDx="0"
                 android:shadowDy="0"
                 android:shadowRadius="20"
-                android:text="HELLO WORLD aaaaaaâ"
+                android:text="HELLO WORLD"
                 android:textSize="32sp"
                 android:fontFamily="@font/orbitron_black" />
 

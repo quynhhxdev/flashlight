@@ -145,6 +145,23 @@ class SpManager(private val preferences: SharedPreferences) {
         return preferences.getInt("KEY_LED_COLOR", defaultColor)
     }
 
+    fun saveLedShadowColor(color: Int) {
+        preferences.edit { putInt("KEY_LED_SHADOW_COLOR", color) }
+    }
+    fun getLedShadowColor(defaultColor: Int): Int {
+        return preferences.getInt("KEY_LED_SHADOW_COLOR", defaultColor)
+    }
+    fun hasLedShadowColor(): Boolean {
+        return preferences.contains("KEY_LED_SHADOW_COLOR")
+    }
+    fun getLedShadowColorOrNull(): Int? {
+        return if (preferences.contains("KEY_LED_SHADOW_COLOR")) {
+            preferences.getInt("KEY_LED_SHADOW_COLOR", 0)
+        } else {
+            null
+        }
+    }
+
     fun saveLedDirection(direction: Int) {
         preferences.edit { putInt("KEY_LED_DIRECTION", direction) }
     }

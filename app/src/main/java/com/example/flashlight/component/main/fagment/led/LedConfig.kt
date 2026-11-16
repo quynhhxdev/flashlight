@@ -6,7 +6,8 @@ data class LedConfig(
     val text: String = "HELLO WORLD",
     val fontSizeSp: Int = 32,
     val textColor: Int = 0xFFFDE047.toInt(),
+    val shadowColor: Int? = null,
     val scrollSpeed: Int = 5,
-    val directionId: Int = R.id.btnDirLeft,
+    val directionId: Int = R.id.btnDirRight,
     val effectId: Int = R.id.btnEffectGlow
 )
