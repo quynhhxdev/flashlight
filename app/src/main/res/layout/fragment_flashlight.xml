@@ -81,7 +81,7 @@
             android:id="@+id/btnModeFlash"
             android:layout_width="0dp"
             android:layout_height="85dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="12dp"
             android:layout_weight="1"
             android:background="@drawable/bg_btn_flash"
             android:gravity="center"
@@ -110,7 +110,7 @@
             android:id="@+id/btnModeSos"
             android:layout_width="0dp"
             android:layout_height="85dp"
-            android:layout_marginHorizontal="4dp"
+            android:layout_marginEnd="12dp"
             android:layout_weight="1"
             android:background="@drawable/bg_no_internet_card"
             android:gravity="center"
@@ -139,7 +139,6 @@
             android:id="@+id/btnModeDj"
             android:layout_width="0dp"
             android:layout_height="85dp"
-            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:background="@drawable/bg_no_internet_card"
             android:gravity="center"
@@ -164,113 +163,24 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 4. Native Ad Container Card -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardNativeAd"
+    <!-- 4. Native Ad Container -->
+    <FrameLayout
+        android:id="@+id/nativeAdContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardBackgroundColor="#1E232B"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        android:layout_marginHorizontal="@dimen/_16dp"
+        android:layout_marginTop="@dimen/_48dp"
+        android:background="@color/transparent"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutModes">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <include
+            android:id="@+id/shimmerContainerNative"
+            layout="@layout/loading_native_ad_view_collapsible"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            tools:ignore="RtlSymmetry">
-
-            <!-- Ad Attribution Tag -->
-            <TextView
-                android:id="@+id/tvAdTag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_yelllow_btn"
-                android:paddingHorizontal="4dp"
-                android:paddingVertical="1dp"
-                android:text="Ad"
-                android:textColor="#FFFFFF"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tvAdHeadline"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="8dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Test Ad: Flashlight App"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/tvAdTag"
-                app:layout_constraintEnd_toStartOf="@id/ivAdMedia"
-                app:layout_constraintStart_toEndOf="@id/tvAdTag"
-                app:layout_constraintTop_toTopOf="@id/tvAdTag" />
-
-            <TextView
-                android:id="@+id/tvAdRating"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="★★★★★"
-                android:textColor="#FACC15"
-                android:textSize="10sp"
-                app:layout_constraintEnd_toEndOf="@id/tvAdHeadline"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAdTag" />
-
-            <TextView
-                android:id="@+id/tvAdBody"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:ellipsize="end"
-                android:maxLines="3"
-                android:text="Brightest flashlight LED light for your device!"
-                android:textColor="#94A3B8"
-                android:textSize="11sp"
-                app:layout_constraintEnd_toEndOf="@id/tvAdHeadline"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAdRating" />
-
-            <!-- Media Image Preview -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/ivAdMedia"
-                android:layout_width="160dp"
-                android:layout_height="90dp"
-                app:cardCornerRadius="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/bg_yelllow_btn" />
-            </androidx.cardview.widget.CardView>
-
-            <!-- Call-To-Action Button -->
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnAdCta"
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_yelllow_btn"
-                android:text="Install"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/ivAdMedia" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+            android:layout_height="wrap_content" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

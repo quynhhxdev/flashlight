@@ -12,6 +12,7 @@ import com.example.flashlight.component.main.fagment.FlashlightFragment
 import com.example.flashlight.component.main.fagment.LedFragment
 import com.example.flashlight.component.main.fagment.ScreenLightFragment
 import com.example.flashlight.component.main.fagment.FlashAlertFragment
+import com.example.flashlight.utils.ads.manager.FeatureInterAdsManager
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.ActivityMainBinding
 
@@ -23,6 +24,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Preload inter quảng cáo cho các tính năng ngay khi vào MainActivity
+        FeatureInterAdsManager.preload(this)
 
         setupBottomNavigation()
 
@@ -96,6 +100,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             icon.imageTintList = ColorStateList.valueOf(inactiveColor)
             text.setTextColor(inactiveColor)
         }
+    }
+
+    /**
+     * Điểm vào tập trung để các Fragment kích hoạt inter quảng cáo tính năng.
+     * Fragment chỉ cần gọi hàm này, KHÔNG tự quản lý counter hay logic show ads.
+     *
+     * @param onAdFinished Callback được gọi sau khi ads đóng hoặc bị bỏ qua
+     *                     (Fragment tiến hành hành động thực sự sau đây, vd: bật đèn)
+     */
+    fun triggerFeatureInterAd(onAdFinished: () -> Unit = {}) {
+        FeatureInterAdsManager.onFeatureUsed(
+            activity = this,
+            lifecycleOwner = this,
+            onAdFinished = onAdFinished
+        )
     }
 
     companion object {

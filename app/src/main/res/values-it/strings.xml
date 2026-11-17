@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">Icona dell’app FlashLight</string>
+    <string name="splash_ad_indicator">Annuncio</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">La torcia è pronta.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Ti piace "%1$s"?</string>
+    <string name="rating_desc_default">Il tuo feedback ci aiuta a migliorare. Dedica un momento a valutare la tua esperienza.</string>
+    <string name="rating_title_1">Oh no! Ci dispiace sentirlo.</string>
+    <string name="rating_desc_1">Il tuo feedback è fondamentale per aiutarci a migliorare. Puoi dirci cosa non ha funzionato?</string>
+    <string name="rating_title_2">Che peccato!</string>
+    <string name="rating_desc_2">Cosa potremmo fare per meritare una valutazione di 5 stelle?</string>
+    <string name="rating_title_3">Grazie per il feedback!</string>
+    <string name="rating_desc_3">Ci piacerebbe sapere come possiamo migliorare la tua esperienza.</string>
+    <string name="rating_title_4">Grazie per il tuo supporto!</string>
+    <string name="rating_desc_4">Siamo felici che l’app ti piaccia! Le recensioni pubbliche ci aiutano a crescere.</string>
+    <string name="rating_title_5">Fantastico! Ci hai migliorato la giornata!</string>
+    <string name="rating_desc_5">La tua soddisfazione rende prezioso tutto il nostro impegno.</string>
+    <string name="rating_submit">Invia</string>
+    <string name="english">Inglese</string>
+    <string name="vietnamese">Vietnamita</string>
+    <string name="hindi">Hindi</string>
+    <string name="spanish">Spagnolo</string>
+    <string name="french">Francese</string>
+    <string name="portuguese">Portoghese</string>
+    <string name="korean">Coreano</string>
+    <string name="japanese">Giapponese</string>
+    <string name="german">Tedesco</string>
+    <string name="italian">Italiano</string>
+    <string name="indonesian">Indonesiano</string>
+    <string name="russian">Russo</string>
+    <string name="turkish">Turco</string>
+    <string name="chinese">Cinese</string>
+    <string name="allow_notification_title">Consenti notifiche</string>
+    <string name="allow_notification_content">Consenti le notifiche per ricevere aggiornamenti.</string>
+    <string name="allow_record_audio_title">Consenti la registrazione audio</string>
+    <string name="allow_record_audio_content">Consenti la registrazione audio per le funzioni della torcia.</string>
+    <string name="allow_camera_title">Consenti l’accesso alla fotocamera</string>
+    <string name="allow_camera_content">Consenti l’accesso alla fotocamera per utilizzare il LED della torcia.</string>
+    <string name="choose_one">Scegli</string>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">Biểu tượng ứng dụng FlashLight</string>
+    <string name="splash_ad_indicator">Quảng cáo</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Đèn pin của bạn đã sẵn sàng.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Bạn có thích "%1$s" không?</string>
+    <string name="rating_desc_default">Ý kiến của bạn giúp chúng tôi cải thiện ứng dụng. Hãy dành chút thời gian đánh giá trải nghiệm của bạn nhé.</string>
+    <string name="rating_title_1">Ôi không! Chúng tôi rất tiếc khi nghe điều đó.</string>
+    <string name="rating_desc_1">Ý kiến của bạn rất quan trọng để chúng tôi cải thiện ứng dụng. Bạn có thể cho chúng tôi biết điều gì chưa tốt không?</string>
+    <string name="rating_title_2">Thật đáng tiếc!</string>
+    <string name="rating_desc_2">Chúng tôi cần làm gì để xứng đáng nhận được đánh giá 5 sao từ bạn?</string>
+    <string name="rating_title_3">Cảm ơn bạn đã góp ý!</string>
+    <string name="rating_desc_3">Chúng tôi rất muốn biết cần cải thiện điều gì để mang lại trải nghiệm tốt hơn cho bạn.</string>
+    <string name="rating_title_4">Cảm ơn bạn đã ủng hộ!</string>
+    <string name="rating_desc_4">Chúng tôi rất vui vì bạn yêu thích ứng dụng! Đánh giá công khai giúp chúng tôi phát triển.</string>
+    <string name="rating_title_5">Tuyệt vời! Bạn đã làm ngày hôm nay của chúng tôi thêm vui!</string>
+    <string name="rating_desc_5">Sự hài lòng của bạn khiến mọi nỗ lực của chúng tôi trở nên ý nghĩa.</string>
+    <string name="rating_submit">Gửi</string>
+    <string name="english">Tiếng Anh</string>
+    <string name="vietnamese">Tiếng Việt</string>
+    <string name="hindi">Tiếng Hindi</string>
+    <string name="spanish">Tiếng Tây Ban Nha</string>
+    <string name="french">Tiếng Pháp</string>
+    <string name="portuguese">Tiếng Bồ Đào Nha</string>
+    <string name="korean">Tiếng Hàn</string>
+    <string name="japanese">Tiếng Nhật</string>
+    <string name="german">Tiếng Đức</string>
+    <string name="italian">Tiếng Ý</string>
+    <string name="indonesian">Tiếng Indonesia</string>
+    <string name="russian">Tiếng Nga</string>
+    <string name="turkish">Tiếng Thổ Nhĩ Kỳ</string>
+    <string name="chinese">Tiếng Trung</string>
+    <string name="allow_notification_title">Cho phép thông báo</string>
+    <string name="allow_notification_content">Cho phép thông báo để nhận thông tin cập nhật.</string>
+    <string name="allow_record_audio_title">Cho phép ghi âm</string>
+    <string name="allow_record_audio_content">Cho phép ghi âm để sử dụng các tính năng của đèn pin.</string>
+    <string name="allow_camera_title">Cho phép truy cập camera</string>
+    <string name="allow_camera_content">Cho phép truy cập camera để sử dụng đèn LED của đèn pin.</string>
+    <string name="choose_one">Chọn một</string>
+</resources>

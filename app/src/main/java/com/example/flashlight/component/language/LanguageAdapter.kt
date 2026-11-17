@@ -13,11 +13,11 @@ class LanguageAdapter(
     private val onLanguageSelected: (Language) -> Unit
 ) : RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
 
-    private var selectedCode: String = ""
+    private var selectedCode: String? = null
 
     fun submitList(list: List<Language>, currentCode: String) {
         languages = list
-        selectedCode = currentCode
+        selectedCode = currentCode.ifEmpty { null }
         notifyDataSetChanged()
     }
 
@@ -40,7 +40,7 @@ class LanguageAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(language: Language) {
-            val isSelected = language.languageCode == selectedCode
+            val isSelected = selectedCode != null && language.languageCode == selectedCode
 
             binding.imgFlag.setImageResource(language.iconRes)
             binding.tvLanguageName.text = binding.root.context.getString(language.nameRes)

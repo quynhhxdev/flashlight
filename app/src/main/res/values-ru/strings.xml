@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">Значок приложения FlashLight</string>
+    <string name="splash_ad_indicator">Реклама</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Фонарик готов к работе.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Вам нравится «%1$s»?</string>
+    <string name="rating_desc_default">Ваш отзыв помогает нам становиться лучше. Уделите минуту, чтобы оценить приложение.</string>
+    <string name="rating_title_1">О нет! Нам жаль это слышать.</string>
+    <string name="rating_desc_1">Ваш отзыв очень важен для улучшения приложения. Расскажите, пожалуйста, что пошло не так.</string>
+    <string name="rating_title_2">Как жаль!</string>
+    <string name="rating_desc_2">Что нам нужно сделать, чтобы заслужить от вас оценку в 5 звёзд?</string>
+    <string name="rating_title_3">Спасибо за отзыв!</string>
+    <string name="rating_desc_3">Мы хотели бы узнать, как сделать ваше использование приложения ещё удобнее.</string>
+    <string name="rating_title_4">Спасибо за поддержку!</string>
+    <string name="rating_desc_4">Рады, что вам нравится приложение! Публичные отзывы помогают нам развиваться.</string>
+    <string name="rating_title_5">Потрясающе! Вы сделали наш день!</string>
+    <string name="rating_desc_5">Ваше удовлетворение делает все наши усилия не напрасными.</string>
+    <string name="rating_submit">Отправить</string>
+    <string name="english">Английский</string>
+    <string name="vietnamese">Вьетнамский</string>
+    <string name="hindi">Хинди</string>
+    <string name="spanish">Испанский</string>
+    <string name="french">Французский</string>
+    <string name="portuguese">Португальский</string>
+    <string name="korean">Корейский</string>
+    <string name="japanese">Японский</string>
+    <string name="german">Немецкий</string>
+    <string name="italian">Итальянский</string>
+    <string name="indonesian">Индонезийский</string>
+    <string name="russian">Русский</string>
+    <string name="turkish">Турецкий</string>
+    <string name="chinese">Китайский</string>
+    <string name="allow_notification_title">Разрешить уведомления</string>
+    <string name="allow_notification_content">Разрешите уведомления, чтобы получать обновления.</string>
+    <string name="allow_record_audio_title">Разрешить запись аудио</string>
+    <string name="allow_record_audio_content">Разрешите запись аудио для функций фонарика.</string>
+    <string name="allow_camera_title">Разрешить доступ к камере</string>
+    <string name="allow_camera_content">Разрешите доступ к камере для работы светодиода фонарика.</string>
+    <string name="choose_one">Выберите один вариант</string>
+</resources>

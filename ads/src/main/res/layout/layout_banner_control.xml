@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_ad_badge"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="14dp"
             android:layout_marginTop="3dp"
             android:orientation="vertical">
 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight アプリのアイコン</string>
+    <string name="splash_ad_indicator">広告</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">懐中電灯を使用する準備ができました。</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">「%1$s」は気に入りましたか？</string>
+    <string name="rating_desc_default">ご意見はアプリの改善に役立ちます。ぜひ使用感を評価してください。</string>
+    <string name="rating_title_1">申し訳ありません。ご期待に沿えなかったようです。</string>
+    <string name="rating_desc_1">アプリの改善には皆さまのご意見が欠かせません。問題だった点を教えていただけますか？</string>
+    <string name="rating_title_2">それは残念です！</string>
+    <string name="rating_desc_2">星5つの評価をいただくには、どのような改善が必要でしょうか？</string>
+    <string name="rating_title_3">ご feedback ありがとうございます！</string>
+    <string name="rating_desc_3">より快適にご利用いただくために、改善点をぜひお聞かせください。</string>
+    <string name="rating_title_4">ご support ありがとうございます！</string>
+    <string name="rating_desc_4">アプリを気に入っていただけてうれしいです！公開レビューはアプリの成長につながります。</string>
+    <string name="rating_title_5">最高です！とてもうれしいです！</string>
+    <string name="rating_desc_5">皆さまに満足していただけることが、私たちの努力の何よりの励みです。</string>
+    <string name="rating_submit">送信</string>
+    <string name="english">英語</string>
+    <string name="vietnamese">ベトナム語</string>
+    <string name="hindi">ヒンディー語</string>
+    <string name="spanish">スペイン語</string>
+    <string name="french">フランス語</string>
+    <string name="portuguese">ポルトガル語</string>
+    <string name="korean">韓国語</string>
+    <string name="japanese">日本語</string>
+    <string name="german">ドイツ語</string>
+    <string name="italian">イタリア語</string>
+    <string name="indonesian">インドネシア語</string>
+    <string name="russian">ロシア語</string>
+    <string name="turkish">トルコ語</string>
+    <string name="chinese">中国語</string>
+    <string name="allow_notification_title">通知を許可</string>
+    <string name="allow_notification_content">最新情報を受け取るには通知を許可してください。</string>
+    <string name="allow_record_audio_title">音声録音を許可</string>
+    <string name="allow_record_audio_content">懐中電灯の機能で使用する音声の録音を許可してください。</string>
+    <string name="allow_camera_title">カメラの使用を許可</string>
+    <string name="allow_camera_content">懐中電灯の LED 機能を使用するため、カメラへのアクセスを許可してください。</string>
+    <string name="choose_one">1つ選択</string>
+</resources>

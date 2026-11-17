@@ -1,6 +1,8 @@
-package com.example.flashlight.utils
+package com.example.flashlight.utils.ads.manager
 
 import com.example.flashlight.domain.layer.AdConfig
+import com.example.flashlight.utils.Logger
+import com.example.flashlight.utils.ads.AdPlacement
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
 
@@ -90,5 +92,68 @@ class FirebaseConfigManager {
             onFetchProgress?.invoke(100)
             onFetchFinished(onFetchComplete)
         }
+    }
+
+    fun getBoolean(key: String, defaultValue: Boolean = true): Boolean {
+        return try {
+            val remoteConfig = FirebaseRemoteConfig.getInstance()
+            if (remoteConfig.all.containsKey(key)) {
+                remoteConfig.getBoolean(key)
+            } else {
+                defaultValue
+            }
+        } catch (e: Exception) {
+            defaultValue
+        }
+    }
+
+    fun getString(key: String, defaultValue: String = ""): String {
+        return try {
+            val remoteConfig = FirebaseRemoteConfig.getInstance()
+            if (remoteConfig.all.containsKey(key)) {
+                remoteConfig.getString(key).ifEmpty { defaultValue }
+            } else {
+                defaultValue
+            }
+        } catch (e: Exception) {
+            defaultValue
+        }
+    }
+
+    fun getLong(key: String, defaultValue: Long): Long {
+        return try {
+            val remoteConfig = FirebaseRemoteConfig.getInstance()
+            if (remoteConfig.all.containsKey(key)) {
+                remoteConfig.getLong(key)
+            } else {
+                defaultValue
+            }
+        } catch (e: Exception) {
+            defaultValue
+        }
+    }
+
+    fun isAdEnabled(formatKey: String, placementKey: String): Boolean {
+        val global = getBoolean(AdPlacement.CONFIG_ADS, true)
+        if (!global) return false
+        val format = getBoolean(formatKey, true)
+        if (!format) return false
+        return getBoolean(placementKey, true)
+    }
+
+    fun isBannerAdEnabled(placementKey: String): Boolean {
+        return isAdEnabled(AdPlacement.ADS_BANNER_ENABLED, placementKey)
+    }
+
+    fun isInterAdEnabled(placementKey: String): Boolean {
+        return isAdEnabled(AdPlacement.ADS_INTERSTITIAL_ENABLED, placementKey)
+    }
+
+    fun isNativeAdEnabled(placementKey: String): Boolean {
+        return isAdEnabled(AdPlacement.ADS_NATIVE_ENABLED, placementKey)
+    }
+
+    fun isAppOpenAdEnabled(placementKey: String): Boolean {
+        return isAdEnabled(AdPlacement.ADS_APP_OPEN_ENABLED, placementKey)
     }
 }

@@ -17,7 +17,7 @@ import com.ads.admob.listener.AdmobCallBack
 import com.ads.admob.listener.AppOpenAdCallBack
 import com.example.flashlight.component.startup.SplashStartupProgress
 import com.example.flashlight.utils.Constant
-import com.example.flashlight.utils.FirebaseConfigManager
+import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.example.flashlight.utils.LocaleHelper
 import com.example.flashlight.utils.Logger
 import com.example.flashlight.utils.SpManager

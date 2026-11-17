@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight uygulama simgesi</string>
+    <string name="splash_ad_indicator">Reklam</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">El feneriniz kullanıma hazır.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">"%1$s" uygulamasını beğendiniz mi?</string>
+    <string name="rating_desc_default">Geri bildiriminiz gelişmemize yardımcı olur. Lütfen deneyiminizi değerlendirmek için biraz zaman ayırın.</string>
+    <string name="rating_title_1">Ah hayır! Bunu duyduğumuza üzüldük.</string>
+    <string name="rating_desc_1">Geri bildiriminiz gelişmemiz için çok önemli. Neyin yanlış gittiğini bize anlatabilir misiniz?</string>
+    <string name="rating_title_2">Ne yazık!</string>
+    <string name="rating_desc_2">Sizden 5 yıldızlı bir puan almak için ne yapabiliriz?</string>
+    <string name="rating_title_3">Geri bildiriminiz için teşekkürler!</string>
+    <string name="rating_desc_3">Deneyiminizi nasıl daha iyi hâle getirebileceğimizi öğrenmek isteriz.</string>
+    <string name="rating_title_4">Desteğiniz için teşekkürler!</string>
+    <string name="rating_desc_4">Uygulamamızı beğenmenize sevindik! Herkese açık yorumlar büyümemize yardımcı olur.</string>
+    <string name="rating_title_5">Harika! Günümüzü güzelleştirdiniz!</string>
+    <string name="rating_desc_5">Memnuniyetiniz, tüm çabalarımızı anlamlı kılıyor.</string>
+    <string name="rating_submit">Gönder</string>
+    <string name="english">İngilizce</string>
+    <string name="vietnamese">Vietnamca</string>
+    <string name="hindi">Hintçe</string>
+    <string name="spanish">İspanyolca</string>
+    <string name="french">Fransızca</string>
+    <string name="portuguese">Portekizce</string>
+    <string name="korean">Korece</string>
+    <string name="japanese">Japonca</string>
+    <string name="german">Almanca</string>
+    <string name="italian">İtalyanca</string>
+    <string name="indonesian">Endonezce</string>
+    <string name="russian">Rusça</string>
+    <string name="turkish">Türkçe</string>
+    <string name="chinese">Çince</string>
+    <string name="allow_notification_title">Bildirimlere izin ver</string>
+    <string name="allow_notification_content">Güncellemeleri almak için bildirimlere izin verin.</string>
+    <string name="allow_record_audio_title">Ses kaydına izin ver</string>
+    <string name="allow_record_audio_content">El feneri özellikleri için ses kaydına izin verin.</string>
+    <string name="allow_camera_title">Kamera erişimine izin ver</string>
+    <string name="allow_camera_content">El fenerinin LED özelliği için kamera erişimine izin verin.</string>
+    <string name="choose_one">Birini seç</string>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">Ícone do aplicativo FlashLight</string>
+    <string name="splash_ad_indicator">Anúncio</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Sua lanterna está pronta.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Você gosta de "%1$s"?</string>
+    <string name="rating_desc_default">Sua opinião nos ajuda a melhorar. Reserve um momento para avaliar sua experiência.</string>
+    <string name="rating_title_1">Ah, não! Sentimos muito por saber disso.</string>
+    <string name="rating_desc_1">Sua opinião é essencial para melhorarmos. Você poderia nos contar o que deu errado?</string>
+    <string name="rating_title_2">Que pena!</string>
+    <string name="rating_desc_2">O que poderíamos fazer para merecer uma avaliação de 5 estrelas?</string>
+    <string name="rating_title_3">Agradecemos sua opinião!</string>
+    <string name="rating_desc_3">Adoraríamos saber como podemos melhorar sua experiência.</string>
+    <string name="rating_title_4">Obrigado pelo seu apoio!</string>
+    <string name="rating_desc_4">Ficamos felizes que você esteja gostando do app! As avaliações públicas nos ajudam a crescer.</string>
+    <string name="rating_title_5">Incrível! Você alegrou nosso dia!</string>
+    <string name="rating_desc_5">Sua satisfação faz todo o nosso esforço valer a pena.</string>
+    <string name="rating_submit">Enviar</string>
+    <string name="english">Inglês</string>
+    <string name="vietnamese">Vietnamita</string>
+    <string name="hindi">Hindi</string>
+    <string name="spanish">Espanhol</string>
+    <string name="french">Francês</string>
+    <string name="portuguese">Português</string>
+    <string name="korean">Coreano</string>
+    <string name="japanese">Japonês</string>
+    <string name="german">Alemão</string>
+    <string name="italian">Italiano</string>
+    <string name="indonesian">Indonésio</string>
+    <string name="russian">Russo</string>
+    <string name="turkish">Turco</string>
+    <string name="chinese">Chinês</string>
+    <string name="allow_notification_title">Permitir notificações</string>
+    <string name="allow_notification_content">Permita notificações para receber atualizações.</string>
+    <string name="allow_record_audio_title">Permitir gravação de áudio</string>
+    <string name="allow_record_audio_content">Permita a gravação de áudio para os recursos da lanterna.</string>
+    <string name="allow_camera_title">Permitir acesso à câmera</string>
+    <string name="allow_camera_content">Permita o acesso à câmera para usar o LED da lanterna.</string>
+    <string name="choose_one">Escolha uma opção</string>
+</resources>

@@ -16,6 +16,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.CycleInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -25,11 +26,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.flashlight.base.fragment.BaseFragment
+import com.example.flashlight.component.main.MainActivity
 import com.example.flashlight.component.main.dialog.ColorPickerDialog
 import com.example.flashlight.component.main.fagment.led.LedConfig
 import com.example.flashlight.component.main.fagment.led.LedConfigViewModel
 import com.example.flashlight.component.main.fagment.led.LedScrollController
+import com.example.flashlight.utils.ads.manager.FeatureInterAdsManager
 import com.example.flashlight.utils.SpManager
+import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentLedBinding
 import kotlinx.coroutines.launch
@@ -67,6 +71,12 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
 
     override fun initViews() {
         viewBinding.layoutBottomNav.root.isVisible = false
+        NativeAdsUtils.bindHomeNative(
+            activity = requireActivity(),
+            lifecycleOwner = viewLifecycleOwner,
+            nativeContentView = viewBinding.nativeAdContainer,
+            shimmerContainerNative = viewBinding.shimmerContainerNative.root
+        )
         val spManager = SpManager.getInstance(requireContext())
         ledConfigViewModel = ViewModelProvider(requireActivity())[LedConfigViewModel::class.java]
         currentConfig = ledConfigViewModel.config.value
@@ -166,7 +176,7 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         viewBinding.btnEffectBlink.setOnClickListener { chooseEffect(R.id.btnEffectBlink) }
         viewBinding.btnEffectNeon.setOnClickListener { chooseEffect(R.id.btnEffectNeon) }
         viewBinding.btnEffectfade.setOnClickListener { chooseEffect(R.id.btnEffectfade) }
-        viewBinding.btnFullScreen.setOnClickListener { showFullScreenLed() }
+        viewBinding.btnFullScreen.setOnClickListener { triggerFeatureAdThenFullScreen() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -417,6 +427,21 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         textView.setShadowLayer(20f, 0f, 0f, shadowColor)
     }
 
+    /**
+     * Kích hoạt bộ đếm inter chung qua MainActivity.
+     * Nếu đủ điều kiện → show inter → sau khi đóng ads mới mở full screen LED.
+     */
+    private fun triggerFeatureAdThenFullScreen() {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity != null) {
+            mainActivity.triggerFeatureInterAd {
+                showFullScreenLed()
+            }
+        } else {
+            showFullScreenLed()
+        }
+    }
+
     private fun showFullScreenLed() {
         val act = activity ?: return
         if (fullScreenDialog?.isShowing == true) return
@@ -442,12 +467,26 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         )
         applyTextConfiguration(textView, currentConfig, applyEffect = true, viewport = viewport)
 
+        val closeButton = ImageView(act).apply {
+            setImageResource(R.drawable.ic_close_play)
+            contentDescription = "Close full screen"
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { handleClosePlay(act, dialog) }
+        }
+        viewport.addView(
+            closeButton,
+            FrameLayout.LayoutParams(dpToPx(28), dpToPx(28), Gravity.TOP or Gravity.START).apply {
+                leftMargin = dpToPx(24)
+                topMargin = dpToPx(24)
+            }
+        )
+
         val scroller = LedScrollController(textView, viewport) { currentConfig }
         fullScreenDialog = dialog
         fullScreenTextView = textView
         fullScreenScroller = scroller
 
-        textView.setOnClickListener { dialog.dismiss() }
         dialog.setContentView(viewport)
         dialog.setOnDismissListener {
             fullScreenScroller?.dispose()
@@ -490,6 +529,23 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         fullScreenDialog = null
         fullScreenTextView = null
         super.onDestroyView()
+    }
+
+    private fun handleClosePlay(activity: android.app.Activity, dialog: Dialog) {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity != null) {
+            mainActivity.triggerFeatureInterAd {
+                dialog.dismiss()
+            }
+        } else {
+            FeatureInterAdsManager.onFeatureUsed(
+                activity = activity,
+                lifecycleOwner = viewLifecycleOwner,
+                onAdFinished = {
+                    dialog.dismiss()
+                }
+            )
+        }
     }
 
     companion object {

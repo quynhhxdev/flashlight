@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight 앱 아이콘</string>
+    <string name="splash_ad_indicator">광고</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">손전등을 사용할 준비가 되었습니다.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">"%1$s" 앱이 마음에 드시나요?</string>
+    <string name="rating_desc_default">여러분의 의견은 앱을 개선하는 데 큰 도움이 됩니다. 잠시 시간을 내어 사용 경험을 평가해 주세요.</string>
+    <string name="rating_title_1">이런! 그렇게 느끼셨다니 죄송합니다.</string>
+    <string name="rating_desc_1">여러분의 의견은 앱을 개선하는 데 매우 중요합니다. 어떤 점이 문제였는지 알려주시겠어요?</string>
+    <string name="rating_title_2">정말 아쉽네요!</string>
+    <string name="rating_desc_2">별 5개 평가를 받을 수 있도록 저희가 무엇을 개선하면 좋을까요?</string>
+    <string name="rating_title_3">소중한 의견 감사합니다!</string>
+    <string name="rating_desc_3">더 나은 사용 경험을 제공하려면 무엇을 개선해야 할지 알고 싶습니다.</string>
+    <string name="rating_title_4">응원해 주셔서 감사합니다!</string>
+    <string name="rating_desc_4">앱을 즐겁게 사용하고 계시다니 기쁩니다! 공개 리뷰는 앱이 성장하는 데 도움이 됩니다.</string>
+    <string name="rating_title_5">최고예요! 덕분에 정말 기분 좋은 하루가 되었어요!</string>
+    <string name="rating_desc_5">여러분의 만족이 저희의 모든 노력을 보람 있게 만듭니다.</string>
+    <string name="rating_submit">제출</string>
+    <string name="english">영어</string>
+    <string name="vietnamese">베트남어</string>
+    <string name="hindi">힌디어</string>
+    <string name="spanish">스페인어</string>
+    <string name="french">프랑스어</string>
+    <string name="portuguese">포르투갈어</string>
+    <string name="korean">한국어</string>
+    <string name="japanese">일본어</string>
+    <string name="german">독일어</string>
+    <string name="italian">이탈리아어</string>
+    <string name="indonesian">인도네시아어</string>
+    <string name="russian">러시아어</string>
+    <string name="turkish">터키어</string>
+    <string name="chinese">중국어</string>
+    <string name="allow_notification_title">알림 허용</string>
+    <string name="allow_notification_content">업데이트를 받으려면 알림을 허용하세요.</string>
+    <string name="allow_record_audio_title">오디오 녹음 허용</string>
+    <string name="allow_record_audio_content">손전등 기능을 위해 오디오 녹음을 허용하세요.</string>
+    <string name="allow_camera_title">카메라 사용 허용</string>
+    <string name="allow_camera_content">손전등 LED 기능을 위해 카메라 접근을 허용하세요.</string>
+    <string name="choose_one">하나 선택</string>
+</resources>

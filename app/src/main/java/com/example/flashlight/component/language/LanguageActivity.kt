@@ -4,15 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flashlight.base.activity.BaseActivity
 import com.example.flashlight.component.onboard.OnboardingActivity
+import com.example.flashlight.utils.ads.resolver.AdsIdResolver
 import com.example.flashlight.data.model.Language
 import com.example.flashlight.data.model.LanguageOptions
+import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.example.flashlight.utils.LocaleHelper
 import com.example.flashlight.utils.SpManager
-import com.kt.flashlight.R
+import com.example.flashlight.utils.ads.AdPlacement
+import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.databinding.ActivityLanguageBinding
 
 class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
@@ -29,6 +33,7 @@ class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
         setupHeader()
         initLanguageList()
         setupListeners()
+        setupNativeAd()
     }
 
     private fun setupHeader() {
@@ -43,18 +48,38 @@ class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
 
     private fun initLanguageList() {
         val spManager = SpManager.getInstance(this)
-        val currentLang = spManager.getLanguage()
+        val hasSaved = spManager.hasLanguageSaved()
+        val currentLang = if (hasSaved || isFromSettings) spManager.getLanguage() else null
         selectedLanguage = currentLang
+
+        binding.btnSave.isVisible = hasSaved || isFromSettings
 
         val languages = LanguageOptions.all
 
         adapter = LanguageAdapter(languages) { selected ->
             selectedLanguage = selected
+            binding.btnSave.isVisible = true
         }
 
         binding.rvLanguage.layoutManager = LinearLayoutManager(this)
         binding.rvLanguage.adapter = adapter
-        adapter.submitList(languages, currentLang.languageCode)
+        adapter.submitList(languages, currentLang?.languageCode ?: "")
+    }
+
+    private fun setupNativeAd() {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve(AdPlacement.NATIVE_LANGUAGE)
+            if (resolved == null) {
+                binding.flNativeAdContainer.isGone = true
+            } else {
+                binding.flNativeAdContainer.isVisible = true
+                NativeAdsUtils.preloadNativeLanguage(this)
+                NativeAdsUtils.nativeLanguage?.setNativeContentView(binding.flNativeAdContainer)
+                NativeAdsUtils.nativeLanguage?.setShimmerLayoutView(binding.shimmerContainerNative.root)
+            }
+            NativeAdsUtils.preloadNativeOnboarding(this)
+            NativeAdsUtils.preloadNativeFullscreen(this)
+        }
     }
 
     private fun setupListeners() {

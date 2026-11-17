@@ -23,6 +23,7 @@ import com.example.flashlight.component.main.FlashUiState
 import com.example.flashlight.component.main.MainViewModel
 import com.example.flashlight.data.model.FlashMode
 import com.example.flashlight.data.repositories.FlashRepository
+import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentFlashlightBinding
 import kotlinx.coroutines.launch
@@ -36,7 +37,7 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                viewModel.toggleFlash()
+                triggerFeatureAdThenToggle()
             } else {
                 Toast.makeText(
                     requireContext(),
@@ -52,6 +53,12 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupViewModel()
         super.onViewCreated(view, savedInstanceState)
+        NativeAdsUtils.bindHomeNative(
+            activity = requireActivity(),
+            lifecycleOwner = viewLifecycleOwner,
+            nativeContentView = viewBinding.nativeAdContainer,
+            shimmerContainerNative = viewBinding.shimmerContainerNative.root
+        )
         setupListeners()
         observeUiState()
     }
@@ -97,7 +104,7 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
                 context,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
-                viewModel.toggleFlash()
+                triggerFeatureAdThenToggle()
             }
 
             else -> {
@@ -105,6 +112,21 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
                     Manifest.permission.CAMERA
                 )
             }
+        }
+    }
+
+    /**
+     * Thông báo cho MainActivity tăng counter & hiển thị inter (nếu đủ điều kiện).
+     * Sau khi ads đóng (hoặc bỏ qua) mới thực sự toggle flash.
+     */
+    private fun triggerFeatureAdThenToggle() {
+        val mainActivity = activity as? com.example.flashlight.component.main.MainActivity
+        if (mainActivity != null) {
+            mainActivity.triggerFeatureInterAd {
+                viewModel.toggleFlash()
+            }
+        } else {
+            viewModel.toggleFlash()
         }
     }
 

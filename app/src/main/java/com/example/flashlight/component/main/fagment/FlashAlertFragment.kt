@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.language.LanguageActivity
+import com.example.flashlight.component.main.MainActivity
 import com.example.flashlight.component.main.dialog.RatingDialog
 import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.openBrowser
@@ -32,33 +33,56 @@ class FlashAlertFragment : BaseFragment<FragmentFlashAlertBinding>() {
         updateCurrentLanguageText()
 
         viewBinding.btnSettingLanguage.setOnClickListener {
-            activity?.let { act ->
-                val intent = Intent(act, LanguageActivity::class.java).apply {
-                    putExtra(LanguageActivity.EXTRA_FROM_SETTINGS, true)
+            triggerFeatureAdThenRun {
+                activity?.let { act ->
+                    val intent = Intent(act, LanguageActivity::class.java).apply {
+                        putExtra(LanguageActivity.EXTRA_FROM_SETTINGS, true)
+                    }
+                    languageLauncher.launch(intent)
                 }
-                languageLauncher.launch(intent)
             }
         }
 
         viewBinding.btnSettingShare.setOnClickListener {
-            context?.let { ctx ->
-                ctx.share("https://play.google.com/store/apps/details?id=${ctx.packageName}")
+            triggerFeatureAdThenRun {
+                context?.let { ctx ->
+                    ctx.share("https://play.google.com/store/apps/details?id=${ctx.packageName}")
+                }
             }
         }
 
         viewBinding.btnSettingRate.setOnClickListener {
-            activity?.let { act ->
-                val dialog = RatingDialog(act)
-                dialog.show()
+            triggerFeatureAdThenRun {
+                activity?.let { act ->
+                    val dialog = RatingDialog(act)
+                    dialog.show()
+                }
             }
         }
 
         viewBinding.btnSettingPrivacy.setOnClickListener {
-            activity?.openBrowser("https://google.com")
+            triggerFeatureAdThenRun {
+                activity?.openBrowser("https://sites.google.com/view/flashlight-led-banner-policy/")
+            }
         }
 
         viewBinding.btnSettingPolicy.setOnClickListener {
-            activity?.openBrowser("https://google.com")
+            triggerFeatureAdThenRun {
+                activity?.openBrowser("https://google.com")
+            }
+        }
+    }
+
+    /**
+     * Kích hoạt bộ đếm inter chung qua MainActivity rồi thực thi [action].
+     * Nếu không tìm thấy MainActivity thì chạy [action] ngay.
+     */
+    private fun triggerFeatureAdThenRun(action: () -> Unit) {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity != null) {
+            mainActivity.triggerFeatureInterAd { action() }
+        } else {
+            action()
         }
     }
 

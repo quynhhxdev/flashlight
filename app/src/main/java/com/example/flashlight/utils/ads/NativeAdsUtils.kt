@@ -1,18 +1,23 @@
 package com.example.flashlight.utils.ads
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.widget.FrameLayout
+import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.ads.admob.R
 import com.ads.admob.helper.AdOptionVisibility
 import com.ads.admob.helper.adnative.NativeAdConfig
 import com.ads.admob.helper.adnative.NativeAdHelper
+import com.ads.admob.helper.adnative.params.AdNativeState
 import com.ads.admob.helper.adnative.params.NativeAdParam
-import com.kt.flashlight.BuildConfig
-import com.example.flashlight.utils.FirebaseConfigManager
+import com.example.flashlight.utils.ads.resolver.AdsIdResolver
+import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.example.flashlight.utils.Logger
 import com.facebook.shimmer.ShimmerFrameLayout
 import kotlinx.coroutines.Dispatchers
@@ -35,142 +40,241 @@ object NativeAdsUtils {
     var nativeFullscreen2: NativeAdHelper? = null
         private set
 
+    var nativePermission: NativeAdHelper? = null
+        private set
+
+    var homeNative: NativeAdHelper? = null
+        private set
+
     fun destroyAll() {
         nativeLanguage?.cancel()
         nativeOnboarding?.cancel()
         nativeFullscreen?.cancel()
         nativeFullscreen2?.cancel()
+        nativePermission?.cancel()
+        homeNative?.cancel()
 
         nativeLanguage = null
         nativeOnboarding = null
         nativeFullscreen = null
         nativeFullscreen2 = null
+        nativePermission = null
+        homeNative = null
     }
 
     fun preloadNativeLanguage(appActivity: AppCompatActivity) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_language")
+            if (resolved == null) return@doAfterFetch
 
-        val isEnable = FirebaseConfigManager.instance()
-            .adConfig.enableNativeLanguage
+            if (nativeLanguage != null) return@doAfterFetch
 
-        if (!isEnable) return
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = R.layout.item_native_ad_custom,
+                adPlacement = resolved.placement,
+                reloadIfFirstFail = true
+            )
 
-        if (nativeLanguage != null) return // đã preload rồi
+            nativeLanguage = NativeAdHelper(
+                activity = appActivity,
+                lifecycleOwner = processLifecycleOwner,
+                config = config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
 
-        val config = NativeAdConfig(
-            idAds = BuildConfig.native_language,
-            canShowAds = true,
-            canReloadAds = false,
-            layoutId = com.ads.admob.R.layout.layout_native_ad_view_type1,
-            adPlacement = "native_language",
-            reloadIfFirstFail = true
-        )
+            nativeLanguage?.requestAds(NativeAdParam.Request)
 
-        nativeLanguage = NativeAdHelper(
-            activity = appActivity,
-            lifecycleOwner = processLifecycleOwner,
-            config = config
-        ).apply {
-            adVisibility = AdOptionVisibility.GONE
+            Logger.e("preloadNativeLanguage()")
         }
-
-        nativeLanguage?.requestAds(NativeAdParam.Request)
-
-        Logger.e("preloadNativeLanguage()")
     }
 
     fun preloadNativeOnboarding(appActivity: AppCompatActivity) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_onboarding")
+            if (resolved == null) return@doAfterFetch
 
-        val isEnable = FirebaseConfigManager.instance()
-            .adConfig.enableNativeOnBoarding
+            if (nativeOnboarding != null) return@doAfterFetch
 
-        if (!isEnable) return
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = R.layout.item_native_ad_custom,
+                adPlacement = resolved.placement,
+                reloadIfFirstFail = true
+            )
 
-        if (nativeOnboarding != null) return
+            nativeOnboarding = NativeAdHelper(
+                activity = appActivity,
+                lifecycleOwner = processLifecycleOwner,
+                config = config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
 
-        val config = NativeAdConfig(
-            idAds = BuildConfig.native_onboarding,
-            canShowAds = true,
-            canReloadAds = false,
-            layoutId = com.ads.admob.R.layout.layout_native_ad_view_type1,
-            adPlacement = "native_onboarding",
-            reloadIfFirstFail = true
-        )
+            nativeOnboarding?.requestAds(NativeAdParam.Request)
 
-        nativeOnboarding = NativeAdHelper(
-            activity = appActivity,
-            lifecycleOwner = processLifecycleOwner,
-            config = config
-        ).apply {
-            adVisibility = AdOptionVisibility.GONE
+            Logger.e("preloadNativeOnboarding()")
         }
-
-        nativeOnboarding?.requestAds(NativeAdParam.Request)
-
-        Logger.e("preloadNativeOnboarding()")
     }
 
-    fun preloadNativeFullscreen(appActivity: AppCompatActivity) {
+    fun preloadNativeFullscreen(appActivity: AppCompatActivity, forceReload: Boolean = false) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_fullscreen")
+            if (resolved == null) return@doAfterFetch
 
-        val isEnable = FirebaseConfigManager.instance()
-            .adConfig.enableNativeFullscreen
+            val currentHelper = nativeFullscreen
+            if (currentHelper != null && !forceReload) {
+                currentHelper.updateActivity(appActivity, processLifecycleOwner)
+                if (currentHelper.nativeAd != null) return@doAfterFetch
+                val state = currentHelper.getAdNativeState().value
+                if (state is AdNativeState.Loading) return@doAfterFetch
+            }
 
-        if (!isEnable) return
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = R.layout.layout_native_fullscreen_view,
+                adPlacement = resolved.placement,
+                reloadIfFirstFail = true
+            )
 
-        if (nativeFullscreen != null) return
+            nativeFullscreen = NativeAdHelper(
+                activity = appActivity,
+                lifecycleOwner = processLifecycleOwner,
+                config = config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
 
-        val config = NativeAdConfig(
-            idAds = BuildConfig.native_onboarding_fullscreen,
-            idAdsPriority = BuildConfig.native_onboarding_fullscreen_2f,
-            canShowAds = true,
-            canReloadAds = false,
-            layoutId = com.ads.admob.R.layout.layout_native_fullscreen_view,
-            adPlacement = "native_fullscreen",
-            reloadIfFirstFail = true
-        )
+            nativeFullscreen?.requestAds(NativeAdParam.Request)
 
-        nativeFullscreen = NativeAdHelper(
-            activity = appActivity,
-            lifecycleOwner = processLifecycleOwner,
-            config = config
-        ).apply {
-            adVisibility = AdOptionVisibility.GONE
+            Logger.e("preloadNativeFullscreen()")
         }
-
-        nativeFullscreen?.requestAds(NativeAdParam.Request)
-
-        Logger.e("preloadNativeFullscreen()")
     }
 
-    fun preloadNativeFullscreen2(appActivity: AppCompatActivity) {
+    fun preloadNativeFullscreen2(appActivity: AppCompatActivity, forceReload: Boolean = false) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_fullscreen_2")
+            if (resolved == null) return@doAfterFetch
 
-        val isEnable = FirebaseConfigManager.instance()
-            .adConfig.enableNativeFullscreen
+            val currentHelper = nativeFullscreen2
+            if (currentHelper != null && !forceReload) {
+                currentHelper.updateActivity(appActivity, processLifecycleOwner)
+                if (currentHelper.nativeAd != null) return@doAfterFetch
+                val state = currentHelper.getAdNativeState().value
+                if (state is AdNativeState.Loading) return@doAfterFetch
+            }
 
-        if (!isEnable) return
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = R.layout.layout_native_fullscreen_view,
+                adPlacement = resolved.placement,
+                reloadIfFirstFail = true
+            )
 
-        if (nativeFullscreen2 != null) return
+            nativeFullscreen2 = NativeAdHelper(
+                activity = appActivity,
+                lifecycleOwner = processLifecycleOwner,
+                config = config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
 
-        val config = NativeAdConfig(
-            idAds = BuildConfig.native_onboarding_fullscreen,
-            idAdsPriority = BuildConfig.native_onboarding_fullscreen_2f,
-            canShowAds = true,
-            canReloadAds = false,
-            layoutId = com.ads.admob.R.layout.layout_native_fullscreen_view,
-            adPlacement = "native_fullscreen_2",
-            reloadIfFirstFail = true
-        )
+            nativeFullscreen2?.requestAds(NativeAdParam.Request)
 
-        nativeFullscreen2 = NativeAdHelper(
-            activity = appActivity,
-            lifecycleOwner = processLifecycleOwner,
-            config = config
-        ).apply {
-            adVisibility = AdOptionVisibility.GONE
+            Logger.e("preloadNativeFullscreen2()")
         }
+    }
 
-        nativeFullscreen2?.requestAds(NativeAdParam.Request)
+    fun preloadNativePermission(appActivity: AppCompatActivity) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_onboarding")
+            if (resolved == null) return@doAfterFetch
 
-        Logger.e("preloadNativeFullscreen2()")
+            if (nativePermission != null) return@doAfterFetch
+
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = R.layout.item_native_ad_custom,
+                adPlacement = resolved.placement,
+                reloadIfFirstFail = true
+            )
+
+            nativePermission = NativeAdHelper(
+                activity = appActivity,
+                lifecycleOwner = processLifecycleOwner,
+                config = config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
+
+            nativePermission?.requestAds(NativeAdParam.Request)
+
+            Logger.e("preloadNativePermission()")
+        }
+    }
+
+    fun preloadHomeNative(context: android.content.Context) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_main")
+            if (resolved == null) return@doAfterFetch
+
+            val currentHelper = homeNative
+            if (currentHelper != null) {
+                if (currentHelper.nativeAd != null) return@doAfterFetch
+                val state = currentHelper.getAdNativeState().value
+                if (state is AdNativeState.Loading) return@doAfterFetch
+            }
+
+            val act = context as? Activity ?: return@doAfterFetch
+
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = R.layout.layout_native_ad_view_type1,
+                adPlacement = resolved.placement,
+                reloadIfFirstFail = true
+            )
+
+            homeNative = NativeAdHelper(
+                activity = act,
+                lifecycleOwner = processLifecycleOwner,
+                config = config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
+
+            homeNative?.requestAds(NativeAdParam.Request)
+            Logger.e("preloadHomeNative()")
+        }
+    }
+
+    fun bindHomeNative(
+        activity: FragmentActivity,
+        lifecycleOwner: LifecycleOwner,
+        nativeContentView: FrameLayout,
+        shimmerContainerNative: ShimmerFrameLayout
+    ) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_main") ?: return@doAfterFetch
+            if (homeNative == null) {
+                preloadHomeNative(activity)
+            }
+            homeNative?.updateActivity(activity, lifecycleOwner)
+            homeNative?.setNativeContentView(nativeContentView)
+            homeNative?.setShimmerLayoutView(shimmerContainerNative)
+        }
     }
 
     private fun setNative(
@@ -180,18 +284,40 @@ object NativeAdsUtils {
         nativeContentView: FrameLayout,
         shimmerContainerNative: ShimmerFrameLayout
     ) {
-        val nativeAdHelper = NativeAdHelper(
-            activity, lifecycleOwner, config
-        ).apply {
-            adVisibility = AdOptionVisibility.GONE
-        }
+        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            nativeContentView.isVisible = true
+            val nativeAdHelper = NativeAdHelper(
+                activity, lifecycleOwner, config
+            ).apply {
+                adVisibility = AdOptionVisibility.GONE
+            }
 
-        activity.lifecycleScope.launch(Dispatchers.Main) {
             nativeAdHelper.setNativeContentView(nativeContentView)
             nativeAdHelper.setShimmerLayoutView(shimmerContainerNative)
-            activity.lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 nativeAdHelper.requestAds(NativeAdParam.Request)
             }
+        }
+    }
+
+    fun loadAndShowNative(
+        activity: FragmentActivity,
+        lifecycleOwner: LifecycleOwner,
+        placement: String,
+        nativeContentView: FrameLayout,
+        shimmerContainerNative: ShimmerFrameLayout,
+        @LayoutRes layoutId: Int = com.ads.admob.R.layout.item_native_ad_custom
+    ) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve(placement) ?: return@doAfterFetch
+            val config = NativeAdConfig(
+                idAds = resolved.adUnitId,
+                canShowAds = true,
+                canReloadAds = false,
+                layoutId = layoutId,
+                adPlacement = resolved.placement
+            )
+            setNative(activity, config, lifecycleOwner, nativeContentView, shimmerContainerNative)
         }
     }
 
@@ -200,16 +326,13 @@ object NativeAdsUtils {
         lifecycleOwner: LifecycleOwner,
         nativeContentView: FrameLayout,
         shimmerContainerNative: ShimmerFrameLayout
-    ) {
-        val config = NativeAdConfig(
-            BuildConfig.native_main,
-            canShowAds = FirebaseConfigManager.instance().adConfig.enableNativeMain,
-            canReloadAds = false,
-            layoutId = com.ads.admob.R.layout.layout_native_ad_view_type1,
-            adPlacement = "native_home"
-        )
-
-        setNative(activity, config, lifecycleOwner, nativeContentView, shimmerContainerNative)
-    }
+    ) = loadAndShowNative(
+        activity = activity,
+        lifecycleOwner = lifecycleOwner,
+        placement = "native_main",
+        nativeContentView = nativeContentView,
+        shimmerContainerNative = shimmerContainerNative,
+        layoutId = com.ads.admob.R.layout.layout_native_ad_view_type1
+    )
 
 }

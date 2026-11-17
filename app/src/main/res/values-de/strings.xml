@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight-App-Symbol</string>
+    <string name="splash_ad_indicator">Anzeige</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Deine Taschenlampe ist einsatzbereit.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Gefällt dir „%1$s“?</string>
+    <string name="rating_desc_default">Dein Feedback hilft uns, die App zu verbessern. Nimm dir bitte einen Moment Zeit, um deine Erfahrung zu bewerten.</string>
+    <string name="rating_title_1">Oh nein! Das tut uns leid.</string>
+    <string name="rating_desc_1">Dein Feedback ist entscheidend, damit wir uns verbessern können. Kannst du uns sagen, was nicht funktioniert hat?</string>
+    <string name="rating_title_2">Wie schade!</string>
+    <string name="rating_desc_2">Was können wir tun, um uns eine Bewertung mit 5 Sternen zu verdienen?</string>
+    <string name="rating_title_3">Vielen Dank für dein Feedback!</string>
+    <string name="rating_desc_3">Wir würden gerne erfahren, wie wir deine Nutzungserfahrung verbessern können.</string>
+    <string name="rating_title_4">Vielen Dank für deine Unterstützung!</string>
+    <string name="rating_desc_4">Schön, dass dir die App gefällt! Öffentliche Bewertungen helfen uns, weiter zu wachsen.</string>
+    <string name="rating_title_5">Fantastisch! Du hast uns den Tag versüßt!</string>
+    <string name="rating_desc_5">Deine Zufriedenheit macht all unsere Arbeit lohnenswert.</string>
+    <string name="rating_submit">Senden</string>
+    <string name="english">Englisch</string>
+    <string name="vietnamese">Vietnamesisch</string>
+    <string name="hindi">Hindi</string>
+    <string name="spanish">Spanisch</string>
+    <string name="french">Französisch</string>
+    <string name="portuguese">Portugiesisch</string>
+    <string name="korean">Koreanisch</string>
+    <string name="japanese">Japanisch</string>
+    <string name="german">Deutsch</string>
+    <string name="italian">Italienisch</string>
+    <string name="indonesian">Indonesisch</string>
+    <string name="russian">Russisch</string>
+    <string name="turkish">Türkisch</string>
+    <string name="chinese">Chinesisch</string>
+    <string name="allow_notification_title">Benachrichtigungen zulassen</string>
+    <string name="allow_notification_content">Erlaube Benachrichtigungen, um Updates zu erhalten.</string>
+    <string name="allow_record_audio_title">Audioaufnahme zulassen</string>
+    <string name="allow_record_audio_content">Erlaube Audioaufnahmen für die Taschenlampenfunktionen.</string>
+    <string name="allow_camera_title">Kamerazugriff zulassen</string>
+    <string name="allow_camera_content">Erlaube den Kamerazugriff für die LED-Taschenlampenfunktion.</string>
+    <string name="choose_one">Eine auswählen</string>
+</resources>

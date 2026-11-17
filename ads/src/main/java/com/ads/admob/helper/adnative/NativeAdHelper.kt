@@ -174,7 +174,7 @@ class NativeAdHelper(
         cancel()
     }
 
-    fun getAdNativeState(): Flow<AdNativeState> {
+    fun getAdNativeState(): kotlinx.coroutines.flow.StateFlow<AdNativeState> {
         return adNativeState.asStateFlow()
     }
 

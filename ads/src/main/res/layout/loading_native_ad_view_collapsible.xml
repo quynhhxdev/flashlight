@@ -1,109 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.facebook.shimmer.ShimmerFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/shimmerContainerNative"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:visibility="visible"
-    app:layout_constraintTop_toTopOf="parent">
+    android:layout_margin="4dp"
+    android:visibility="visible">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/background"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:cardBackgroundColor="#1D1F2B"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#666D80"
+        app:strokeWidth="1dp">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/cta"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/size40"
-            android:layout_marginHorizontal="@dimen/size10"
-            android:background="@color/home_shimmer_color"
-            android:gravity="center"
-            android:lines="1"
-            android:textColor="@color/gnt_white"
-            android:textSize="@dimen/size14"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_min="@dimen/size40"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/middle" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/middle"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size50"
-            android:layout_marginHorizontal="@dimen/size10"
-            android:layout_marginTop="@dimen/size2"
-            app:layout_constraintEnd_toStartOf="@+id/appCompatTextView3"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appCompatTextView3">
-
-            <View
-                android:id="@+id/icon"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:background="@color/home_shimmer_color"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:src="@tools:sample/avatars" />
-
-            <View
-                android:id="@+id/primary"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/size15"
-                android:layout_marginStart="@dimen/size10"
-                android:layout_marginTop="@dimen/size5"
-                android:background="@color/home_shimmer_color"
-                android:textColor="@color/gnt_gray"
-                android:textSize="@dimen/size15"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/icon"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/secondary"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/size15"
-                android:layout_marginStart="@dimen/size10"
-                android:background="@color/home_shimmer_color"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/icon"
-                app:layout_constraintTop_toBottomOf="@+id/primary" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/appCompatTextView3"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/shape_ad_view"
-            android:backgroundTint="@color/home_shimmer_color"
-            android:paddingHorizontal="@dimen/size5"
-            android:text="Ad"
-            android:textColor="@color/gnt_white"
-            android:textSize="12dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/media_view" />
+            android:orientation="vertical"
+            android:padding="12dp">
 
-        <View
-            android:id="@+id/media_view"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size128"
-            android:layout_marginTop="@dimen/size5"
-            android:layout_marginHorizontal="@dimen/size10"
-            android:background="@color/home_shimmer_color"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <!-- 1. Main Ad Image Placeholder -->
+            <View
+                android:id="@+id/mediaView"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@color/home_shimmer_color" />
 
+            <!-- 2. Ad Information -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- App Icon Placeholder -->
+                <View
+                    android:id="@+id/ivIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@color/home_shimmer_color" />
+
+                <!-- Ad Content -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- Ad Label + Headline -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Ad Label Placeholder -->
+                        <View
+                            android:id="@+id/tvAdAttribution"
+                            android:layout_width="28dp"
+                            android:layout_height="20dp"
+                            android:background="@color/home_shimmer_color" />
+
+                        <!-- Headline Placeholder -->
+                        <View
+                            android:id="@+id/tvHeadline"
+                            android:layout_width="0dp"
+                            android:layout_height="14dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@color/home_shimmer_color" />
+
+                    </LinearLayout>
+
+                    <!-- Ad Body Placeholder -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="vertical">
+
+                        <View
+                            android:id="@+id/tvBody"
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp"
+                            android:background="@color/home_shimmer_color" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 3. Call To Action Placeholder -->
+            <View
+                android:id="@+id/btnCallToAction"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/home_shimmer_color" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
 </com.facebook.shimmer.ShimmerFrameLayout>

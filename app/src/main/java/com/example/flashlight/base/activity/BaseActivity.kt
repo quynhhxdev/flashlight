@@ -78,11 +78,8 @@ abstract class BaseActivity<V : ViewBinding> : AppCompatActivity() {
             val insets =
                 windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
 
-            // Áp dụng top padding để nội dung nằm dưới tai thỏ
-            view.updatePadding(top = insets.top)
-
-            // Nếu muốn áp dụng cho cả bottom (ví dụ cho Navigation Bar)
-            // view.updatePadding(top = insets.top, bottom = insets.bottom)
+            val bottomSpacing = view.resources.getDimensionPixelSize(com.kt.flashlight.R.dimen._4dp)
+            view.updatePadding(top = insets.top, bottom = insets.bottom + bottomSpacing)
 
             WindowInsetsCompat.CONSUMED
         }

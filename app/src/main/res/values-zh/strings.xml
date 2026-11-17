@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight 应用图标</string>
+    <string name="splash_ad_indicator">广告</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">手电筒已准备就绪。</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">您喜欢“%1$s”吗？</string>
+    <string name="rating_desc_default">您的反馈有助于我们改进。请花一点时间为您的使用体验评分。</string>
+    <string name="rating_title_1">哦，不！很抱歉听到这个消息。</string>
+    <string name="rating_desc_1">您的反馈对我们的改进至关重要。可以告诉我们哪里出了问题吗？</string>
+    <string name="rating_title_2">真遗憾！</string>
+    <string name="rating_desc_2">我们还可以做些什么，才能获得您的五星好评？</string>
+    <string name="rating_title_3">感谢您的反馈！</string>
+    <string name="rating_desc_3">我们很希望了解如何进一步改善您的使用体验。</string>
+    <string name="rating_title_4">感谢您的支持！</string>
+    <string name="rating_desc_4">很高兴您喜欢这款应用！公开评价有助于我们不断发展。</string>
+    <string name="rating_title_5">太棒了！您让我们的一天都充满喜悦！</string>
+    <string name="rating_desc_5">您的满意让我们所有的努力都变得值得。</string>
+    <string name="rating_submit">提交</string>
+    <string name="english">英语</string>
+    <string name="vietnamese">越南语</string>
+    <string name="hindi">印地语</string>
+    <string name="spanish">西班牙语</string>
+    <string name="french">法语</string>
+    <string name="portuguese">葡萄牙语</string>
+    <string name="korean">韩语</string>
+    <string name="japanese">日语</string>
+    <string name="german">德语</string>
+    <string name="italian">意大利语</string>
+    <string name="indonesian">印度尼西亚语</string>
+    <string name="russian">俄语</string>
+    <string name="turkish">土耳其语</string>
+    <string name="chinese">中文</string>
+    <string name="allow_notification_title">允许通知</string>
+    <string name="allow_notification_content">允许发送通知，以便接收更新。</string>
+    <string name="allow_record_audio_title">允许录制音频</string>
+    <string name="allow_record_audio_content">允许录制音频，以使用手电筒相关功能。</string>
+    <string name="allow_camera_title">允许使用相机</string>
+    <string name="allow_camera_content">允许访问相机，以使用手电筒 LED。</string>
+    <string name="choose_one">请选择一项</string>
+</resources>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginHorizontal="16dp"
+
     android:background="@drawable/bg_no_internet_card"
     android:padding="20dp">
 
@@ -17,7 +17,6 @@
         android:clickable="true"
         android:contentDescription="Close"
         android:focusable="true"
-        android:padding="6dp"
         android:src="@drawable/ic_close_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

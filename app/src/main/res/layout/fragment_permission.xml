@@ -82,7 +82,10 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:showText="false"
+            android:splitTrack="false"
             android:contentDescription="Enable camera permission"
+            android:thumb="@drawable/permission_switch_thumb"
+            app:track="@drawable/permission_switch_track"
             app:thumbTint="@color/permission_switch_thumb"
             app:trackTint="@color/permission_switch_track" />
 
@@ -118,18 +121,25 @@
     <FrameLayout
         android:id="@+id/nativeAdContainer"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginHorizontal="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
         android:layout_marginBottom="4dp"
-        android:background="@drawable/bg_native_ad_card"
-        android:clipToOutline="true"
-        android:padding="7dp"
-        app:layout_constraintHeight_percent="0.32"
+        android:background="@color/transparent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- NativeAdView will be added programmatically -->
+        <FrameLayout
+            android:id="@+id/nativeAdContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            android:id="@+id/shimmerContainerNative"
+            layout="@layout/loading_native_ad_view_collapsible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </FrameLayout>
 

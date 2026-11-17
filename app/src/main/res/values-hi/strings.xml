@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">FlashLight ऐप आइकन</string>
+    <string name="splash_ad_indicator">विज्ञापन</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">आपकी टॉर्च तैयार है।</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">क्या आपको "%1$s" पसंद है?</string>
+    <string name="rating_desc_default">आपकी प्रतिक्रिया हमें बेहतर बनाने में मदद करती है। कृपया अपने अनुभव को रेट करने के लिए थोड़ा समय दें।</string>
+    <string name="rating_title_1">ओह नहीं! यह सुनकर हमें दुख हुआ।</string>
+    <string name="rating_desc_1">आपकी प्रतिक्रिया हमारे लिए सुधार करने में बहुत महत्वपूर्ण है। क्या आप बता सकते हैं कि क्या गलत हुआ?</string>
+    <string name="rating_title_2">यह तो दुखद है!</string>
+    <string name="rating_desc_2">आप हमें 5-स्टार रेटिंग देने के लिए क्या बेहतर कर सकते हैं?</string>
+    <string name="rating_title_3">आपकी प्रतिक्रिया के लिए धन्यवाद!</string>
+    <string name="rating_desc_3">हम जानना चाहेंगे कि हम आपका अनुभव कैसे बेहतर बना सकते हैं।</string>
+    <string name="rating_title_4">आपके समर्थन के लिए धन्यवाद!</string>
+    <string name="rating_desc_4">हमें खुशी है कि आप ऐप का आनंद ले रहे हैं! सार्वजनिक समीक्षाएँ हमें आगे बढ़ने में मदद करती हैं।</string>
+    <string name="rating_title_5">शानदार! आपने हमारा दिन बना दिया!</string>
+    <string name="rating_desc_5">आपकी संतुष्टि हमारी सारी मेहनत को सार्थक बनाती है।</string>
+    <string name="rating_submit">सबमिट करें</string>
+    <string name="english">अंग्रेज़ी</string>
+    <string name="vietnamese">वियतनामी</string>
+    <string name="hindi">हिंदी</string>
+    <string name="spanish">स्पेनिश</string>
+    <string name="french">फ़्रेंच</string>
+    <string name="portuguese">पुर्तगाली</string>
+    <string name="korean">कोरियाई</string>
+    <string name="japanese">जापानी</string>
+    <string name="german">जर्मन</string>
+    <string name="italian">इतालवी</string>
+    <string name="indonesian">इंडोनेशियाई</string>
+    <string name="russian">रूसी</string>
+    <string name="turkish">तुर्की</string>
+    <string name="chinese">चीनी</string>
+    <string name="allow_notification_title">सूचनाओं की अनुमति दें</string>
+    <string name="allow_notification_content">अपडेट पाने के लिए सूचनाओं की अनुमति दें।</string>
+    <string name="allow_record_audio_title">ऑडियो रिकॉर्ड करने की अनुमति दें</string>
+    <string name="allow_record_audio_content">फ़्लैशलाइट सुविधाओं के लिए ऑडियो रिकॉर्ड करने की अनुमति दें।</string>
+    <string name="allow_camera_title">कैमरे की अनुमति दें</string>
+    <string name="allow_camera_content">फ़्लैशलाइट LED के लिए कैमरे का उपयोग करने की अनुमति दें।</string>
+    <string name="choose_one">एक चुनें</string>
+</resources>

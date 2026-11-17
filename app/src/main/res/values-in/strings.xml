@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">Ikon aplikasi FlashLight</string>
+    <string name="splash_ad_indicator">Iklan</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Senter Anda siap digunakan.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Apakah Anda menyukai "%1$s"?</string>
+    <string name="rating_desc_default">Masukan Anda membantu kami menjadi lebih baik. Luangkan waktu sejenak untuk menilai pengalaman Anda.</string>
+    <string name="rating_title_1">Oh tidak! Kami turut prihatin mendengarnya.</string>
+    <string name="rating_desc_1">Masukan Anda sangat penting bagi peningkatan aplikasi kami. Bisakah Anda memberi tahu apa yang tidak berjalan dengan baik?</string>
+    <string name="rating_title_2">Sayang sekali!</string>
+    <string name="rating_desc_2">Apa yang bisa kami lakukan agar layak mendapatkan rating 5 bintang dari Anda?</string>
+    <string name="rating_title_3">Terima kasih atas masukannya!</string>
+    <string name="rating_desc_3">Kami ingin tahu bagaimana cara meningkatkan pengalaman Anda.</string>
+    <string name="rating_title_4">Terima kasih atas dukungan Anda!</string>
+    <string name="rating_desc_4">Kami senang Anda menikmati aplikasi ini! Ulasan publik membantu kami berkembang.</string>
+    <string name="rating_title_5">Luar biasa! Anda membuat hari kami menyenangkan!</string>
+    <string name="rating_desc_5">Kepuasan Anda membuat semua kerja keras kami terasa berarti.</string>
+    <string name="rating_submit">Kirim</string>
+    <string name="english">Inggris</string>
+    <string name="vietnamese">Vietnam</string>
+    <string name="hindi">Hindi</string>
+    <string name="spanish">Spanyol</string>
+    <string name="french">Prancis</string>
+    <string name="portuguese">Portugis</string>
+    <string name="korean">Korea</string>
+    <string name="japanese">Jepang</string>
+    <string name="german">Jerman</string>
+    <string name="italian">Italia</string>
+    <string name="indonesian">Indonesia</string>
+    <string name="russian">Rusia</string>
+    <string name="turkish">Turki</string>
+    <string name="chinese">Tiongkok</string>
+    <string name="allow_notification_title">Izinkan notifikasi</string>
+    <string name="allow_notification_content">Izinkan notifikasi untuk menerima pembaruan.</string>
+    <string name="allow_record_audio_title">Izinkan perekaman audio</string>
+    <string name="allow_record_audio_content">Izinkan perekaman audio untuk fitur senter.</string>
+    <string name="allow_camera_title">Izinkan akses kamera</string>
+    <string name="allow_camera_content">Izinkan akses kamera untuk LED senter.</string>
+    <string name="choose_one">Pilih satu</string>
+</resources>

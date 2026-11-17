@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlashLight</string>
+    <string name="splash_app_name">FlashLight</string>
+    <string name="splash_loading_percentage">%1$d%%</string>
+    <string name="splash_loading_initial">0%</string>
+    <string name="splash_logo_description">Icône de l’application FlashLight</string>
+    <string name="splash_ad_indicator">Publicité</string>
+    <string name="home_placeholder_title">FlashLight</string>
+    <string name="home_placeholder_message">Votre lampe torche est prête.</string>
+    <!-- Rating Dialog Strings -->
+    <string name="rating_title_default">Vous aimez « %1$s » ?</string>
+    <string name="rating_desc_default">Votre avis nous aide à nous améliorer. Prenez un instant pour évaluer votre expérience.</string>
+    <string name="rating_title_1">Oh non ! Nous sommes désolés de l’apprendre.</string>
+    <string name="rating_desc_1">Votre avis est essentiel pour nous améliorer. Pourriez-vous nous dire ce qui n’a pas fonctionné ?</string>
+    <string name="rating_title_2">Quel dommage !</string>
+    <string name="rating_desc_2">Que pourrions-nous faire pour mériter une note de 5 étoiles ?</string>
+    <string name="rating_title_3">Merci pour votre avis !</string>
+    <string name="rating_desc_3">Nous aimerions savoir comment améliorer votre expérience.</string>
+    <string name="rating_title_4">Merci pour votre soutien !</string>
+    <string name="rating_desc_4">Nous sommes ravis que l’application vous plaise ! Les avis publics nous aident à progresser.</string>
+    <string name="rating_title_5">Formidable ! Vous illuminez notre journée !</string>
+    <string name="rating_desc_5">Votre satisfaction donne tout son sens à notre travail.</string>
+    <string name="rating_submit">Envoyer</string>
+    <string name="english">Anglais</string>
+    <string name="vietnamese">Vietnamien</string>
+    <string name="hindi">Hindi</string>
+    <string name="spanish">Espagnol</string>
+    <string name="french">Français</string>
+    <string name="portuguese">Portugais</string>
+    <string name="korean">Coréen</string>
+    <string name="japanese">Japonais</string>
+    <string name="german">Allemand</string>
+    <string name="italian">Italien</string>
+    <string name="indonesian">Indonésien</string>
+    <string name="russian">Russe</string>
+    <string name="turkish">Turc</string>
+    <string name="chinese">Chinois</string>
+    <string name="allow_notification_title">Autoriser les notifications</string>
+    <string name="allow_notification_content">Autorisez les notifications pour recevoir des mises à jour.</string>
+    <string name="allow_record_audio_title">Autoriser l’enregistrement audio</string>
+    <string name="allow_record_audio_content">Autorisez l’enregistrement audio pour les fonctionnalités de la lampe torche.</string>
+    <string name="allow_camera_title">Autoriser l’accès à la caméra</string>
+    <string name="allow_camera_content">Autorisez l’accès à la caméra pour utiliser la LED de la lampe torche.</string>
+    <string name="choose_one">Choisir</string>
+</resources>

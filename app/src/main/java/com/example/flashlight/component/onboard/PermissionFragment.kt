@@ -8,9 +8,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.main.MainActivity
+import com.example.flashlight.utils.ads.resolver.AdsIdResolver
+import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.example.flashlight.utils.SpManager
+import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentPermissionBinding
 
@@ -30,6 +35,30 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
 
     override fun initViews() {
         checkPermissionState()
+        NativeAdsUtils.preloadHomeNative(requireContext())
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_onboarding")
+            if (resolved == null) {
+                viewBinding.nativeAdContainer.isGone = true
+            } else {
+                viewBinding.nativeAdContainer.isVisible = true
+                if (NativeAdsUtils.nativePermission != null) {
+                    NativeAdsUtils.nativePermission?.let { nativeAdHelper ->
+                        nativeAdHelper.updateActivity(requireActivity(), viewLifecycleOwner)
+                        nativeAdHelper.setNativeContentView(viewBinding.nativeAdContent)
+                        nativeAdHelper.setShimmerLayoutView(viewBinding.shimmerContainerNative.root)
+                    }
+                } else {
+                    NativeAdsUtils.loadAndShowNative(
+                        activity = requireActivity(),
+                        lifecycleOwner = viewLifecycleOwner,
+                        placement = "native_onboarding",
+                        nativeContentView = viewBinding.nativeAdContent,
+                        shimmerContainerNative = viewBinding.shimmerContainerNative.root
+                    )
+                }
+            }
+        }
 
         viewBinding.switchCamera.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {

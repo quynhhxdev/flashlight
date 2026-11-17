@@ -77,6 +77,10 @@ class SpManager(private val preferences: SharedPreferences) {
             ?: Language("en", R.drawable.ic_eng, R.string.english)
     }
 
+    fun hasLanguageSaved(): Boolean {
+        return preferences.contains(Constant.KEY_SP_CURRENT_LANGUAGE)
+    }
+
     fun setLanguageChosen() {
         preferences.edit { putBoolean(Constant.KEY_SP_LANGUAGE_CHOSEN, true) }
     }
