@@ -4,29 +4,37 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.main.MainActivity
-import com.example.flashlight.utils.ads.resolver.AdsIdResolver
-import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
-import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.ads.NativeAdsUtils
+import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
+import com.example.flashlight.utils.ads.resolver.AdsIdResolver
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentPermissionBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
+
+    private val viewModel: PermissionViewModel by viewModels()
 
     private val cameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            viewBinding.switchCamera.isChecked = isGranted
-            updateContinueButtonState(isGranted)
+            viewModel.updateCameraPermission(isGranted)
             if (isGranted) {
-                Toast.makeText(context, "Camera permission granted", Toast.LENGTH_SHORT).show()
+                Log.d("Permission", getString(R.string.permission_camera_granted))
             }
         }
 
@@ -65,10 +73,10 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
                 if (!isCameraPermissionGranted()) {
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 } else {
-                    updateContinueButtonState(true)
+                    viewModel.updateCameraPermission(true)
                 }
             } else {
-                updateContinueButtonState(false)
+                viewModel.updateCameraPermission(false)
             }
         }
 
@@ -77,7 +85,7 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             } else {
                 val newState = !viewBinding.switchCamera.isChecked
-                viewBinding.switchCamera.isChecked = newState
+                viewModel.updateCameraPermission(newState)
             }
         }
 
@@ -85,7 +93,20 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
             if (isCameraPermissionGranted()) {
                 navigateToMain()
             } else {
-                Toast.makeText(context, "Please grant camera permission to continue", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.permission_camera_needed, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        observeUiState()
+    }
+
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    viewBinding.switchCamera.isChecked = state.isCameraGranted
+                    updateContinueButtonState(state.isContinueEnabled)
+                }
             }
         }
     }
@@ -97,8 +118,7 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
 
     private fun checkPermissionState() {
         val isGranted = isCameraPermissionGranted()
-        viewBinding.switchCamera.isChecked = isGranted
-        updateContinueButtonState(isGranted)
+        viewModel.updateCameraPermission(isGranted)
     }
 
     private fun updateContinueButtonState(isGranted: Boolean) {
@@ -124,7 +144,7 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
 
     private fun navigateToMain() {
         activity?.let { act ->
-            SpManager.getInstance(act).setOnboardingCompleted(true)
+            viewModel.completePermissionAndMarkOnboarding()
             val intent = Intent(act, MainActivity::class.java)
             startActivity(intent)
             act.finish()

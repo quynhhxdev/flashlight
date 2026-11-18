@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Settings"
+        android:text="@string/settings_title"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -57,7 +57,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:layout_weight="1"
-                android:text="Language"
+                android:text="@string/setting_language"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 
@@ -66,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="English"
+                android:text="@string/english"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:textColor="@color/bg_yellow_switch"
                 android:textSize="16sp" />
@@ -103,7 +103,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:layout_weight="1"
-                android:text="Share"
+                android:text="@string/setting_share"
                 android:textColor="#E2E8F0"
                 android:textSize="15sp" />
 
@@ -139,7 +139,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:layout_weight="1"
-                android:text="Rate app"
+                android:text="@string/setting_rate"
                 android:textColor="#E2E8F0"
                 android:textSize="15sp" />
 
@@ -175,7 +175,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:layout_weight="1"
-                android:text="Privacy policy"
+                android:text="@string/setting_privacy"
                 android:textColor="#E2E8F0"
                 android:textSize="15sp" />
 
@@ -211,7 +211,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:layout_weight="1"
-                android:text="Policy setting"
+                android:text="@string/setting_policy"
                 android:textColor="#E2E8F0"
                 android:textSize="15sp" />
 

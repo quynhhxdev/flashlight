@@ -136,8 +136,15 @@ class NativeFullscreenAdController {
         overlay.isVisible = true
 
         closeButton.apply {
-            text = if (countdownSeconds > 0) "Close in $countdownSeconds" else "X"
-            isEnabled = countdownSeconds <= 0
+            if (countdownSeconds > 0) {
+                text = "Close in $countdownSeconds"
+                background = null
+                isEnabled = false
+            } else {
+                text = ""
+                setBackgroundResource(com.kt.flashlight.R.drawable.ic_close_button)
+                isEnabled = true
+            }
             isVisible = true
             setOnClickListener {
                 if (isEnabled) {
@@ -164,7 +171,8 @@ class NativeFullscreenAdController {
                     if (!isShowing || !overlay.isVisible) return@launch
                 }
 
-                closeButton.text = "X"
+                closeButton.text = ""
+                closeButton.setBackgroundResource(com.kt.flashlight.R.drawable.ic_close_button)
                 closeButton.isEnabled = true
 
                 // Tự động bỏ qua sau autoSkipDelay

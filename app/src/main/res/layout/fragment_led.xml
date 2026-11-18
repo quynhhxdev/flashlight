@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="LED"
+        android:text="@string/led_title"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -121,7 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
-                        android:text="Text"
+                        android:text="@string/led_label_text"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp" />
 
@@ -180,7 +180,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
-                        android:text="Font Size"
+                        android:text="@string/led_font_size"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -222,7 +222,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
-                        android:text="Scroll Speed"
+                        android:text="@string/led_scroll_speed"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -280,7 +280,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
-                        android:text="Color"
+                        android:text="@string/led_color"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp" />
 
@@ -381,7 +381,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
-                        android:text="Direction"
+                        android:text="@string/led_direction"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp" />
 
@@ -482,7 +482,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
-                        android:text="Visual Effects"
+                        android:text="@string/led_visual_effects"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp" />
 
@@ -502,7 +502,7 @@
                             android:fontFamily="@font/plus_jakarta_sans_regular"
                             android:gravity="center"
                             android:paddingHorizontal="20dp"
-                            android:text="Glow"
+                            android:text="@string/effect_glow"
                             android:textColor="@color/bg_yellow_switch"
                             android:textSize="16sp" />
 
@@ -516,7 +516,7 @@
                             android:fontFamily="@font/plus_jakarta_sans_regular"
                             android:gravity="center"
                             android:paddingHorizontal="20dp"
-                            android:text="Blink"
+                            android:text="@string/effect_blink"
                             android:textColor="@color/bg_no_select_btn"
                             android:textSize="16sp" />
 
@@ -530,7 +530,7 @@
                             android:fontFamily="@font/plus_jakarta_sans_regular"
                             android:gravity="center"
                             android:paddingHorizontal="20dp"
-                            android:text="Neon"
+                            android:text="@string/effect_neon"
                             android:textColor="@color/bg_no_select_btn"
                             android:textSize="16sp" />
 
@@ -549,7 +549,7 @@
                             android:fontFamily="@font/plus_jakarta_sans_regular"
                             android:gravity="center"
                             android:paddingHorizontal="20dp"
-                            android:text="Fade"
+                            android:text="@string/effect_fade"
                             android:textColor="@color/bg_no_select_btn"
                             android:textSize="16sp" />
                     </LinearLayout>

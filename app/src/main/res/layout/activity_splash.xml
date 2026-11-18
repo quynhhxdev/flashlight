@@ -94,13 +94,13 @@
         <FrameLayout
             android:id="@+id/banner_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent" />
 
-            <include
-                layout="@layout/layout_banner_control"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
+        <include
+            android:id="@+id/shimmerBannerSplash"
+            layout="@layout/layout_banner_control"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

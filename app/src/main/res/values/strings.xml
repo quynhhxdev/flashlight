@@ -44,5 +44,84 @@
     <string name="allow_camera_content">Allow camera access for flashlight LED.</string>
     <string name="choose_one">Choose One</string>
 
+    <!-- Navigation -->
+    <string name="nav_flashlight">Flashlight</string>
+    <string name="nav_screen_light">Screen Light</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Language Screen -->
+    <string name="language">Language</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="save">Save</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Flashlight</string>
+    <string name="power_on">ON</string>
+    <string name="power_off">OFF</string>
+    <string name="mode_flash">Flash Light</string>
+    <string name="mode_sos">SOS Light</string>
+    <string name="mode_dj">DJ Mode</string>
+    <string name="camera_permission_required_flash">Camera permission is required to use flashlight</string>
+    <string name="error_flash_not_supported">Device does not support flash</string>
+    <string name="error_flash_control_failed">Unable to control flash</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Screen Light</string>
+    <string name="brightness">Brightness</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">HELLO WORLD</string>
+    <string name="led_label_text">Text</string>
+    <string name="led_font_size">Font Size</string>
+    <string name="led_scroll_speed">Scroll Speed</string>
+    <string name="led_color">Color</string>
+    <string name="led_direction">Direction</string>
+    <string name="led_visual_effects">Visual Effects</string>
+    <string name="effect_glow">Glow</string>
+    <string name="effect_blink">Blink</string>
+    <string name="effect_neon">Neon</string>
+    <string name="effect_fade">Fade</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="setting_language">Language</string>
+    <string name="setting_share">Share</string>
+    <string name="setting_rate">Rate app</string>
+    <string name="setting_privacy">Privacy policy</string>
+    <string name="setting_policy">Policy setting</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Next</string>
+    <string name="onb_title_1">Bright Flashlight</string>
+    <string name="onb_desc_1">Turn your phone into a powerful\nflashlight anytime.</string>
+    <string name="onb_title_2">SOS &amp; DJ Mode</string>
+    <string name="onb_desc_2">Use SOS mode for emergencies or\nDJ mode for parties.</string>
+    <string name="onb_title_3">LED Banner</string>
+    <string name="onb_desc_3">Display scrolling LED text with customizable\ncolors and effects.</string>
+    <string name="onb_title_4">Screen Light</string>
+    <string name="onb_desc_4">Use your display as a bright colored\nlight source.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Permission</string>
+    <string name="permission_subtitle">FlashLight is requesting access to provide you with the best service possible</string>
+    <string name="permission_camera">Camera</string>
+    <string name="btn_continue">Continue</string>
+    <string name="permission_camera_granted">Camera permission granted</string>
+    <string name="permission_camera_needed">Please grant camera permission to continue</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Oops, No Internet Connection</string>
+    <string name="no_internet_message">Make sure wifi or cellular data is turned on\nand then try again.</string>
+    <string name="btn_go_to_settings">Go to Settings</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Choose</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">This action may contain advertisements</string>
+
     <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
 </resources>

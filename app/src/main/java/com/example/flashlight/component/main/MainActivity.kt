@@ -6,28 +6,37 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ads.admob.helper.banner.params.AdBannerState
 import com.example.flashlight.base.activity.BaseActivity
+import com.example.flashlight.component.main.fagment.FlashAlertFragment
 import com.example.flashlight.component.main.fagment.FlashlightFragment
 import com.example.flashlight.component.main.fagment.LedFragment
 import com.example.flashlight.component.main.fagment.ScreenLightFragment
-import com.example.flashlight.component.main.fagment.FlashAlertFragment
+import com.example.flashlight.utils.ads.BannerAdsUtils
 import com.example.flashlight.utils.ads.manager.FeatureInterAdsManager
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private var currentTab = TAB_FLASHLIGHT
+    private var currentBannerState: AdBannerState = AdBannerState.None
 
     override fun provideViewBinding() = ActivityMainBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Preload inter quảng cáo cho các tính năng ngay khi vào MainActivity
         FeatureInterAdsManager.preload(this)
-
+        setupBannerAd()
         setupBottomNavigation()
 
         if (savedInstanceState == null) {
@@ -35,7 +44,36 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         } else {
             currentTab = savedInstanceState.getInt(KEY_SELECTED_TAB, TAB_FLASHLIGHT)
             updateNavState(currentTab)
+            updateBannerVisibility()
         }
+    }
+
+    private fun setupBannerAd() {
+        BannerAdsUtils.initBannerMain(
+            activity = this,
+            lifecycleOwner = this,
+            bannerContentView = binding.bannerContent,
+            shimmerLayoutView = binding.shimmerContainerBanner.root,
+            placement = "banner_main",
+            onReady = { bannerHelper ->
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        bannerHelper.getBannerState().collect { state ->
+                            currentBannerState = state
+                            updateBannerVisibility()
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    private fun updateBannerVisibility() {
+        val isSettingsTab = (currentTab == TAB_SETTINGS)
+        val bannerHelper = BannerAdsUtils.getBannerHelper("banner_main")
+        val isFailed = (currentBannerState == AdBannerState.Fail || currentBannerState == AdBannerState.Cancel)
+
+        binding.flBannerContainer.isGone = isSettingsTab || isFailed || bannerHelper == null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -45,25 +83,35 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun setupBottomNavigation() = with(binding.layoutBottomNav) {
         btnNavFlashlight.setOnClickListener {
-            selectTab(TAB_FLASHLIGHT)
+            if (currentTab != TAB_FLASHLIGHT) {
+                triggerFeatureInterAd { selectTab(TAB_FLASHLIGHT) }
+            }
         }
 
         btnNavScreenLight.setOnClickListener {
-            selectTab(TAB_SCREEN_LIGHT)
+            if (currentTab != TAB_SCREEN_LIGHT) {
+                triggerFeatureInterAd { selectTab(TAB_SCREEN_LIGHT) }
+            }
         }
 
         btnNavLed.setOnClickListener {
-            selectTab(TAB_LED)
+            if (currentTab != TAB_LED) {
+                triggerFeatureInterAd { selectTab(TAB_LED) }
+            }
         }
 
         btnNavSettings.setOnClickListener {
-            selectTab(TAB_SETTINGS)
+            if (currentTab != TAB_SETTINGS) {
+                triggerFeatureInterAd { selectTab(TAB_SETTINGS) }
+            }
         }
     }
 
     fun selectTab(tab: Int) {
+        val oldTab = currentTab
         currentTab = tab
         updateNavState(tab)
+        updateBannerVisibility()
 
         val fragment: Fragment = when (tab) {
             TAB_FLASHLIGHT -> FlashlightFragment.newInstance()
@@ -73,7 +121,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             else -> FlashlightFragment.newInstance()
         }
 
-        replaceFragment(R.id.fragmentContainer, fragment)
+        val transaction = supportFragmentManager.beginTransaction()
+        if (oldTab != tab) {
+            if (tab > oldTab) {
+                transaction.setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
+            } else {
+                transaction.setCustomAnimations(
+                    R.anim.slide_in_left,
+                    R.anim.slide_out_right
+                )
+            }
+        }
+        transaction.replace(R.id.fragmentContainer, fragment).commit()
     }
 
     private fun updateNavState(selectedTab: Int) = with(binding.layoutBottomNav) {
@@ -102,19 +164,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
     }
 
-    /**
-     * Điểm vào tập trung để các Fragment kích hoạt inter quảng cáo tính năng.
-     * Fragment chỉ cần gọi hàm này, KHÔNG tự quản lý counter hay logic show ads.
-     *
-     * @param onAdFinished Callback được gọi sau khi ads đóng hoặc bị bỏ qua
-     *                     (Fragment tiến hành hành động thực sự sau đây, vd: bật đèn)
-     */
     fun triggerFeatureInterAd(onAdFinished: () -> Unit = {}) {
         FeatureInterAdsManager.onFeatureUsed(
             activity = this,
             lifecycleOwner = this,
             onAdFinished = onAdFinished
         )
+    }
+
+    override fun onDestroy() {
+        BannerAdsUtils.releaseBanner("banner_main")
+        super.onDestroy()
     }
 
     companion object {

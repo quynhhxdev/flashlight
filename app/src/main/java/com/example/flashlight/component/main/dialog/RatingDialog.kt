@@ -3,10 +3,9 @@ package com.example.flashlight.component.main.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
+import com.example.flashlight.base.dialog.BaseDialog
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.DialogRatingCartBinding
-import com.example.flashlight.base.dialog.BaseDialog
-
 
 class RatingDialog @JvmOverloads constructor(
     context: Context,
@@ -99,38 +98,15 @@ class RatingDialog @JvmOverloads constructor(
             }
         }
 
-        when (rating) {
-            1 -> {
-                viewBinding.ivEmotion.setImageResource(R.drawable.ic_1star)
-                viewBinding.tvTitle.setText(R.string.rating_title_1)
-                viewBinding.tvDescription.setText(R.string.rating_desc_1)
-            }
-            2 -> {
-                viewBinding.ivEmotion.setImageResource(R.drawable.ic_2star)
-                viewBinding.tvTitle.setText(R.string.rating_title_2)
-                viewBinding.tvDescription.setText(R.string.rating_desc_2)
-            }
-            3 -> {
-                viewBinding.ivEmotion.setImageResource(R.drawable.ic_3star)
-                viewBinding.tvTitle.setText(R.string.rating_title_3)
-                viewBinding.tvDescription.setText(R.string.rating_desc_3)
-            }
-            4 -> {
-                viewBinding.ivEmotion.setImageResource(R.drawable.ic_4star)
-                viewBinding.tvTitle.setText(R.string.rating_title_4)
-                viewBinding.tvDescription.setText(R.string.rating_desc_4)
-            }
-            5 -> {
-                viewBinding.ivEmotion.setImageResource(R.drawable.ic_5star)
-                viewBinding.tvTitle.setText(R.string.rating_title_5)
-                viewBinding.tvDescription.setText(R.string.rating_desc_5)
-            }
-            else -> {
-                viewBinding.ivEmotion.setImageResource(R.drawable.ic_like_name_app)
-                val displayAppName = appName ?: context.getString(R.string.app_name)
-                viewBinding.tvTitle.text = context.getString(R.string.rating_title_default, displayAppName)
-                viewBinding.tvDescription.setText(R.string.rating_desc_default)
-            }
+        val displayState = RatingHelper.getRatingState(rating)
+        viewBinding.ivEmotion.setImageResource(displayState.emotionDrawableRes)
+        viewBinding.tvDescription.setText(displayState.descriptionRes)
+
+        if (displayState.titleRes != null) {
+            viewBinding.tvTitle.setText(displayState.titleRes)
+        } else {
+            val displayAppName = appName ?: context.getString(R.string.app_name)
+            viewBinding.tvTitle.text = context.getString(R.string.rating_title_default, displayAppName)
         }
     }
 }

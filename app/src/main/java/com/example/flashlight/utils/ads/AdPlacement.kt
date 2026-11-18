@@ -39,8 +39,8 @@ object AdPlacement {
     const val REMOTE_INTERVAL_BETWEEN_INTERSTITIAL = "interval_between_interstitial"
 
     // Default values
-    const val DEFAULT_INTER_FEATURE_FREQUENCY = 2L   // show on every 2nd usage
-    const val DEFAULT_INTERVAL_BETWEEN_INTER_MS = 0L // 0 = no minimum interval
+    const val DEFAULT_INTER_FEATURE_FREQUENCY = 2L   // show on every 2nd usage (2, 4, 6, 8...)
+    const val DEFAULT_INTERVAL_BETWEEN_INTER_MS = 30_000L // 30 seconds interval between ads
 
     // E. App Open Ads Placements
     const val ADS_APP_OPEN_RESUME_ENABLED = "ads_app_open_resume"

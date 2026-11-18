@@ -2,14 +2,7 @@ package com.example.flashlight.component.main.dialog
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Shader
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -45,12 +38,11 @@ class ColorPickerDialog @JvmOverloads constructor(
     override fun initViews() {
         super.initViews()
 
-        val hsv = FloatArray(3)
-        Color.colorToHSV(initialColor, hsv)
-        currentHue = hsv[0]
-        currentSat = hsv[1]
-        currentVal = hsv[2]
-        currentAlpha = Color.alpha(initialColor)
+        val hsvAlpha = ColorPickerHelper.colorToHsvAlpha(initialColor)
+        currentHue = hsvAlpha[0]
+        currentSat = hsvAlpha[1]
+        currentVal = hsvAlpha[2]
+        currentAlpha = hsvAlpha[3].toInt()
 
         viewBinding.sbHue.progress = currentHue.toInt()
         viewBinding.sbAlpha.progress = currentAlpha
@@ -76,12 +68,8 @@ class ColorPickerDialog @JvmOverloads constructor(
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-
         val radius = 8.5f * context.resources.displayMetrics.density
-
-        viewBinding.viewHueGradient.background =
-            HueGradientDrawable(radius)
-
+        viewBinding.viewHueGradient.background = HueGradientDrawable(radius)
 
         viewBinding.btnChooseColor.setOnClickListener {
             onColorSelected(currentColor)
@@ -103,7 +91,6 @@ class ColorPickerDialog @JvmOverloads constructor(
                     currentSat = (x / width).coerceIn(0f, 1f)
                     currentVal = (1f - (y / height)).coerceIn(0f, 1f)
 
-                    // Position pointer thumb
                     viewBinding.viewColorPointer.x = x - (viewBinding.viewColorPointer.width / 2f)
                     viewBinding.viewColorPointer.y = y - (viewBinding.viewColorPointer.height / 2f)
 
@@ -115,156 +102,21 @@ class ColorPickerDialog @JvmOverloads constructor(
         }
     }
 
-    private fun create2DPaletteDrawable(hue: Float): LayerDrawable {
-        val radiusPx = 16f * context.resources.displayMetrics.density
-
-        // Layer 0: Base Hue color (solid color for current hue)
-        val baseHue = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = radiusPx
-            setColor(Color.HSVToColor(floatArrayOf(hue, 1f, 1f)))
-        }
-
-        // Layer 1: White to Transparent (Horizontal Saturation)
-        val satGrad = GradientDrawable(
-            GradientDrawable.Orientation.LEFT_RIGHT,
-            intArrayOf(Color.parseColor("#FFFFFFFF"), Color.parseColor("#00FFFFFF"))
-        ).apply {
-            cornerRadius = radiusPx
-        }
-
-        // Layer 2: Transparent to Black (Vertical Value/Brightness)
-        val valGrad = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(Color.parseColor("#00000000"), Color.parseColor("#FF000000"))
-        ).apply {
-            cornerRadius = radiusPx
-        }
-
-        return LayerDrawable(arrayOf(baseHue, satGrad, valGrad))
-    }
-
-    private fun createCheckerboardDrawable(context: Context): BitmapDrawable {
-        val size = 12 // size of checker square in pixels
-        val bitmap = Bitmap.createBitmap(size * 2, size * 2, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val paintLight = Paint().apply { color = Color.parseColor("#FFFFFF") }
-        val paintDark = Paint().apply { color = Color.parseColor("#C4C4C4") }
-
-        canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paintLight)
-        canvas.drawRect(size.toFloat(), 0f, (size * 2).toFloat(), size.toFloat(), paintDark)
-        canvas.drawRect(0f, size.toFloat(), size.toFloat(), (size * 2).toFloat(), paintDark)
-        canvas.drawRect(size.toFloat(), size.toFloat(), (size * 2).toFloat(), (size * 2).toFloat(), paintLight)
-
-        return BitmapDrawable(context.resources, bitmap).apply {
-            setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
-        }
-    }
-
     private fun updateColorFromSliders() {
-        val hueColor = Color.HSVToColor(floatArrayOf(currentHue, currentSat, currentVal))
-        currentColor = Color.argb(
-            currentAlpha,
-            Color.red(hueColor),
-            Color.green(hueColor),
-            Color.blue(hueColor)
-        )
+        currentColor = ColorPickerHelper.calculateColor(currentHue, currentSat, currentVal, currentAlpha)
 
-        // Update ivColorPalette 2D gradient background dynamically using current Hue, keeping 4 rounded corners
+        val radiusPx = 16f * context.resources.displayMetrics.density
         viewBinding.ivColorPalette.setImageDrawable(null)
-        viewBinding.ivColorPalette.background = create2DPaletteDrawable(currentHue)
+        viewBinding.ivColorPalette.background = ColorPickerHelper.create2DPaletteDrawable(currentHue, radiusPx)
 
-        // Update alpha slider gradient dynamically based on selected hue
-        val solidHueColor = Color.argb(255, Color.red(hueColor), Color.green(hueColor), Color.blue(hueColor))
-        val transHueColor = Color.argb(0, Color.red(hueColor), Color.green(hueColor), Color.blue(hueColor))
-
-        val alphaDrawable = GradientDrawable(
-            GradientDrawable.Orientation.LEFT_RIGHT,
-            intArrayOf(transHueColor, solidHueColor)
-        ).apply {
-            cornerRadius = 8.5f * context.resources.displayMetrics.density
-        }
-
-        val checkerboard = createCheckerboardDrawable(context)
-
-        val bgDrawable = LayerDrawable(
-            arrayOf(
-                checkerboard,
-                alphaDrawable
-            )
+        val sliderRadius = 8.5f * context.resources.displayMetrics.density
+        viewBinding.sbAlpha.progressDrawable = ColorPickerHelper.createAlphaSliderDrawable(
+            context, currentHue, currentSat, currentVal, sliderRadius
         )
-        viewBinding.sbAlpha.progressDrawable = bgDrawable
 
-        // Update HEX and RGB text views
-        val hex = String.format("#%08X", currentColor)
-        viewBinding.etHex.setText(hex)
-        viewBinding.etR.setText(Color.red(currentColor).toString())
-        viewBinding.etG.setText(Color.green(currentColor).toString())
-        viewBinding.etB.setText(Color.blue(currentColor).toString())
+        viewBinding.etHex.setText(ColorPickerHelper.formatHex(currentColor))
+        viewBinding.etR.setText(ColorPickerHelper.getRed(currentColor).toString())
+        viewBinding.etG.setText(ColorPickerHelper.getGreen(currentColor).toString())
+        viewBinding.etB.setText(ColorPickerHelper.getBlue(currentColor).toString())
     }
 }
-
-
-private class HueGradientDrawable(
-    private val cornerRadius: Float
-) : android.graphics.drawable.Drawable() {
-
-    private val paint = android.graphics.Paint(
-        android.graphics.Paint.ANTI_ALIAS_FLAG
-    )
-
-    private val colors = intArrayOf(
-        Color.RED,
-        Color.parseColor("#FFFF6B00"),
-        Color.parseColor("#FFFFE600"),
-        Color.parseColor("#FF24FF00"),
-        Color.parseColor("#FF00FFF0"),
-        Color.parseColor("#FF0029FF"),
-        Color.parseColor("#FF8F00FF"),
-        Color.parseColor("#FFFF00E5"),
-        Color.RED
-    )
-
-    private val positions = floatArrayOf(
-        0f, 0.1458f, 0.25f, 0.401f,
-        0.5156f, 0.6615f, 0.7344f,
-        0.8698f, 1f
-    )
-
-    override fun draw(canvas: android.graphics.Canvas) {
-        val bounds = bounds
-        if (bounds.isEmpty) return
-
-        paint.shader = android.graphics.LinearGradient(
-            bounds.left.toFloat(),
-            bounds.top.toFloat(),
-            bounds.right.toFloat(),
-            bounds.top.toFloat(),
-            colors,
-            positions,
-            android.graphics.Shader.TileMode.CLAMP
-        )
-
-        canvas.drawRoundRect(
-            android.graphics.RectF(bounds),
-            cornerRadius,
-            cornerRadius,
-            paint
-        )
-    }
-
-    override fun setAlpha(alpha: Int) {
-        paint.alpha = alpha
-    }
-
-    override fun setColorFilter(
-        colorFilter: android.graphics.ColorFilter?
-    ) {
-        paint.colorFilter = colorFilter
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun getOpacity(): Int =
-        android.graphics.PixelFormat.TRANSLUCENT
-}
-

@@ -43,4 +43,83 @@
     <string name="allow_camera_title">카메라 사용 허용</string>
     <string name="allow_camera_content">손전등 LED 기능을 위해 카메라 접근을 허용하세요.</string>
     <string name="choose_one">하나 선택</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">손전등</string>
+    <string name="nav_screen_light">화면 라이트</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- Language Screen -->
+    <string name="language">언어</string>
+    <string name="choose_language">언어 선택</string>
+    <string name="save">저장</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">손전등</string>
+    <string name="power_on">켜짐</string>
+    <string name="power_off">꺼짐</string>
+    <string name="mode_flash">일반 라이트</string>
+    <string name="mode_sos">SOS 라이트</string>
+    <string name="mode_dj">DJ 모드</string>
+    <string name="camera_permission_required_flash">손전등을 사용하려면 카메라 권한이 필요합니다</string>
+    <string name="error_flash_not_supported">기기에서 플래시를 지원하지 않습니다</string>
+    <string name="error_flash_control_failed">플래시를 제어할 수 없습니다</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">화면 라이트</string>
+    <string name="brightness">밝기</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">안녕하세요</string>
+    <string name="led_label_text">텍스트</string>
+    <string name="led_font_size">글꼴 크기</string>
+    <string name="led_scroll_speed">스크롤 속도</string>
+    <string name="led_color">색상</string>
+    <string name="led_direction">방향</string>
+    <string name="led_visual_effects">시각 효과</string>
+    <string name="effect_glow">글로우</string>
+    <string name="effect_blink">깜빡임</string>
+    <string name="effect_neon">네온</string>
+    <string name="effect_fade">페이드</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">설정</string>
+    <string name="setting_language">언어</string>
+    <string name="setting_share">공유</string>
+    <string name="setting_rate">앱 평가</string>
+    <string name="setting_privacy">개인정보 처리방침</string>
+    <string name="setting_policy">서비스 이용약관</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">다음</string>
+    <string name="onb_title_1">밝은 손전등</string>
+    <string name="onb_desc_1">언제든지 스마트폰을 강력한\n손전등으로 활용하세요.</string>
+    <string name="onb_title_2">SOS &amp; DJ 모드</string>
+    <string name="onb_desc_2">비상시에는 SOS 모드, 파티에는\nDJ 모드를 사용해보세요.</string>
+    <string name="onb_title_3">LED 전광판</string>
+    <string name="onb_desc_3">맞춤형 색상과 효과로 흐르는\nLED 텍스트를 표시하세요.</string>
+    <string name="onb_title_4">화면 라이트</string>
+    <string name="onb_desc_4">화면을 밝고 다채로운 조명으로\n사용하세요.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">권한</string>
+    <string name="permission_subtitle">%1$s은(는) 최상의 서비스를 제공하기 위해 접근 권한을 요청합니다</string>
+    <string name="permission_camera">카메라</string>
+    <string name="btn_continue">계속</string>
+    <string name="permission_camera_granted">카메라 권한이 허용되었습니다</string>
+    <string name="permission_camera_needed">계속하려면 카메라 권한을 허용해주세요</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">인터넷 연결 없음</string>
+    <string name="no_internet_message">와이파이나 모바일 데이터가 켜져 있는지 확인하고\n다시 시도해주세요.</string>
+    <string name="btn_go_to_settings">설정으로 이동</string>
+    <string name="btn_cancel">취소</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">선택</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">이 작업에는 광고가 포함될 수 있습니다</string>
 </resources>

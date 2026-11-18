@@ -43,4 +43,83 @@
     <string name="allow_camera_title">कैमरे की अनुमति दें</string>
     <string name="allow_camera_content">फ़्लैशलाइट LED के लिए कैमरे का उपयोग करने की अनुमति दें।</string>
     <string name="choose_one">एक चुनें</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">फ़्लैशलाइट</string>
+    <string name="nav_screen_light">स्क्रीन लाइट</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <!-- Language Screen -->
+    <string name="language">भाषा</string>
+    <string name="choose_language">भाषा चुनें</string>
+    <string name="save">सहेजें</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">फ़्लैशलाइट</string>
+    <string name="power_on">चालू</string>
+    <string name="power_off">बंद</string>
+    <string name="mode_flash">फ़्लैश लाइट</string>
+    <string name="mode_sos">SOS लाइट</string>
+    <string name="mode_dj">DJ मोड</string>
+    <string name="camera_permission_required_flash">फ़्लैशलाइट का उपयोग करने के लिए कैमरा अनुमति आवश्यक है</string>
+    <string name="error_flash_not_supported">डिवाइस फ़्लैश का समर्थन नहीं करता है</string>
+    <string name="error_flash_control_failed">फ़्लैश को नियंत्रित करने में असमर्थ</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">स्क्रीन लाइट</string>
+    <string name="brightness">चमक</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">नमस्ते दुनिया</string>
+    <string name="led_label_text">टेक्स्ट</string>
+    <string name="led_font_size">फ़ॉन्ट आकार</string>
+    <string name="led_scroll_speed">स्क्रॉल गति</string>
+    <string name="led_color">रंग</string>
+    <string name="led_direction">दिशा</string>
+    <string name="led_visual_effects">विजुअल प्रभाव</string>
+    <string name="effect_glow">चमक</string>
+    <string name="effect_blink">झपकी</string>
+    <string name="effect_neon">नियॉन</string>
+    <string name="effect_fade">फ़ेड</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="setting_language">भाषा</string>
+    <string name="setting_share">शेयर करें</string>
+    <string name="setting_rate">ऐप को रेट करें</string>
+    <string name="setting_privacy">गोपनीयता नीति</string>
+    <string name="setting_policy">सेवा की शर्तें</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">आगे बढ़ें</string>
+    <string name="onb_title_1">तेज फ़्लैशलाइट</string>
+    <string name="onb_desc_1">किसी भी समय अपने फ़ोन को एक शक्तिशाली\nफ़्लैशलाइट में बदलें।</string>
+    <string name="onb_title_2">SOS और DJ मोड</string>
+    <string name="onb_desc_2">आपात स्थिति के लिए SOS मोड या\nपार्टियों के लिए DJ मोड का उपयोग करें।</string>
+    <string name="onb_title_3">LED बैनर</string>
+    <string name="onb_desc_3">अनुकूलन योग्य रंगों और प्रभावों के साथ\nस्क्रॉलिंग LED टेक्स्ट प्रदर्शित करें।</string>
+    <string name="onb_title_4">स्क्रीन लाइट</string>
+    <string name="onb_desc_4">अपनी स्क्रीन को रंगीन प्रकाश स्रोत\nके रूप में उपयोग करें।</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">अनुमति</string>
+    <string name="permission_subtitle">%1$s आपको सर्वोत्तम सेवा प्रदान करने के लिए एक्सेस का अनुरोध कर रहा है</string>
+    <string name="permission_camera">कैमरा</string>
+    <string name="btn_continue">जारी रखें</string>
+    <string name="permission_camera_granted">कैमरा अनुमति दी गई</string>
+    <string name="permission_camera_needed">जारी रखने के लिए कृपया कैमरा अनुमति दें</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">ओह, कोई इंटरनेट कनेक्शन नहीं है</string>
+    <string name="no_internet_message">सुनिश्चित करें कि वाई-फ़ाई या मोबाइल डेटा चालू है\nऔर फिर पुनः प्रयास करें।</string>
+    <string name="btn_go_to_settings">सेटिंग्स पर जाएं</string>
+    <string name="btn_cancel">रद्द करें</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">चुनें</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">इस क्रिया में विज्ञापन हो सकते हैं</string>
 </resources>

@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Izinkan akses kamera</string>
     <string name="allow_camera_content">Izinkan akses kamera untuk LED senter.</string>
     <string name="choose_one">Pilih satu</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">Senter</string>
+    <string name="nav_screen_light">Lampu Layar</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- Language Screen -->
+    <string name="language">Bahasa</string>
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="save">Simpan</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Senter</string>
+    <string name="power_on">NYALA</string>
+    <string name="power_off">MATI</string>
+    <string name="mode_flash">Lampu Flash</string>
+    <string name="mode_sos">Lampu SOS</string>
+    <string name="mode_dj">Mode DJ</string>
+    <string name="camera_permission_required_flash">Izin kamera diperlukan untuk menggunakan senter</string>
+    <string name="error_flash_not_supported">Perangkat tidak mendukung lampu kilat</string>
+    <string name="error_flash_control_failed">Tidak dapat mengontrol lampu kilat</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Lampu Layar</string>
+    <string name="brightness">Kecerahan</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">HALO DUNIA</string>
+    <string name="led_label_text">Teks</string>
+    <string name="led_font_size">Ukuran Huruf</string>
+    <string name="led_scroll_speed">Kecepatan</string>
+    <string name="led_color">Warna</string>
+    <string name="led_direction">Arah</string>
+    <string name="led_visual_effects">Efek Visual</string>
+    <string name="effect_glow">Bercahaya</string>
+    <string name="effect_blink">Berkedip</string>
+    <string name="effect_neon">Neon</string>
+    <string name="effect_fade">Memudar</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="setting_language">Bahasa</string>
+    <string name="setting_share">Bagikan</string>
+    <string name="setting_rate">Beri nilai aplikasi</string>
+    <string name="setting_privacy">Kebijakan privasi</string>
+    <string name="setting_policy">Ketentuan layanan</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Berikutnya</string>
+    <string name="onb_title_1">Senter Terang</string>
+    <string name="onb_desc_1">Ubah ponsel Anda menjadi senter yang kuat\nkapan saja.</string>
+    <string name="onb_title_2">Mode SOS &amp; DJ</string>
+    <string name="onb_desc_2">Gunakan mode SOS untuk darurat atau\nmode DJ untuk pesta.</string>
+    <string name="onb_title_3">Spanduk LED</string>
+    <string name="onb_desc_3">Tampilkan teks berjalan LED dengan warna dan\nefek yang dapat disesuaikan.</string>
+    <string name="onb_title_4">Lampu Layar</string>
+    <string name="onb_desc_4">Gunakan layar Anda sebagai sumber cahaya\nberwarna terang.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Izin</string>
+    <string name="permission_subtitle">%1$s meminta akses untuk memberikan layanan terbaik bagi Anda</string>
+    <string name="permission_camera">Kamera</string>
+    <string name="btn_continue">Lanjutkan</string>
+    <string name="permission_camera_granted">Izin kamera diberikan</string>
+    <string name="permission_camera_needed">Harap berikan izin kamera untuk melanjutkan</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Ups, Tidak Ada Koneksi Internet</string>
+    <string name="no_internet_message">Pastikan wifi atau data seluler aktif\nlalu coba lagi.</string>
+    <string name="btn_go_to_settings">Buka Pengaturan</string>
+    <string name="btn_cancel">Batal</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Pilih</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Tindakan ini mungkin berisi iklan</string>
 </resources>

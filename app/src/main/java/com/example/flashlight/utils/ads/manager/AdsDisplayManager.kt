@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 object AdsDisplayManager {
 
-    private const val MIN_SPLASH_DURATION = 1000L
+    private const val MIN_SPLASH_DURATION = 2000L
 
     fun prepareInterstitial(
         activity: Activity,
@@ -93,7 +93,7 @@ object AdsDisplayManager {
             }
 
             // 2. Banner check (Step 1 & Step 2)
-            val bannerHelper = BannerAdsUtils.bannerAdMain
+            val bannerHelper = BannerAdsUtils.getBannerHelper("banner_splash")
             if (bannerHelper != null) {
                 Logger.e("SplashAdsFlow: Checking banner status")
                 val bannerReady = withTimeoutOrNull(1000L.milliseconds) {

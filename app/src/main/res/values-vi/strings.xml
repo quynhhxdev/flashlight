@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Cho phép truy cập camera</string>
     <string name="allow_camera_content">Cho phép truy cập camera để sử dụng đèn LED của đèn pin.</string>
     <string name="choose_one">Chọn một</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">Đèn pin</string>
+    <string name="nav_screen_light">Đèn màn hình</string>
+    <string name="nav_led">Đèn LED</string>
+    <string name="nav_settings">Cài đặt</string>
+
+    <!-- Language Screen -->
+    <string name="language">Ngôn ngữ</string>
+    <string name="choose_language">Chọn ngôn ngữ</string>
+    <string name="save">Lưu</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Đèn pin</string>
+    <string name="power_on">BẬT</string>
+    <string name="power_off">TẮT</string>
+    <string name="mode_flash">Đèn sáng</string>
+    <string name="mode_sos">Đèn SOS</string>
+    <string name="mode_dj">Chế độ DJ</string>
+    <string name="camera_permission_required_flash">Cần quyền Máy ảnh để sử dụng đèn flash</string>
+    <string name="error_flash_not_supported">Thiết bị không hỗ trợ đèn flash</string>
+    <string name="error_flash_control_failed">Không thể điều khiển đèn flash</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Đèn màn hình</string>
+    <string name="brightness">Độ sáng</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">Đèn LED</string>
+    <string name="led_default_text">XIN CHÀO</string>
+    <string name="led_label_text">Văn bản</string>
+    <string name="led_font_size">Kích cỡ chữ</string>
+    <string name="led_scroll_speed">Tốc độ cuộn</string>
+    <string name="led_color">Màu sắc</string>
+    <string name="led_direction">Hướng chạy</string>
+    <string name="led_visual_effects">Hiệu ứng</string>
+    <string name="effect_glow">Phát sáng</string>
+    <string name="effect_blink">Nhấp nháy</string>
+    <string name="effect_neon">Neon</string>
+    <string name="effect_fade">Mờ ảo</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Cài đặt</string>
+    <string name="setting_language">Ngôn ngữ</string>
+    <string name="setting_share">Chia sẻ</string>
+    <string name="setting_rate">Đánh giá ứng dụng</string>
+    <string name="setting_privacy">Chính sách bảo mật</string>
+    <string name="setting_policy">Điều khoản dịch vụ</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Tiếp theo</string>
+    <string name="onb_title_1">Đèn pin siêu sáng</string>
+    <string name="onb_desc_1">Biến điện thoại của bạn thành đèn pin\nmạnh mẽ mọi lúc.</string>
+    <string name="onb_title_2">Chế độ SOS &amp; DJ</string>
+    <string name="onb_desc_2">Dùng chế độ SOS khi khẩn cấp hoặc\nchế độ DJ cho các bữa tiệc.</string>
+    <string name="onb_title_3">Bảng chữ LED</string>
+    <string name="onb_desc_3">Hiển thị chữ LED chạy chữ với màu sắc\nvà hiệu ứng tùy chỉnh.</string>
+    <string name="onb_title_4">Đèn màn hình</string>
+    <string name="onb_desc_4">Dùng màn hình của bạn như một nguồn sáng\nsặc sỡ sắc màu.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Quyền truy cập</string>
+    <string name="permission_subtitle">%1$s yêu cầu quyền truy cập để mang đến cho bạn trải nghiệm tốt nhất</string>
+    <string name="permission_camera">Máy ảnh</string>
+    <string name="btn_continue">Tiếp tục</string>
+    <string name="permission_camera_granted">Đã cấp quyền Máy ảnh</string>
+    <string name="permission_camera_needed">Vui lòng cấp quyền Máy ảnh để tiếp tục</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Rất tiếc, không có kết nối Internet</string>
+    <string name="no_internet_message">Hãy kiểm tra Wi-Fi hoặc dữ liệu di động\nrồi thử lại nhé.</string>
+    <string name="btn_go_to_settings">Đến Cài đặt</string>
+    <string name="btn_cancel">Hủy</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Chọn</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Thao tác này có thể chứa quảng cáo</string>
 </resources>

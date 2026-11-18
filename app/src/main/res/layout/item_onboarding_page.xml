@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
-        android:text="Bright Flashlight"
+        android:text="@string/onb_title_1"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:gravity="center" />
@@ -39,7 +39,7 @@
         android:layout_marginTop="4dp"
         android:fontFamily="@font/plus_jakarta_sans_regular"
         android:gravity="center"
-        android:text="Turn your phone into a powerful flashlight anytime."
+        android:text="@string/onb_desc_1"
         android:textColor="#BDBDBD"
         android:textSize="12sp" />
 

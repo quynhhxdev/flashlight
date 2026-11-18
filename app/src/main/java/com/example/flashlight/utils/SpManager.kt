@@ -5,8 +5,10 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.example.flashlight.App
-import com.kt.flashlight.R
 import com.example.flashlight.data.model.Language
+import com.example.flashlight.data.model.LanguageOptions
+import com.kt.flashlight.R
+import java.util.Locale
 
 class SpManager(private val preferences: SharedPreferences) {
     companion object {
@@ -73,8 +75,13 @@ class SpManager(private val preferences: SharedPreferences) {
     }
 
     fun getLanguage(): Language {
-        return preferences.getString(Constant.KEY_SP_CURRENT_LANGUAGE, "")?.toLanguageModel()
-            ?: Language("en", R.drawable.ic_eng, R.string.english)
+        val savedLanguage = preferences.getString(Constant.KEY_SP_CURRENT_LANGUAGE, "")?.toLanguageModel()
+        if (savedLanguage != null) return savedLanguage
+
+        val deviceLanguageCode = App.context?.getDeviceLanguage() ?: Locale.getDefault().language
+        val matchedLanguage = LanguageOptions.all.firstOrNull { it.languageCode.equals(deviceLanguageCode, ignoreCase = true) }
+
+        return matchedLanguage ?: Language("en", R.drawable.ic_eng, R.string.english)
     }
 
     fun hasLanguageSaved(): Boolean {

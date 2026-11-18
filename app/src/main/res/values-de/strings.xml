@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Kamerazugriff zulassen</string>
     <string name="allow_camera_content">Erlaube den Kamerazugriff für die LED-Taschenlampenfunktion.</string>
     <string name="choose_one">Eine auswählen</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">Taschenlampe</string>
+    <string name="nav_screen_light">Bildschirmlicht</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Einstellungen</string>
+
+    <!-- Language Screen -->
+    <string name="language">Sprache</string>
+    <string name="choose_language">Sprache wählen</string>
+    <string name="save">Speichern</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Taschenlampe</string>
+    <string name="power_on">AN</string>
+    <string name="power_off">AUS</string>
+    <string name="mode_flash">Blitzlicht</string>
+    <string name="mode_sos">SOS-Licht</string>
+    <string name="mode_dj">DJ-Modus</string>
+    <string name="camera_permission_required_flash">Kameraberechtigung ist erforderlich, um die Taschenlampe zu nutzen</string>
+    <string name="error_flash_not_supported">Gerät unterstützt kein Blitzlicht</string>
+    <string name="error_flash_control_failed">Blitzlicht kann nicht gesteuert werden</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Bildschirmlicht</string>
+    <string name="brightness">Helligkeit</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">HALLO WELT</string>
+    <string name="led_label_text">Text</string>
+    <string name="led_font_size">Schriftgröße</string>
+    <string name="led_scroll_speed">Geschwindigkeit</string>
+    <string name="led_color">Farbe</string>
+    <string name="led_direction">Richtung</string>
+    <string name="led_visual_effects">Visuelle Effekte</string>
+    <string name="effect_glow">Leuchten</string>
+    <string name="effect_blink">Blinken</string>
+    <string name="effect_neon">Neon</string>
+    <string name="effect_fade">Verblassen</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="setting_language">Sprache</string>
+    <string name="setting_share">Teilen</string>
+    <string name="setting_rate">App bewerten</string>
+    <string name="setting_privacy">Datenschutzrichtlinie</string>
+    <string name="setting_policy">Nutzungsbedingungen</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Weiter</string>
+    <string name="onb_title_1">Helle Taschenlampe</string>
+    <string name="onb_desc_1">Verwandeln Sie Ihr Telefon jederzeit in eine\nstarke Taschenlampe.</string>
+    <string name="onb_title_2">SOS- &amp; DJ-Modus</string>
+    <string name="onb_desc_2">SOS-Modus für Notfälle oder\nDJ-Modus für Partys verwenden.</string>
+    <string name="onb_title_3">LED-Banner</string>
+    <string name="onb_desc_3">Lauftext mit anpassbaren Farben und\nEffekten anzeigen.</string>
+    <string name="onb_title_4">Bildschirmlicht</string>
+    <string name="onb_desc_4">Nutzen Sie Ihren Bildschirm als helle,\nfarbige Lichtquelle.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Berechtigung</string>
+    <string name="permission_subtitle">%1$s benötigt Zugriff, um Ihnen das bestmögliche Erlebnis zu bieten</string>
+    <string name="permission_camera">Kamera</string>
+    <string name="btn_continue">Fortfahren</string>
+    <string name="permission_camera_granted">Kameraberechtigung erteilt</string>
+    <string name="permission_camera_needed">Bitte Kameraberechtigung erteilen, um fortzufahren</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Hoppla, keine Internetverbindung</string>
+    <string name="no_internet_message">Stellen Sie sicher, dass WLAN oder mobile Daten aktiviert sind,\nund versuchen Sie es erneut.</string>
+    <string name="btn_go_to_settings">Zu den Einstellungen</string>
+    <string name="btn_cancel">Abbrechen</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Auswählen</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Diese Aktion kann Werbung enthalten</string>
 </resources>

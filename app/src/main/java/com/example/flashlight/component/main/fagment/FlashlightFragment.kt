@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -13,35 +12,34 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.main.FlashUiState
-import com.example.flashlight.component.main.MainViewModel
 import com.example.flashlight.data.model.FlashMode
-import com.example.flashlight.data.repositories.FlashRepository
 import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentFlashlightBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel: FlashlightViewModel by viewModels()
 
     private val cameraPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                triggerFeatureAdThenToggle()
+                viewModel.toggleFlashlight()
             } else {
                 Toast.makeText(
                     requireContext(),
-                    "Cần quyền Camera để sử dụng đèn flash",
+                    R.string.camera_permission_required_flash,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -51,7 +49,6 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
         FragmentFlashlightBinding.inflate(layoutInflater, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupViewModel()
         super.onViewCreated(view, savedInstanceState)
         NativeAdsUtils.bindHomeNative(
             activity = requireActivity(),
@@ -63,37 +60,21 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
         observeUiState()
     }
 
-    private fun setupViewModel() {
-        val repository = FlashRepository(requireContext().applicationContext)
-
-        val factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MainViewModel(repository) as T
-            }
-        }
-
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            factory
-        )[MainViewModel::class.java]
-    }
-
     private fun setupListeners() = with(viewBinding) {
         btnPower.setOnClickListener {
             checkCameraPermission()
         }
 
         btnModeFlash.setOnClickListener {
-            viewModel.selectMode(FlashMode.FLASH)
+            viewModel.setFlashMode(FlashMode.FLASH)
         }
 
         btnModeSos.setOnClickListener {
-            viewModel.selectMode(FlashMode.SOS)
+            viewModel.setFlashMode(FlashMode.SOS)
         }
 
         btnModeDj.setOnClickListener {
-            viewModel.selectMode(FlashMode.DJ)
+            viewModel.setFlashMode(FlashMode.DJ)
         }
     }
 
@@ -104,29 +85,13 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
                 context,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
-                triggerFeatureAdThenToggle()
+                viewModel.toggleFlashlight()
             }
-
             else -> {
                 cameraPermissionLauncher.launch(
                     Manifest.permission.CAMERA
                 )
             }
-        }
-    }
-
-    /**
-     * Thông báo cho MainActivity tăng counter & hiển thị inter (nếu đủ điều kiện).
-     * Sau khi ads đóng (hoặc bỏ qua) mới thực sự toggle flash.
-     */
-    private fun triggerFeatureAdThenToggle() {
-        val mainActivity = activity as? com.example.flashlight.component.main.MainActivity
-        if (mainActivity != null) {
-            mainActivity.triggerFeatureInterAd {
-                viewModel.toggleFlash()
-            }
-        } else {
-            viewModel.toggleFlash()
         }
     }
 
@@ -143,6 +108,7 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
                             message,
                             Toast.LENGTH_SHORT
                         ).show()
+                        viewModel.clearError()
                     }
                 }
             }
@@ -151,7 +117,7 @@ class FlashlightFragment : BaseFragment<FragmentFlashlightBinding>() {
 
     @SuppressLint("ResourceAsColor")
     private fun renderPowerButton(state: FlashUiState) = with(viewBinding) {
-        tvPowerStatus.text = if (state.isEnabled) "ON" else "OFF"
+        tvPowerStatus.text = if (state.isEnabled) getString(R.string.power_on) else getString(R.string.power_off)
 
         val iconRes = when (state.selectedMode) {
             FlashMode.FLASH -> R.drawable.ic_flash_off

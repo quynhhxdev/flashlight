@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
-                android:text="Flashlight"
+                android:text="@string/nav_flashlight"
                 android:textColor="@color/bg_yellow_switch"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
-                android:text="Edge Lighting"
+                android:text="@string/nav_screen_light"
                 android:textColor="@color/bg_no_select_btn"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
-                android:text="LED"
+                android:text="@string/nav_led"
                 android:textColor="@color/bg_no_select_btn"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
-                android:text="Flash Alert"
+                android:text="@string/nav_settings"
                 android:textColor="@color/bg_no_select_btn"
                 android:textSize="12sp" />
         </LinearLayout>

@@ -242,7 +242,7 @@ object NativeAdsUtils {
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
-                layoutId = R.layout.layout_native_ad_view_type1,
+                layoutId = R.layout.layout_native_ad_view_type2,
                 adPlacement = resolved.placement,
                 reloadIfFirstFail = true
             )
@@ -270,7 +270,15 @@ object NativeAdsUtils {
             val resolved = AdsIdResolver.resolve("native_main") ?: return@doAfterFetch
             if (homeNative == null) {
                 preloadHomeNative(activity)
+            } else {
+                val state = homeNative?.getAdNativeState()?.value
+                if (homeNative?.nativeAd == null && state !is AdNativeState.Loading) {
+                    homeNative?.updateActivity(activity, lifecycleOwner)
+                    homeNative?.requestAds(NativeAdParam.Request)
+                    Logger.e("bindHomeNative: Retrying request for unloaded native ad")
+                }
             }
+            nativeContentView.isVisible = true
             homeNative?.updateActivity(activity, lifecycleOwner)
             homeNative?.setNativeContentView(nativeContentView)
             homeNative?.setShimmerLayoutView(shimmerContainerNative)
@@ -332,7 +340,7 @@ object NativeAdsUtils {
         placement = "native_main",
         nativeContentView = nativeContentView,
         shimmerContainerNative = shimmerContainerNative,
-        layoutId = com.ads.admob.R.layout.layout_native_ad_view_type1
+        layoutId = com.ads.admob.R.layout.layout_native_ad_view_type2
     )
 
 }

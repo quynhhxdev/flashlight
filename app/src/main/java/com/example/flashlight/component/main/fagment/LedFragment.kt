@@ -31,7 +31,6 @@ import com.example.flashlight.component.main.dialog.ColorPickerDialog
 import com.example.flashlight.component.main.fagment.led.LedConfig
 import com.example.flashlight.component.main.fagment.led.LedConfigViewModel
 import com.example.flashlight.component.main.fagment.led.LedScrollController
-import com.example.flashlight.utils.ads.manager.FeatureInterAdsManager
 import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.R
@@ -176,7 +175,7 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         viewBinding.btnEffectBlink.setOnClickListener { chooseEffect(R.id.btnEffectBlink) }
         viewBinding.btnEffectNeon.setOnClickListener { chooseEffect(R.id.btnEffectNeon) }
         viewBinding.btnEffectfade.setOnClickListener { chooseEffect(R.id.btnEffectfade) }
-        viewBinding.btnFullScreen.setOnClickListener { triggerFeatureAdThenFullScreen() }
+        viewBinding.btnFullScreen.setOnClickListener { showFullScreenLed() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -427,20 +426,7 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
         textView.setShadowLayer(20f, 0f, 0f, shadowColor)
     }
 
-    /**
-     * Kích hoạt bộ đếm inter chung qua MainActivity.
-     * Nếu đủ điều kiện → show inter → sau khi đóng ads mới mở full screen LED.
-     */
-    private fun triggerFeatureAdThenFullScreen() {
-        val mainActivity = activity as? MainActivity
-        if (mainActivity != null) {
-            mainActivity.triggerFeatureInterAd {
-                showFullScreenLed()
-            }
-        } else {
-            showFullScreenLed()
-        }
-    }
+
 
     private fun showFullScreenLed() {
         val act = activity ?: return
@@ -538,13 +524,7 @@ class LedFragment : BaseFragment<FragmentLedBinding>() {
                 dialog.dismiss()
             }
         } else {
-            FeatureInterAdsManager.onFeatureUsed(
-                activity = activity,
-                lifecycleOwner = viewLifecycleOwner,
-                onAdFinished = {
-                    dialog.dismiss()
-                }
-            )
+            dialog.dismiss()
         }
     }
 

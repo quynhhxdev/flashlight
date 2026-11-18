@@ -11,22 +11,6 @@
         android:id="@+id/ad_unit_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvAdView"
-            android:layout_width="@dimen/size30"
-            android:layout_height="@dimen/size15"
-            android:layout_marginTop="@dimen/size24"
-            android:background="@drawable/shape_ad_view"
-            android:gravity="center"
-            android:text="Ad"
-            android:textColor="@color/gnt_white"
-            android:textSize="@dimen/size10"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
         <com.google.android.gms.ads.nativead.MediaView
             android:id="@+id/ad_media"
             android:layout_width="match_parent"
@@ -36,61 +20,90 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/ad_call_to_action"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/size40"
-            android:layout_marginHorizontal="@dimen/size10"
-            android:layout_marginBottom="@dimen/size20"
-            android:background="@drawable/shape_cta_native_admob"
-            android:gravity="center"
-            android:lines="1"
-            android:textColor="@color/gnt_white"
-            android:textSize="@dimen/size14"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ad_app_icon"
-            app:layout_constraintHeight_min="@dimen/size40"
-            app:layout_constraintStart_toStartOf="parent" />
-
+        <!-- App Icon -->
         <ImageView
             android:id="@+id/ad_app_icon"
-            android:layout_width="@dimen/size55"
-            android:layout_height="@dimen/size55"
-            android:layout_marginEnd="@dimen/size10"
+            android:layout_width="56dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="16dp"
             android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="@+id/ad_call_to_action"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/bg_native_media"
+            app:layout_constraintBottom_toTopOf="@+id/ad_call_to_action"
+            app:layout_constraintStart_toStartOf="parent"
             tools:src="@tools:sample/avatars" />
 
+        <!-- Ad Label -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvAdView"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:background="@drawable/shape_ad_view"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="Ad"
+            android:textColor="@color/gnt_white"
+            android:textSize="12sp"
+            android:fontFamily="@font/google_sans_flex_regular"
+            app:layout_constraintStart_toEndOf="@id/ad_app_icon"
+            app:layout_constraintTop_toTopOf="@id/ad_app_icon" />
+
+        <!-- Headline -->
+        <TextView
+            android:id="@+id/ad_headline"
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="5dp"
+            android:gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_color_primary"
+            android:textSize="14sp"
+            android:fontFamily="@font/google_sans_flex_medium"
+            app:layout_constraintStart_toEndOf="@id/tvAdView"
+            app:layout_constraintTop_toTopOf="@id/tvAdView"
+            tools:text="Haravan" />
+
+        <!-- Ad Body -->
         <TextView
             android:id="@+id/ad_body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/size10"
+            android:layout_marginTop="2dp"
             android:ellipsize="end"
-            android:maxLines="3"
-            android:textColor="@color/text_color_second"
-            android:textSize="@dimen/size12"
+            android:maxLines="2"
+            android:textColor="#8C8C8C"
+            android:textSize="12sp"
+            android:fontFamily="@font/google_sans_flex_regular"
             android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/ad_call_to_action"
-            app:layout_constraintEnd_toEndOf="@+id/ad_call_to_action"
-            app:layout_constraintStart_toStartOf="@+id/ad_call_to_action"
-            tools:text="@tools:sample/lorem/random" />
+            app:layout_constraintStart_toStartOf="@id/tvAdView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvAdView"
+            tools:text="Ex-Apple engineers turn your iPad, Mac, PC or Android into a blazing fast monitor" />
 
-        <TextView
-            android:id="@+id/ad_headline"
+        <!-- Call To Action -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/ad_call_to_action"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/size5"
-            android:ellipsize="end"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/shape_cta_native_admob"
+            android:gravity="center"
             android:lines="1"
-            android:textColor="@color/text_color_primary"
-            android:textSize="@dimen/size17"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/ad_body"
-            app:layout_constraintEnd_toEndOf="@+id/ad_call_to_action"
-            app:layout_constraintStart_toStartOf="@+id/ad_call_to_action"
-            tools:text="Nhận học bổng du học Mỹ" />
+            android:textAllCaps="false"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textColor="@color/gnt_white"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Install" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.gms.ads.nativead.NativeAdView>

@@ -1,7 +1,6 @@
 package com.example.flashlight.base.activity
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -9,11 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updatePadding
 import androidx.viewbinding.ViewBinding
 import com.example.flashlight.data.model.Language
-import com.example.flashlight.utils.LocaleHelper
 import com.example.flashlight.utils.SpManager
 
 abstract class BaseActivity<V : ViewBinding> : AppCompatActivity() {
@@ -22,12 +19,10 @@ abstract class BaseActivity<V : ViewBinding> : AppCompatActivity() {
     val binding: V
         get() = _binding ?: throw IllegalStateException("ViewBinding cannot be accessed before onCreate or after onDestroy")
 
-    protected lateinit var currentLanguage: Language
+    // protected lateinit var currentLanguage: Language
 
     override fun attachBaseContext(newBase: Context) {
-        currentLanguage = SpManager.getInstance(newBase).getLanguage()
-        val context = LocaleHelper.setLocale(newBase, currentLanguage.languageCode)
-        super.attachBaseContext(context)
+        super.attachBaseContext(newBase)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

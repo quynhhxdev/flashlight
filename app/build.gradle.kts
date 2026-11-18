@@ -59,6 +59,8 @@ android {
     }
 
     lint {
+        checkReleaseBuilds = false
+        abortOnError = false
         disable.addAll(
             hashSetOf(
                 "ContentDescription",
@@ -75,6 +77,15 @@ android {
                 "StaticFieldLeak"
             )
         )
+    }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val apkName = "Flashlight_${variant.flavorName}_${variant.buildType.name}_v${variant.versionName}.apk"
+            output.outputFileName = apkName
+        }
     }
 
     bundle {

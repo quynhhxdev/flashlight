@@ -2,96 +2,99 @@ package com.example.flashlight.component.splash
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
-import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.ads.admob.helper.adnative.params.AdNativeState
 import com.ads.admob.helper.banner.params.AdBannerState
+import com.ads.admob.helper.interstitial.InterstitialAdsHelper
 import com.kt.flashlight.R
 import com.example.flashlight.base.activity.BaseActivity
+import com.example.flashlight.component.language.LanguageActivity
+import com.example.flashlight.component.main.MainActivity
+import com.kt.flashlight.databinding.ActivitySplashBinding
+import com.example.flashlight.utils.Logger
+import com.example.flashlight.utils.dp
+import com.example.flashlight.utils.ads.AdPlacement
 import com.example.flashlight.utils.ads.BannerAdsUtils
 import com.example.flashlight.utils.ads.NativeAdsUtils
-import com.example.flashlight.component.main.MainActivity
-import com.example.flashlight.utils.SpManager
-import com.example.flashlight.utils.ads.manager.AdsDisplayManager
-import com.example.flashlight.utils.ads.AdPlacement
-import com.example.flashlight.utils.Logger
-import com.example.flashlight.component.startup.SplashStartupProgress
-import com.kt.flashlight.databinding.ActivitySplashBinding
 import com.example.flashlight.utils.ads.controller.NativeFullscreenAdController
-import com.example.flashlight.utils.ads.resolver.AdsIdResolver
+import com.example.flashlight.utils.ads.manager.AdsDisplayManager
 import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
+import com.example.flashlight.utils.ads.resolver.AdsIdResolver
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SplashActivity : BaseActivity<ActivitySplashBinding>() {
+
     private val viewModel: SplashViewModel by viewModels()
     private val nativeFullscreenController = NativeFullscreenAdController()
-
-    private var hasNavigated = false
-    private var splashStartTime = 0L
-    private var isProgressCompleted = false
-    private var isBannerFinished = false
-
-    // Native Fullscreen
-    private var isNativeFullscreenEnabled = false
-    private var isNativeFullscreenConfigReady = false
+    private var topSystemBarInset = 0
 
     override fun provideViewBinding() = ActivitySplashBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        splashStartTime = System.currentTimeMillis()
         Logger.e("SplashAdsFlow: Splash started")
         super.onCreate(savedInstanceState)
+        viewModel.initSplash()
     }
 
     override fun initViews() {
-        setupNativeFullscreenInsets()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.splashRoot) { _, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            topSystemBarInset = insets.top
+            updateNativeFullscreenCloseInset()
+            windowInsets
+        }
 
         BannerAdsUtils.initBannerMain(
-            this,
-            this,
-            binding.bannerContent,
-        )
-        val bannerHelper = BannerAdsUtils.bannerAdMain
-        if (bannerHelper == null) {
-            isBannerFinished = true
-        } else {
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    bannerHelper.getBannerState().collect { state: AdBannerState ->
-                        binding.bannerSlot.isGone =
-                            (state == AdBannerState.Fail || state == AdBannerState.Cancel)
-                        when (state) {
-                            is AdBannerState.Loaded -> {
-                                Logger.e("SplashAdsFlow: Banner loaded")
-                                isBannerFinished = true
+            activity = this,
+            lifecycleOwner = this,
+            bannerContentView = binding.bannerContent,
+            shimmerLayoutView = binding.shimmerBannerSplash.root,
+            placement = AdPlacement.ADS_BANNER_SPLASH_ENABLED,
+            onReady = { bannerHelper ->
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        bannerHelper.getBannerState().collect { state: AdBannerState ->
+                            binding.bannerSlot.isGone =
+                                (state == AdBannerState.Fail || state == AdBannerState.Cancel)
+                            when (state) {
+                                is AdBannerState.Loaded,
+                                is AdBannerState.Fail,
+                                is AdBannerState.Cancel -> {
+                                    Logger.e("SplashAdsFlow: Banner state = $state")
+                                    viewModel.updateBannerFinished(true)
+                                }
+                                else -> Unit
                             }
-                            is AdBannerState.Fail -> {
-                                Logger.e("SplashAdsFlow: Banner failed")
-                                isBannerFinished = true
-                            }
-                            is AdBannerState.Cancel -> {
-                                Logger.e("SplashAdsFlow: Banner canceled")
-                                isBannerFinished = true
-                            }
-                            else -> Unit
                         }
                     }
                 }
+            },
+            onUnavailable = {
+                viewModel.updateBannerFinished(true)
             }
-        }
+        )
+    }
+
+    private fun updateNativeFullscreenCloseInset() {
+        val layoutParams = binding.tvNativeFullscreenClose.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.topMargin = topSystemBarInset + 12.dp
+        binding.tvNativeFullscreenClose.layoutParams = layoutParams
     }
 
     override fun initData() {
         NativeAdsUtils.preloadNativeLanguage(this)
-
-        // Preload Native Fullscreen song song với Interstitial
         preloadNativeFullscreen()
 
         AdsDisplayManager.prepareInterstitial(
@@ -99,127 +102,56 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             placement = AdPlacement.INTER_SPLASH
         )
 
+        observeViewModelState()
+
+        viewModel.startLoadingProcess(
+            isSplashAdLoadedProvider = {
+                val interHelper = InterstitialAdsHelper.getInstance(AdPlacement.INTER_SPLASH)
+                interHelper.interstitialAdValue != null
+            },
+            isNativeFullscreenFinishedProvider = { isConfigReady, isEnabled ->
+                val nativeHelper = NativeAdsUtils.nativeFullscreen
+                isConfigReady && (
+                    !isEnabled || nativeHelper == null || run {
+                        val state = nativeHelper.getAdNativeState().value
+                        nativeHelper.nativeAd != null ||
+                                state is AdNativeState.Loaded ||
+                                state is AdNativeState.Fail ||
+                                state is AdNativeState.Cancel
+                    }
+                )
+            }
+        )
+    }
+
+    private fun observeViewModelState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val totalTimeoutMillis = 25_000L
-                val smoothFillDurationMillis = 2_000L
-                var timeoutStartTime = 0L
-                var isTimedOut = false
-                var displayedProgress = 0f
-
-                while (!hasNavigated) {
-                    val currentTime = System.currentTimeMillis()
-                    val totalElapsed = currentTime - splashStartTime
-
-                    val rawFetchProgress = SplashStartupProgress.progress.value // 0 to 100
-                    val isFetchDone = rawFetchProgress >= 100
-                    val interHelper = com.ads.admob.helper.interstitial.InterstitialAdsHelper.getInstance(AdPlacement.INTER_SPLASH)
-                    val isSplashAdLoaded = interHelper.interstitialAdValue != null
-
-                    if (!isBannerFinished && BannerAdsUtils.bannerAdMain == null) {
-                        isBannerFinished = true
-                    }
-
-                    val nativeHelper = NativeAdsUtils.nativeFullscreen
-                    val isNativeFullscreenFinished = isNativeFullscreenConfigReady && (
-                        !isNativeFullscreenEnabled || nativeHelper == null || run {
-                            val state = nativeHelper.getAdNativeState().value
-                            nativeHelper.nativeAd != null ||
-                                    state is AdNativeState.Loaded ||
-                                    state is AdNativeState.Fail ||
-                                    state is AdNativeState.Cancel
-                        }
-                    )
-
-                    val isNormalComplete = isFetchDone && isBannerFinished && isSplashAdLoaded && isNativeFullscreenFinished
-
-                    val targetProgress = if (isNormalComplete || totalElapsed >= totalTimeoutMillis) {
-                        if (!isTimedOut && !isNormalComplete && totalElapsed >= totalTimeoutMillis) {
-                            isTimedOut = true
-                            timeoutStartTime = currentTime
-                            Logger.e("SplashAdsFlow: Total 25s timeout reached, starting smooth fill to 100%")
-                        }
-
-                        if (isNormalComplete) {
-                            100
-                        } else {
-                            val elapsedSinceTimeout = currentTime - timeoutStartTime
-                            val progressAtTimeout = displayedProgress.toInt()
-                            val remainingProgress = 100 - progressAtTimeout
-                            val fillPart = ((elapsedSinceTimeout.toFloat() / smoothFillDurationMillis) * remainingProgress).toInt()
-                            (progressAtTimeout + fillPart).coerceIn(0, 100)
-                        }
-                    } else {
-                        // Chia đều 4 giai đoạn, mỗi giai đoạn 25%:
-                        // 1. Remote Config (0% - 25%)
-                        val stage1 = (rawFetchProgress * 0.25f).toInt().coerceIn(0, 25)
-                        // 2. Banner (25% - 50%)
-                        val stage2 = if (stage1 >= 25 && isBannerFinished) 50 else if (stage1 >= 25) 37 else stage1
-                        // 3. Interstitial (50% - 75%)
-                        val stage3 = if (stage2 >= 50 && isSplashAdLoaded) 75 else if (stage2 >= 50) 62 else stage2
-                        // 4. Native Fullscreen (75% - 100%)
-                        val stage4 = if (stage3 >= 75 && isNativeFullscreenFinished) 100 else if (stage3 >= 75) 87 else stage3
-                        stage4.coerceIn(0, 99)
-                    }
-
-                    if (displayedProgress < targetProgress) {
-                        displayedProgress = (displayedProgress + 1.2f).coerceAtMost(targetProgress.toFloat())
-                    } else if (displayedProgress > targetProgress) {
-                        displayedProgress = targetProgress.toFloat()
-                    }
-
-                    val currentProgress = displayedProgress.toInt().coerceIn(0, 100)
-
+                viewModel.uiState.collect { state ->
                     binding.loadingPercentage.text =
-                        getString(R.string.splash_loading_percentage, currentProgress)
-                    binding.loadingProgress.progress = currentProgress
+                        getString(R.string.splash_loading_percentage, state.progress)
+                    binding.loadingProgress.progress = state.progress
 
-                    val reachedMax = currentProgress >= 100
-                    if (reachedMax) {
-                        if (!isProgressCompleted) {
-                            isProgressCompleted = true
-                            Logger.e("SplashAdsFlow: Progress completed (Normal=$isNormalComplete, TimedOut=$isTimedOut)")
+                    if (state.isProgressCompleted) {
+                        if (viewModel.markNavigated()) {
+                            Logger.e("SplashAdsFlow: Progress completed")
                             checkAndShowSplashAd()
-                            break
                         }
                     }
-                    delay(100L)
                 }
             }
         }
     }
 
-    private fun setupNativeFullscreenInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(
-            binding.nativeFullscreenOverlay
-        ) { view, insets ->
 
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or
-                        WindowInsetsCompat.Type.displayCutout()
-            )
-
-            view.updatePadding(
-                top = systemBars.top
-            )
-
-            insets
-        }
-
-        // Yêu cầu hệ thống gửi WindowInsets
-        ViewCompat.requestApplyInsets(binding.nativeFullscreenOverlay)
-    }
 
     private fun checkAndShowSplashAd() {
-        if (hasNavigated) return
-        hasNavigated = true
-
         AdsDisplayManager.showInterstitial(
             activity = this,
             lifecycleOwner = this,
             placement = AdPlacement.INTER_SPLASH,
-            splashStartTime = splashStartTime,
-            isProgressCompleted = isProgressCompleted,
+            splashStartTime = viewModel.getSplashStartTime(),
+            isProgressCompleted = viewModel.uiState.value.isProgressCompleted,
             onAdFinished = {
                 showNativeFullscreenAd()
             }
@@ -230,9 +162,8 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         if (isFinishing || isDestroyed) return
 
         lifecycleScope.launch {
-            // Chờ Firebase Remote Config xác định trạng thái quảng cáo.
             val configTimeout = System.currentTimeMillis() + 10_000L
-            while (!isNativeFullscreenConfigReady && System.currentTimeMillis() < configTimeout) {
+            while (!viewModel.uiState.value.isNativeFullscreenConfigReady && System.currentTimeMillis() < configTimeout) {
                 delay(100L)
             }
 
@@ -240,7 +171,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 activity = this@SplashActivity,
                 lifecycleOwner = this@SplashActivity,
                 nativeAdHelper = NativeAdsUtils.nativeFullscreen,
-                enabled = isNativeFullscreenEnabled,
+                enabled = viewModel.uiState.value.isNativeFullscreenEnabled,
                 overlay = binding.nativeFullscreenOverlay,
                 content = binding.nativeFullscreenContent,
                 shimmer = binding.shimmerNativeFullscreen.root,
@@ -254,16 +185,18 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     }
 
     private fun navigateToHome() {
-        val spManager = SpManager.getInstance(this)
-        if (spManager.isOnboardingCompleted()) {
-            NativeAdsUtils.preloadHomeNative(this)
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        } else {
-            val intent = Intent(this, com.example.flashlight.component.language.LanguageActivity::class.java).apply {
-                putExtra(com.example.flashlight.component.language.LanguageActivity.EXTRA_FROM_SETTINGS, false)
+        when (viewModel.getNavigationDestination()) {
+            SplashDestination.MAIN -> {
+                NativeAdsUtils.preloadHomeNative(this)
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
-            startActivity(intent)
+            SplashDestination.LANGUAGE -> {
+                val intent = Intent(this, LanguageActivity::class.java).apply {
+                    putExtra(LanguageActivity.EXTRA_FROM_SETTINGS, false)
+                }
+                startActivity(intent)
+            }
         }
         finish()
         applySmoothTransition()
@@ -286,12 +219,10 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         FirebaseConfigManager.instance().doAfterFetch {
             if (isFinishing || isDestroyed) return@doAfterFetch
 
-            isNativeFullscreenEnabled =
-                AdsIdResolver.resolve("native_fullscreen") != null
+            val isEnabled = AdsIdResolver.resolve("native_fullscreen") != null
+            viewModel.updateNativeFullscreenConfig(ready = true, enabled = isEnabled)
 
-            isNativeFullscreenConfigReady = true
-
-            if (isNativeFullscreenEnabled) {
+            if (isEnabled) {
                 Logger.e("SplashAdsFlow: Preloading Native Fullscreen")
                 NativeAdsUtils.preloadNativeFullscreen(this)
             } else {
@@ -302,7 +233,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 
     override fun onDestroy() {
         nativeFullscreenController.release()
-        BannerAdsUtils.releaseBannerMain()
+        BannerAdsUtils.releaseBanner("banner_splash")
         super.onDestroy()
     }
 }

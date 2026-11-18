@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Flashlight"
+        android:text="@string/flashlight_title"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -56,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="OFF"
+                android:text="@string/power_off"
                 android:fontFamily="@font/plus_jakarta_sans_semibold"
                 android:textColor="@color/bg_no_select_btn"
                 android:textSize="16sp" />
@@ -99,7 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Flash Light"
+                android:text="@string/mode_flash"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:textColor="@color/bg_yellow_switch"
                 android:textSize="14sp" />
@@ -128,7 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="SOS Light"
+                android:text="@string/mode_sos"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:textColor="@color/bg_no_select_btn"
                 android:textSize="14sp" />
@@ -156,7 +156,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="DJ Mode"
+                android:text="@string/mode_dj"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
                 android:textColor="@color/bg_no_select_btn"
                 android:textSize="14sp" />

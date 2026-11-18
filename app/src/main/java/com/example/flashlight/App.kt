@@ -5,27 +5,23 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.ads.admob.admob.AdmobFactory
 import com.ads.admob.cmp.ConsentManager
 import com.ads.admob.cmp.interfaces.OnConsentResponse
 import com.ads.admob.config.AfAdConfig
 import com.ads.admob.config.AfAdjustConfig
 import com.ads.admob.config.NetworkProvider
-import com.ads.admob.data.ContentAd
-import com.ads.admob.helper.appoppen.AppResumeAdHelper
 import com.ads.admob.listener.AdmobCallBack
-import com.ads.admob.listener.AppOpenAdCallBack
 import com.example.flashlight.component.startup.SplashStartupProgress
 import com.example.flashlight.utils.Constant
-import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
-import com.example.flashlight.utils.LocaleHelper
 import com.example.flashlight.utils.Logger
 import com.example.flashlight.utils.SpManager
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.LoadAdError
+import com.example.flashlight.utils.ads.manager.AppResumeAdManager
+import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -42,9 +38,6 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
             private set
         private var mInstance: App? = null
         val instance get() = mInstance
-
-        var appResumeAdHelper: AppResumeAdHelper? = null
-            private set
     }
 
     override fun onCreate() {
@@ -52,12 +45,25 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         mInstance = this
         context = applicationContext
 
+        // 1. Khôi phục ngôn ngữ đã lưu
+        initializeAppLanguage()
+
+        // 2. Khởi tạo AdMob
         initAdmob()
 
+        // 3. Khởi tạo App Resume Ads
+        AppResumeAdManager.init(this)
+
+        // 4. Khởi tạo Firebase và fetch Remote Config thay thế bản local tại đây
         if (FirebaseApp.initializeApp(this) != null) {
-            FirebaseConfigManager.instance().fetch(
-                onFetchProgress = { progress -> SplashStartupProgress.update(progress) }
-            )
+
+            //sử dụng bản local remote config
+            FirebaseConfigManager.instance().useHardcodedConfig(true)
+
+            //bản gọi từ firebase
+//            FirebaseConfigManager.instance().fetch(
+//                onFetchProgress = { progress -> SplashStartupProgress.update(progress) }
+//            )
         } else {
             SplashStartupProgress.update(100)
         }
@@ -66,12 +72,24 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         registerActivityLifecycleCallbacks(this)
     }
 
+    private fun initializeAppLanguage() {
+        val language = SpManager.getInstance(this).getLanguage()
+
+        val appLocales = LocaleListCompat.forLanguageTags(
+            language.languageCode
+        )
+
+        if (AppCompatDelegate.getApplicationLocales().toLanguageTags() != appLocales.toLanguageTags()) {
+            AppCompatDelegate.setApplicationLocales(appLocales)
+        }
+    }
+
     fun initConsentManager(activity: Activity, action: () -> Unit) {
         val consentManager = ConsentManager.getInstance(activity)
         consentManager.initReleaseConsent(onConsentResponse = object : OnConsentResponse {
             override fun onResponse(errorMessage: String?) {
                 Logger.e("onResponse: $errorMessage -- ${consentManager.canRequestAds}")
-                initOpenResume()
+                AppResumeAdManager.setupAppResumeAd(this@App)
                 action.invoke()
             }
 
@@ -104,54 +122,16 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         })
     }
 
-    private fun initOpenResume() {
-        appResumeAdHelper?.registerAdListener(object : AppOpenAdCallBack {
-            override fun onAppOpenAdShow() {
-                Logger.e("onAppOpenAdShow")
-            }
-
-            override fun onAppOpenAdClose() {
-                Logger.e("onAppOpenAdClose")
-            }
-
-            override fun onAdLoaded(data: ContentAd) {
-                Logger.e("onAdLoaded")
-            }
-
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                Logger.e("onAdFailedToLoad: ${loadAdError.message}")
-            }
-
-            override fun onAdClicked() {
-                Logger.e("onAdClicked")
-            }
-
-            override fun onAdImpression() {
-                Logger.e("onAdImpression")
-            }
-
-            override fun onAdFailedToShow(adError: AdError) {
-                Logger.e("onAdFailedToShow: ${adError.message}")
-            }
-        })
-    }
-
     fun destroyAppOpenAd() {
-        appResumeAdHelper?.unregisterAllAdListener()
-        appResumeAdHelper?.destroyAds()
-        appResumeAdHelper = null
+        AppResumeAdManager.destroy()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val language = spManager.getLanguage()
-        LocaleHelper.onAttach(this, language.languageCode)
     }
 
     override fun attachBaseContext(base: Context?) {
-        val savedLang = if (base != null) SpManager.getInstance(base).getLanguage().languageCode else Locale.getDefault().language
-        val context = LocaleHelper.onAttach(base, savedLang)
-        super.attachBaseContext(context)
+        super.attachBaseContext(base)
     }
 
     //region Application.ActivityLifecycleCallbacks implementation

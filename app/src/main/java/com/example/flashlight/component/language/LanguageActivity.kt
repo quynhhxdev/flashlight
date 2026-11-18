@@ -2,11 +2,17 @@ package com.example.flashlight.component.language
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import arrow.core.const
 import com.example.flashlight.base.activity.BaseActivity
 import com.example.flashlight.component.onboard.OnboardingActivity
 import com.example.flashlight.utils.ads.resolver.AdsIdResolver
@@ -18,9 +24,13 @@ import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.ads.AdPlacement
 import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.kt.flashlight.databinding.ActivityLanguageBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
 
+    private val viewModel: LanguageViewModel by viewModels()
     private lateinit var adapter: LanguageAdapter
     private var selectedLanguage: Language? = null
     private var isFromSettings = false
@@ -32,8 +42,12 @@ class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
         isFromSettings = intent.getBooleanExtra(EXTRA_FROM_SETTINGS, false)
         setupHeader()
         initLanguageList()
+        observeViewModel()
         setupListeners()
         setupNativeAd()
+
+        // Load dữ liệu sau khi đã thiết lập Observer
+        viewModel.loadLanguage(isFromSettings)
     }
 
     private fun setupHeader() {
@@ -47,23 +61,48 @@ class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
     }
 
     private fun initLanguageList() {
-        val spManager = SpManager.getInstance(this)
-        val hasSaved = spManager.hasLanguageSaved()
-        val currentLang = if (hasSaved || isFromSettings) spManager.getLanguage() else null
-        selectedLanguage = currentLang
 
-        binding.btnSave.isVisible = hasSaved || isFromSettings
-
-        val languages = LanguageOptions.all
-
-        adapter = LanguageAdapter(languages) { selected ->
-            selectedLanguage = selected
-            binding.btnSave.isVisible = true
+        adapter = LanguageAdapter(emptyList()) { language ->
+            viewModel.selectLanguage(language)
         }
-
         binding.rvLanguage.layoutManager = LinearLayoutManager(this)
+
         binding.rvLanguage.adapter = adapter
-        adapter.submitList(languages, currentLang?.languageCode ?: "")
+
+        viewModel.loadLanguage(isFromSettings)
+
+//        val spManager = SpManager.getInstance(this)
+//        val hasSaved = spManager.hasLanguageSaved()
+//        val currentLang = if (hasSaved || isFromSettings) spManager.getLanguage() else null
+//        selectedLanguage = currentLang
+//
+//        binding.btnSave.isVisible = hasSaved || isFromSettings
+//
+//        val languages = LanguageOptions.all
+//
+//        adapter = LanguageAdapter(languages) { selected ->
+//            selectedLanguage = selected
+//            binding.btnSave.isVisible = true
+//        }
+//
+//        binding.rvLanguage.layoutManager = LinearLayoutManager(this)
+//        binding.rvLanguage.adapter = adapter
+//        adapter.submitList(languages, currentLang?.languageCode ?: "")
+    }
+
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    adapter.submitList(
+                        state.languages,
+                        state.selectedLanguage?.languageCode.orEmpty()
+                    )
+
+                    binding.btnSave.isVisible = state.isSaveVisible
+                }
+            }
+        }
     }
 
     private fun setupNativeAd() {
@@ -88,24 +127,29 @@ class LanguageActivity : BaseActivity<ActivityLanguageBinding>() {
         }
 
         binding.btnSave.setOnClickListener {
-            selectedLanguage?.let { lang ->
-                val spManager = SpManager.getInstance(this)
-                spManager.saveLanguage(lang)
-                spManager.setLanguageChosen()
-                LocaleHelper.setLocale(this, lang.languageCode)
+            applySelectedLanguage()
+        }
 
-                // Apply locale using AppCompatDelegate without manual restarting MainActivity
-                val appLocale = LocaleListCompat.forLanguageTags(lang.languageCode)
-                AppCompatDelegate.setApplicationLocales(appLocale)
+    }
 
-                if (isFromSettings) {
-                    setResult(RESULT_OK)
-                } else {
-                    val intent = Intent(this, OnboardingActivity::class.java)
-                    startActivity(intent)
-                }
-                finish()
-            }
+    private fun applySelectedLanguage() {
+        val languaguage = viewModel.saveLanguage() ?: return
+
+        // Áp dụng ngôn ngữ cho toàn bộ ứng dụng.
+        AppCompatDelegate.setApplicationLocales(
+            LocaleListCompat.forLanguageTags(languaguage.languageCode)
+        )
+
+        if (isFromSettings) {
+            // Trả kết quả về Fragment đã mở LanguageActivity
+            setResult(RESULT_OK)
+            finish()
+        } else {
+            // Luồng lần đầu chọn ngôn ngữ
+            startActivity(
+                Intent(this, OnboardingActivity::class.java)
+            )
+            finish()
         }
     }
 

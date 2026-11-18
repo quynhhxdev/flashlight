@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.example.flashlight.data.database.AppDatabase
+import com.example.flashlight.data.repositories.FlashRepository
 import com.example.flashlight.utils.SpManager
 import dagger.Module
 import dagger.Provides
@@ -16,6 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object AppModule {
+
     @Provides
     @Singleton
     fun provideSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences {
@@ -38,4 +40,9 @@ object AppModule {
         ).build()
     }
 
+    @Provides
+    @Singleton
+    fun provideFlashRepository(@ApplicationContext context: Context): FlashRepository {
+        return FlashRepository(context)
+    }
 }

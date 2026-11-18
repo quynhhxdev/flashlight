@@ -1,9 +1,10 @@
 package com.example.flashlight.component.main.fagment
 
+import android.app.Activity
+import android.app.Dialog
 import android.content.pm.ActivityInfo
-import android.graphics.Color
-import android.view.ViewGroup
 import android.view.Gravity
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SeekBar
@@ -11,26 +12,28 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.flashlight.base.fragment.BaseFragment
 import com.example.flashlight.component.main.MainActivity
 import com.example.flashlight.component.main.dialog.ColorPickerDialog
-import com.example.flashlight.utils.ads.resolver.AdsIdResolver
-import com.example.flashlight.utils.SpManager
-import com.example.flashlight.utils.ads.AdPlacement
-import com.example.flashlight.utils.ads.InterAdsUtils
 import com.example.flashlight.utils.ads.NativeAdsUtils
-import com.example.flashlight.utils.ads.manager.FeatureInterAdsManager
+import com.kt.flashlight.R
 import com.kt.flashlight.databinding.FragmentScreenLightBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ScreenLightFragment : BaseFragment<FragmentScreenLightBinding>() {
 
-    private var baseColor = Color.parseColor("#4FC3F7") // Blue default
+    private val viewModel: ScreenLightViewModel by viewModels()
 
     override fun provideViewBinding(container: ViewGroup?) =
         FragmentScreenLightBinding.inflate(layoutInflater, container, false)
 
     override fun initViews() {
-        // Hide internal bottom nav if present
         viewBinding.layoutBottomNav.root.isVisible = false
 
         NativeAdsUtils.bindHomeNative(
@@ -40,91 +43,63 @@ class ScreenLightFragment : BaseFragment<FragmentScreenLightBinding>() {
             shimmerContainerNative = viewBinding.shimmerContainerNative.root
         )
 
-        val spManager = SpManager.getInstance(requireContext())
-        baseColor = spManager.getScreenLightColor(Color.parseColor("#4FC3F7"))
-        val savedBrightness = spManager.getScreenLightBrightness(80)
+        setupListeners()
+        observeUiState()
+    }
 
-        viewBinding.sbBrightness.progress = savedBrightness
-        viewBinding.tvBrightnessValue.text = "$savedBrightness%"
-
-        updateColorPreview(baseColor)
-
-        // Brightness slider listener
+    private fun setupListeners() {
         viewBinding.sbBrightness.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                viewBinding.tvBrightnessValue.text = "$progress%"
-                updateColorPreview(baseColor)
-                spManager.saveScreenLightBrightness(progress)
+                if (fromUser) {
+                    viewModel.updateBrightness(progress)
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        // Click color preview box to open ColorPickerDialog
         viewBinding.cardColorPreview.setOnClickListener {
-            val dialog = ColorPickerDialog(requireContext(), baseColor) { newColor ->
-                baseColor = newColor
-                updateColorPreview(baseColor)
-                spManager.saveScreenLightColor(baseColor)
+            val currentColor = viewModel.uiState.value.baseColor
+            val dialog = ColorPickerDialog(requireContext(), currentColor) { newColor ->
+                viewModel.updateColor(newColor)
             }
             dialog.show()
         }
 
-        // Fullscreen / Zoom button – trigger feature inter trước khi mở
         viewBinding.btnFullScreen.setOnClickListener {
-            triggerFeatureAdThenFullScreen()
-        }
-    }
-
-    /**
-     * Kích hoạt bộ đếm inter chung qua MainActivity.
-     * Nếu đủ điều kiện → show inter → sau khi đóng ads mới mở full screen.
-     * Nếu không đủ → mở full screen ngay.
-     */
-    private fun triggerFeatureAdThenFullScreen() {
-        val mainActivity = activity as? MainActivity
-        if (mainActivity != null) {
-            mainActivity.triggerFeatureInterAd {
-                toggleFullScreenPreview()
-            }
-        } else {
             toggleFullScreenPreview()
         }
     }
 
-    private fun updateColorPreview(color: Int) {
-        baseColor = color
-        val brightness = viewBinding.sbBrightness.progress
-        val adjustedColor = adjustColorBrightness(baseColor, brightness)
-        viewBinding.cardColorPreview.setCardBackgroundColor(adjustedColor)
-    }
-
-    private fun adjustColorBrightness(color: Int, brightnessPercent: Int): Int {
-        val factor = brightnessPercent / 100f
-        val a = Color.alpha(color)
-        val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
-        val g = (Color.green(color) * factor).toInt().coerceIn(0, 255)
-        val b = (Color.blue(color) * factor).toInt().coerceIn(0, 255)
-        return Color.argb(a, r, g, b)
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    if (viewBinding.sbBrightness.progress != state.brightnessProgress) {
+                        viewBinding.sbBrightness.progress = state.brightnessProgress
+                    }
+                    viewBinding.tvBrightnessValue.text = state.brightnessText
+                    viewBinding.cardColorPreview.setCardBackgroundColor(state.adjustedColor)
+                }
+            }
+        }
     }
 
     private fun toggleFullScreenPreview() {
         val act = activity ?: return
 
-        // Rotate to landscape
         act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-        val dialog = android.app.Dialog(act, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        val dialog = Dialog(act, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
 
-        val brightness = viewBinding.sbBrightness.progress
-        val adjustedColor = adjustColorBrightness(baseColor, brightness)
+        val adjustedColor = viewModel.uiState.value.adjustedColor
 
         val fullscreenView = FrameLayout(act).apply {
             setBackgroundColor(adjustedColor)
         }
         val closeButton = ImageView(act).apply {
-            setImageResource(com.kt.flashlight.R.drawable.ic_close_play)
+            setImageResource(R.drawable.ic_close_play)
             contentDescription = "Close full screen"
             isClickable = true
             isFocusable = true
@@ -142,7 +117,6 @@ class ScreenLightFragment : BaseFragment<FragmentScreenLightBinding>() {
 
         dialog.setContentView(fullscreenView)
 
-        // Make dialog window immersive full screen
         dialog.window?.let { window ->
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             window.setBackgroundDrawableResource(android.R.color.transparent)
@@ -160,6 +134,17 @@ class ScreenLightFragment : BaseFragment<FragmentScreenLightBinding>() {
         dialog.show()
     }
 
+    private fun handleClosePlay(activity: Activity, dialog: Dialog) {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity != null) {
+            mainActivity.triggerFeatureInterAd {
+                dialog.dismiss()
+            }
+        } else {
+            dialog.dismiss()
+        }
+    }
+
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }
@@ -167,23 +152,6 @@ class ScreenLightFragment : BaseFragment<FragmentScreenLightBinding>() {
     override fun onDestroyView() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onDestroyView()
-    }
-
-    private fun handleClosePlay(activity: android.app.Activity, dialog: android.app.Dialog) {
-        val mainActivity = activity as? MainActivity
-        if (mainActivity != null) {
-            mainActivity.triggerFeatureInterAd {
-                dialog.dismiss()
-            }
-        } else {
-            FeatureInterAdsManager.onFeatureUsed(
-                activity = activity,
-                lifecycleOwner = viewLifecycleOwner,
-                onAdFinished = {
-                    dialog.dismiss()
-                }
-            )
-        }
     }
 
     companion object {

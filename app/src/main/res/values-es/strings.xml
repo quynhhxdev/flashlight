@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Permitir acceso a la cámara</string>
     <string name="allow_camera_content">Permite el acceso a la cámara para usar el LED de la linterna.</string>
     <string name="choose_one">Elige una opción</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">Linterna</string>
+    <string name="nav_screen_light">Luz de pantalla</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Language Screen -->
+    <string name="language">Idioma</string>
+    <string name="choose_language">Elegir idioma</string>
+    <string name="save">Guardar</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Linterna</string>
+    <string name="power_on">ENCENDIDO</string>
+    <string name="power_off">APAGADO</string>
+    <string name="mode_flash">Luz linterna</string>
+    <string name="mode_sos">Luz SOS</string>
+    <string name="mode_dj">Modo DJ</string>
+    <string name="camera_permission_required_flash">Se requiere permiso de cámara para usar la linterna</string>
+    <string name="error_flash_not_supported">El dispositivo no admite flash</string>
+    <string name="error_flash_control_failed">No se puede controlar el flash</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Luz de pantalla</string>
+    <string name="brightness">Brillo</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">HOLA MUNDO</string>
+    <string name="led_label_text">Texto</string>
+    <string name="led_font_size">Tamaño de fuente</string>
+    <string name="led_scroll_speed">Velocidad</string>
+    <string name="led_color">Color</string>
+    <string name="led_direction">Dirección</string>
+    <string name="led_visual_effects">Efectos visuales</string>
+    <string name="effect_glow">Brillo</string>
+    <string name="effect_blink">Parpadeo</string>
+    <string name="effect_neon">Neón</string>
+    <string name="effect_fade">Desvanecer</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ajustes</string>
+    <string name="setting_language">Idioma</string>
+    <string name="setting_share">Compartir</string>
+    <string name="setting_rate">Calificar app</string>
+    <string name="setting_privacy">Política de privacidad</string>
+    <string name="setting_policy">Términos de servicio</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Siguiente</string>
+    <string name="onb_title_1">Linterna brillante</string>
+    <string name="onb_desc_1">Convierte tu teléfono en una linterna\npotente en cualquier momento.</string>
+    <string name="onb_title_2">Modo SOS y DJ</string>
+    <string name="onb_desc_2">Usa el modo SOS para emergencias o\nel modo DJ para fiestas.</string>
+    <string name="onb_title_3">Pancarta LED</string>
+    <string name="onb_desc_3">Muestra texto LED con colores y\nefectos personalizables.</string>
+    <string name="onb_title_4">Luz de pantalla</string>
+    <string name="onb_desc_4">Usa tu pantalla como una fuente de\nluz de colores brillantes.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Permiso</string>
+    <string name="permission_subtitle">%1$s solicita acceso para brindarte el mejor servicio posible</string>
+    <string name="permission_camera">Cámara</string>
+    <string name="btn_continue">Continuar</string>
+    <string name="permission_camera_granted">Permiso de cámara concedido</string>
+    <string name="permission_camera_needed">Concede permiso de cámara para continuar</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">¡Ups! Sin conexión a Internet</string>
+    <string name="no_internet_message">Asegúrate de que el wifi o los datos móviles estén activados\ne inténtalo de nuevo.</string>
+    <string name="btn_go_to_settings">Ir a Ajustes</string>
+    <string name="btn_cancel">Cancelar</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Elegir</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Esta acción puede contener anuncios</string>
 </resources>

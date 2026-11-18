@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Autoriser l’accès à la caméra</string>
     <string name="allow_camera_content">Autorisez l’accès à la caméra pour utiliser la LED de la lampe torche.</string>
     <string name="choose_one">Choisir</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">Lampe torche</string>
+    <string name="nav_screen_light">Écran lumineux</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Paramètres</string>
+
+    <!-- Language Screen -->
+    <string name="language">Langue</string>
+    <string name="choose_language">Choisir la langue</string>
+    <string name="save">Enregistrer</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Lampe torche</string>
+    <string name="power_on">ON</string>
+    <string name="power_off">OFF</string>
+    <string name="mode_flash">Flash standard</string>
+    <string name="mode_sos">Flash SOS</string>
+    <string name="mode_dj">Mode DJ</string>
+    <string name="camera_permission_required_flash">L\'autorisation de la caméra est requise pour utiliser le flash</string>
+    <string name="error_flash_not_supported">L\'appareil ne prend pas en charge le flash</string>
+    <string name="error_flash_control_failed">Impossible de contrôler le flash</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Écran lumineux</string>
+    <string name="brightness">Luminosité</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">BONJOUR LE MONDE</string>
+    <string name="led_label_text">Texte</string>
+    <string name="led_font_size">Taille de police</string>
+    <string name="led_scroll_speed">Vitesse</string>
+    <string name="led_color">Couleur</string>
+    <string name="led_direction">Direction</string>
+    <string name="led_visual_effects">Effets visuels</string>
+    <string name="effect_glow">Lueur</string>
+    <string name="effect_blink">Clignotement</string>
+    <string name="effect_neon">Néon</string>
+    <string name="effect_fade">Fondu</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Paramètres</string>
+    <string name="setting_language">Langue</string>
+    <string name="setting_share">Partager</string>
+    <string name="setting_rate">Évaluer l\'application</string>
+    <string name="setting_privacy">Politique de confidentialité</string>
+    <string name="setting_policy">Conditions d\'utilisation</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Suivant</string>
+    <string name="onb_title_1">Lampe torche puissante</string>
+    <string name="onb_desc_1">Transformez votre téléphone en lampe\npuissante à tout moment.</string>
+    <string name="onb_title_2">Mode SOS &amp; DJ</string>
+    <string name="onb_desc_2">Utilisez le mode SOS pour les urgences ou\nle mode DJ pour les fêtes.</string>
+    <string name="onb_title_3">Bannière LED</string>
+    <string name="onb_desc_3">Affichez du texte défilant avec couleurs et\neffets personnalisables.</string>
+    <string name="onb_title_4">Écran lumineux</string>
+    <string name="onb_desc_4">Utilisez votre écran comme une source de\nlumière colorée.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Autorisations</string>
+    <string name="permission_subtitle">%1$s demande l\'accès pour vous offrir le meilleur service possible</string>
+    <string name="permission_camera">Appareil photo</string>
+    <string name="btn_continue">Continuer</string>
+    <string name="permission_camera_granted">Autorisation de la caméra accordée</string>
+    <string name="permission_camera_needed">Veuillez accorder l\'autorisation de la caméra pour continuer</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Oups, pas de connexion Internet</string>
+    <string name="no_internet_message">Assurez-vous que le Wi-Fi ou les données mobiles sont activés\npuis réessayez.</string>
+    <string name="btn_go_to_settings">Aller aux paramètres</string>
+    <string name="btn_cancel">Annuler</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Choisir</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Cette action peut contenir des annonces</string>
 </resources>

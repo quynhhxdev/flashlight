@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Разрешить доступ к камере</string>
     <string name="allow_camera_content">Разрешите доступ к камере для работы светодиода фонарика.</string>
     <string name="choose_one">Выберите один вариант</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">Фонарик</string>
+    <string name="nav_screen_light">Свет экрана</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- Language Screen -->
+    <string name="language">Язык</string>
+    <string name="choose_language">Выберите язык</string>
+    <string name="save">Сохранить</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">Фонарик</string>
+    <string name="power_on">ВКЛ</string>
+    <string name="power_off">ВЫКЛ</string>
+    <string name="mode_flash">Обычный свет</string>
+    <string name="mode_sos">Сигнал SOS</string>
+    <string name="mode_dj">Режим DJ</string>
+    <string name="camera_permission_required_flash">Для использования фонарика требуется разрешение камеры</string>
+    <string name="error_flash_not_supported">Устройство не поддерживает вспышку</string>
+    <string name="error_flash_control_failed">Не удалось управлять вспышкой</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Свет экрана</string>
+    <string name="brightness">Яркость</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">ПРИВЕТ МИР</string>
+    <string name="led_label_text">Текст</string>
+    <string name="led_font_size">Размер шрифта</string>
+    <string name="led_scroll_speed">Скорость</string>
+    <string name="led_color">Цвет</string>
+    <string name="led_direction">Направление</string>
+    <string name="led_visual_effects">Визуальные эффекты</string>
+    <string name="effect_glow">Свечение</string>
+    <string name="effect_blink">Мигание</string>
+    <string name="effect_neon">Неон</string>
+    <string name="effect_fade">Затухание</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="setting_language">Язык</string>
+    <string name="setting_share">Поделиться</string>
+    <string name="setting_rate">Оценить приложение</string>
+    <string name="setting_privacy">Политика конфиденциальности</string>
+    <string name="setting_policy">Условия обслуживания</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">Далее</string>
+    <string name="onb_title_1">Яркий фонарик</string>
+    <string name="onb_desc_1">Превратите ваш телефон в мощный\nфонарик в любое время.</string>
+    <string name="onb_title_2">Режимы SOS и DJ</string>
+    <string name="onb_desc_2">Используйте режим SOS в экстренных случаях\nили режим DJ для вечеринок.</string>
+    <string name="onb_title_3">LED бегущая строка</string>
+    <string name="onb_desc_3">Отображайте бегущий текст с настраиваемыми\nцветами и эффектами.</string>
+    <string name="onb_title_4">Свет экрана</string>
+    <string name="onb_desc_4">Используйте экран как источник яркого\nцветного света.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Разрешения</string>
+    <string name="permission_subtitle">%1$s запрашивает доступ для предоставления наилучшего сервиса</string>
+    <string name="permission_camera">Камера</string>
+    <string name="btn_continue">Продолжить</string>
+    <string name="permission_camera_granted">Разрешение камеры предоставлено</string>
+    <string name="permission_camera_needed">Предоставьте разрешение камеры, чтобы продолжить</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Упс, нет подключения к Интернету</string>
+    <string name="no_internet_message">Убедитесь, что Wi-Fi или мобильный интернет включены,\nи повторите попытку.</string>
+    <string name="btn_go_to_settings">Перейти в настройки</string>
+    <string name="btn_cancel">Отмена</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Выбрать</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Это действие может содержать рекламу</string>
 </resources>

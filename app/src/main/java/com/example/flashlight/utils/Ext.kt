@@ -11,6 +11,8 @@ import android.content.res.Resources.getSystem
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StrikethroughSpan
@@ -47,7 +49,7 @@ fun String.toLanguageModel(): Language? {
 }
 
 fun Context.setAppLanguage(languageCode: String) {
-    LocaleHelper.setLocale(this, languageCode)
+    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageCode))
 }
 
 fun Context.getDeviceLanguage(): String {

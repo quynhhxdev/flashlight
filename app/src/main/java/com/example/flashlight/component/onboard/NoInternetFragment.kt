@@ -24,21 +24,22 @@ class NoInternetFragment : BaseFragment<FragmentNoInternetFullscreenBinding>() {
         val act = activity as? AppCompatActivity
         if (act != null) {
             BannerAdsUtils.initBannerMain(
-                act,
-                viewLifecycleOwner,
-                viewBinding.bannerContent
-            )
-            val bannerHelper = BannerAdsUtils.bannerAdMain
-            if (bannerHelper != null) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        bannerHelper.getBannerState().collect { state ->
-                            viewBinding.bannerSlot.isGone =
-                                (state == AdBannerState.Fail || state == AdBannerState.Cancel || state == AdBannerState.None)
+                activity = act,
+                lifecycleOwner = viewLifecycleOwner,
+                bannerContentView = viewBinding.bannerContent,
+                shimmerLayoutView = viewBinding.shimmerContainerBanner.root,
+                placement = "banner_main",
+                onReady = { bannerHelper ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            bannerHelper.getBannerState().collect { state ->
+                                viewBinding.bannerSlot.isGone =
+                                    (state == AdBannerState.Fail || state == AdBannerState.Cancel || state == AdBannerState.None)
+                            }
                         }
                     }
                 }
-            }
+            )
         }
 
         viewBinding.btnGoToSettings.setOnClickListener {
@@ -58,7 +59,6 @@ class NoInternetFragment : BaseFragment<FragmentNoInternetFullscreenBinding>() {
 
     override fun onResume() {
         super.onResume()
-        // Re-check internet when returning from Settings
         if (context?.let { Utils.isConnected(it) } == true) {
             proceedToNextScreen()
         }
@@ -69,7 +69,7 @@ class NoInternetFragment : BaseFragment<FragmentNoInternetFullscreenBinding>() {
     }
 
     override fun onDestroyView() {
-        BannerAdsUtils.releaseBannerMain()
+        BannerAdsUtils.releaseBanner("banner_main")
         super.onDestroyView()
     }
 

@@ -1,12 +1,11 @@
 package com.example.flashlight.component.onboard
 
 import android.os.Bundle
-import android.widget.FrameLayout
-import androidx.appcompat.app.AppCompatActivity
 import com.example.flashlight.base.activity.BaseActivity
-import com.kt.flashlight.R
 import com.kt.flashlight.databinding.ActivityOnboardingBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class IntroActivity : BaseActivity<ActivityOnboardingBinding>() {
 
     override fun provideViewBinding() = ActivityOnboardingBinding.inflate(layoutInflater)

@@ -43,4 +43,83 @@
     <string name="allow_camera_title">Kamera erişimine izin ver</string>
     <string name="allow_camera_content">El fenerinin LED özelliği için kamera erişimine izin verin.</string>
     <string name="choose_one">Birini seç</string>
+
+    <!-- Navigation -->
+    <string name="nav_flashlight">El Feneri</string>
+    <string name="nav_screen_light">Ekran Işığı</string>
+    <string name="nav_led">LED</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Language Screen -->
+    <string name="language">Dil</string>
+    <string name="choose_language">Dil Seçin</string>
+    <string name="save">Kaydet</string>
+
+    <!-- Flashlight Screen -->
+    <string name="flashlight_title">El Feneri</string>
+    <string name="power_on">AÇIK</string>
+    <string name="power_off">KAPALI</string>
+    <string name="mode_flash">Flaş Işığı</string>
+    <string name="mode_sos">SOS Işığı</string>
+    <string name="mode_dj">DJ Modu</string>
+    <string name="camera_permission_required_flash">El fenerini kullanmak için kamera izni gereklidir</string>
+    <string name="error_flash_not_supported">Cihaz flaşı desteklemiyor</string>
+    <string name="error_flash_control_failed">Flaş kontrol edilemiyor</string>
+
+    <!-- Screen Light Screen -->
+    <string name="screen_light_title">Ekran Işığı</string>
+    <string name="brightness">Parlaklık</string>
+
+    <!-- LED Screen -->
+    <string name="led_title">LED</string>
+    <string name="led_default_text">MERHABA DÜNYA</string>
+    <string name="led_label_text">Metin</string>
+    <string name="led_font_size">Yazı Boyutu</string>
+    <string name="led_scroll_speed">Kaydırma Hızı</string>
+    <string name="led_color">Renk</string>
+    <string name="led_direction">Yön</string>
+    <string name="led_visual_effects">Görsel Efektler</string>
+    <string name="effect_glow">Işıma</string>
+    <string name="effect_blink">Yanıp Sönme</string>
+    <string name="effect_neon">Neon</string>
+    <string name="effect_fade">Solma</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="setting_language">Dil</string>
+    <string name="setting_share">Paylaş</string>
+    <string name="setting_rate">Uygulamayı oyla</string>
+    <string name="setting_privacy">Gizlilik politikası</string>
+    <string name="setting_policy">Hizmet şartları</string>
+
+    <!-- Onboarding Screen -->
+    <string name="btn_next">İleri</string>
+    <string name="onb_title_1">Parlak El Feneri</string>
+    <string name="onb_desc_1">Telefonunuzu istediğiniz zaman güçlü bir\nel fenerine dönüştürün.</string>
+    <string name="onb_title_2">SOS ve DJ Modu</string>
+    <string name="onb_desc_2">Acil durumlar için SOS modunu, partiler için\nDJ modunu kullanın.</string>
+    <string name="onb_title_3">LED Tabela</string>
+    <string name="onb_desc_3">Özelleştirilebilir renkler ve efektlerle\nakıcı LED metinleri görüntüleyin.</string>
+    <string name="onb_title_4">Ekran Işığı</string>
+    <string name="onb_desc_4">Ekranınızı renkli ve parlak bir ışık kaynağı\nolarak kullanın.</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">İzin</string>
+    <string name="permission_subtitle">%1$s size en iyi hizmeti sunmak için erişim izni istiyor</string>
+    <string name="permission_camera">Kamera</string>
+    <string name="btn_continue">Devam Et</string>
+    <string name="permission_camera_granted">Kamera izni verildi</string>
+    <string name="permission_camera_needed">Devam etmek için lütfen kamera izni verin</string>
+
+    <!-- No Internet Screen / Dialog -->
+    <string name="no_internet_title">Tüh, İnternet Bağlantısı Yok</string>
+    <string name="no_internet_message">Wi-Fi veya hücresel verinin açık olduğundan emin olun\nve tekrar deneyin.</string>
+    <string name="btn_go_to_settings">Ayarlara Git</string>
+    <string name="btn_cancel">İptal</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="btn_choose">Seç</string>
+
+    <!-- Ads / Splash -->
+    <string name="splash_ad_notice">Bu işlem reklam içerebilir</string>
 </resources>

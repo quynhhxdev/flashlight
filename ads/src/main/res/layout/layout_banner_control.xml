@@ -4,17 +4,18 @@
     android:id="@+id/shimmer_container_banner"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_card_ads"
+    android:background="@color/lightTransparent"
     app:shimmer_auto_start="true"
     app:shimmer_base_alpha="0.85"
-    app:shimmer_base_color="#6D4C87"
-    app:shimmer_highlight_alpha="1.0"
-    app:shimmer_highlight_color="#9575CD">
+    app:shimmer_base_color="#2D333B"
+    app:shimmer_highlight_color="#404756"
+    app:shimmer_highlight_alpha="1.0">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#6D4C87">
+        android:background="@android:color/transparent"
+        android:padding="6dp">
 
         <!-- Nhãn "Ad" màu vàng bo góc trên cùng bên trái -->
         <TextView
@@ -32,36 +33,15 @@
             android:textSize="6sp"
             android:fontFamily="@font/sf_pro_display_medium" />
 
-        <!-- Cụm icon nhỏ góc trên bên phải (AdChoices / Close) -->
-        <LinearLayout
-            android:id="@+id/layout_ad_controls"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="11dp"
-                android:layout_height="11dp"
-                android:layout_marginEnd="1dp"
-                android:background="#80FFFFFF" />
-
-            <View
-                android:layout_width="11dp"
-                android:layout_height="11dp"
-                android:background="#80FFFFFF" />
-        </LinearLayout>
-
         <!-- Khối hình minh họa bên phải -->
-        <ImageView
+        <View
             android:id="@+id/iv_banner_graphic"
-            android:layout_width="110dp"
-            android:layout_height="match_parent"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="8dp"
-            android:background="#26FFFFFF"
-            android:scaleType="centerCrop" />
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:background="#3A414D" />
 
         <!-- Khối tiêu đề lớn bên trái (2 dòng) -->
         <LinearLayout
@@ -70,23 +50,23 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_ad_badge"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="3dp"
             android:orientation="vertical">
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="11dp"
-                android:background="#4DFFFFFF" />
+                android:layout_height="10dp"
+                android:background="#3A414D" />
 
             <View
                 android:layout_width="82dp"
-                android:layout_height="11dp"
+                android:layout_height="10dp"
                 android:layout_marginTop="4dp"
-                android:background="#4DFFFFFF" />
+                android:background="#3A414D" />
         </LinearLayout>
 
-        <!-- Khối mô tả ở giữa (3 dòng) -->
+        <!-- Khối mô tả ở giữa -->
         <LinearLayout
             android:id="@+id/layout_banner_body"
             android:layout_width="0dp"
@@ -101,19 +81,13 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#33FFFFFF" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:layout_marginTop="4dp"
-                android:background="#33FFFFFF" />
+                android:background="#3A414D" />
 
             <View
                 android:layout_width="70dp"
                 android:layout_height="8dp"
                 android:layout_marginTop="4dp"
-                android:background="#33FFFFFF" />
+                android:background="#3A414D" />
         </LinearLayout>
 
     </RelativeLayout>
