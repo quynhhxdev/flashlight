@@ -132,6 +132,22 @@ object AdsIdResolver {
                 defaultNormalId = BuildConfig.native_onboarding,
                 defaultTwoFId = BuildConfig.native_onboarding
             )
+            "native_permission" -> PlacementConfig(
+                normalSwitch = AdPlacement.ADS_NATIVE_PERMISSION_ENABLED,
+                twoFSwitch = AdPlacement.ADS_NATIVE_PERMISSION_ENABLED,
+                normalIdKey = "native_permission",
+                twoFIdKey = "native_permission_2f",
+                defaultNormalId = BuildConfig.native_onboarding,
+                defaultTwoFId = BuildConfig.native_onboarding
+            )
+            "native_splash" -> PlacementConfig(
+                normalSwitch = AdPlacement.ADS_NATIVE_FULL_SPLASH_ENABLED,
+                twoFSwitch = AdPlacement.ADS_NATIVE_FULL_SPLASH_2F_ENABLED,
+                normalIdKey = "native_splash",
+                twoFIdKey = "native_splash_2f",
+                defaultNormalId = BuildConfig.native_splash,
+                defaultTwoFId = BuildConfig.native_splash
+            )
             "native_fullscreen" -> PlacementConfig(
                 normalSwitch = AdPlacement.ADS_NATIVE_OBD12_FULL_ENABLED,
                 twoFSwitch = AdPlacement.ADS_NATIVE_FULL_SPLASH_2F_ENABLED,
@@ -143,9 +159,9 @@ object AdsIdResolver {
             "native_fullscreen_2" -> PlacementConfig(
                 normalSwitch = AdPlacement.ADS_NATIVE_OBD34_FULL_ENABLED,
                 twoFSwitch = AdPlacement.ADS_NATIVE_FULL_SPLASH_2F_ENABLED,
-                normalIdKey = "native_onboarding_fullscreen_2f",
+                normalIdKey = "native_onboarding_fullscreen",
                 twoFIdKey = "native_onboarding_fullscreen_2f",
-                defaultNormalId = BuildConfig.native_onboarding_fullscreen_2f,
+                defaultNormalId = BuildConfig.native_onboarding_fullscreen,
                 defaultTwoFId = BuildConfig.native_onboarding_fullscreen_2f
             )
             "native_home", "native_main" -> PlacementConfig(
@@ -156,13 +172,21 @@ object AdsIdResolver {
                 defaultNormalId = BuildConfig.native_main,
                 defaultTwoFId = BuildConfig.native_main
             )
+            AdPlacement.REWARD_UNLOCK, "reward_unlock" -> PlacementConfig(
+                normalSwitch = AdPlacement.ADS_INTERSTITIAL_ENABLED,
+                twoFSwitch = AdPlacement.ADS_INTERSTITIAL_ENABLED,
+                normalIdKey = AdPlacement.REWARD_UNLOCK,
+                twoFIdKey = "reward_unlock_2f",
+                defaultNormalId = BuildConfig.reward_unlock,
+                defaultTwoFId = BuildConfig.reward_unlock
+            )
             "app_open", "app_open_main", "open_resume" -> PlacementConfig(
                 normalSwitch = AdPlacement.ADS_APP_OPEN_RESUME_ENABLED,
                 twoFSwitch = AdPlacement.ADS_APP_OPEN_RESUME_ENABLED,
-                normalIdKey = "app_open",
-                twoFIdKey = "app_open_2f",
-                defaultNormalId = BuildConfig.app_open,
-                defaultTwoFId = BuildConfig.app_open
+                normalIdKey = "appopen_resume",
+                twoFIdKey = "appopen_resume_2f",
+                defaultNormalId = BuildConfig.appopen_resume,
+                defaultTwoFId = BuildConfig.appopen_resume
             )
             else -> PlacementConfig(
                 normalSwitch = AdPlacement.ADS_INTERSTITIAL_ENABLED,

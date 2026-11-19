@@ -45,7 +45,7 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
         checkPermissionState()
         NativeAdsUtils.preloadHomeNative(requireContext())
         FirebaseConfigManager.instance().doAfterFetch {
-            val resolved = AdsIdResolver.resolve("native_onboarding")
+            val resolved = AdsIdResolver.resolve("native_permission")
             if (resolved == null) {
                 viewBinding.nativeAdContainer.isGone = true
             } else {
@@ -60,7 +60,7 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
                     NativeAdsUtils.loadAndShowNative(
                         activity = requireActivity(),
                         lifecycleOwner = viewLifecycleOwner,
-                        placement = "native_onboarding",
+                        placement = "native_permission",
                         nativeContentView = viewBinding.nativeAdContent,
                         shimmerContainerNative = viewBinding.shimmerContainerNative.root
                     )

@@ -128,6 +128,11 @@ class FirebaseConfigManager {
     }
 
     fun isPaidUser(): Boolean {
+        // Nếu đang dùng hardcoded config (test), ưu tiên dùng giá trị hardcoded
+        if (isUseHardcodedLocalConfigForTest) {
+            return hardcodedIsPaid ?: false
+        }
+        // nếu không có harde code thì gọi từ fire base
         return try {
             IapFactory.getInstance().isProductPurchased()
         } catch (e: Exception) {

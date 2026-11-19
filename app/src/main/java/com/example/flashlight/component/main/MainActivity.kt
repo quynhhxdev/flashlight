@@ -18,6 +18,7 @@ import com.example.flashlight.component.main.fagment.FlashlightFragment
 import com.example.flashlight.component.main.fagment.LedFragment
 import com.example.flashlight.component.main.fagment.ScreenLightFragment
 import com.example.flashlight.utils.ads.BannerAdsUtils
+import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.example.flashlight.utils.ads.manager.FeatureInterAdsManager
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.ActivityMainBinding
@@ -174,6 +175,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onDestroy() {
         BannerAdsUtils.releaseBanner("banner_main")
+        NativeAdsUtils.destroyAll()
         super.onDestroy()
     }
 

@@ -52,7 +52,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
             )
             topSystemBarInset = insets.top
-            updateNativeFullscreenCloseInset()
             windowInsets
         }
 
@@ -87,11 +86,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         )
     }
 
-    private fun updateNativeFullscreenCloseInset() {
-        val layoutParams = binding.tvNativeFullscreenClose.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.topMargin = topSystemBarInset + 12.dp
-        binding.tvNativeFullscreenClose.layoutParams = layoutParams
-    }
+
 
     override fun initData() {
         NativeAdsUtils.preloadNativeLanguage(this)
@@ -175,7 +170,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 overlay = binding.nativeFullscreenOverlay,
                 content = binding.nativeFullscreenContent,
                 shimmer = binding.shimmerNativeFullscreen.root,
-                closeButton = binding.tvNativeFullscreenClose,
                 hideOverlayOnFinish = false,
                 onFinished = {
                     navigateToHome()

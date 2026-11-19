@@ -22,8 +22,7 @@ import kotlinx.coroutines.launch
 data class NativeFullscreenViews(
     val overlay: View,
     val content: FrameLayout,
-    val shimmer: ShimmerFrameLayout,
-    val closeButton: TextView
+    val shimmer: ShimmerFrameLayout
 )
 
 /**
@@ -54,7 +53,6 @@ class NativeFullscreenAdController {
         overlay: View,
         content: FrameLayout,
         shimmer: ShimmerFrameLayout,
-        closeButton: TextView,
         countdownSeconds: Int = 3,
         autoSkipDelay: Long = 4_000L,
         loadTimeout: Long = 10_000L,
@@ -66,7 +64,7 @@ class NativeFullscreenAdController {
             lifecycleOwner = lifecycleOwner,
             nativeAdHelper = nativeAdHelper,
             enabled = enabled,
-            views = NativeFullscreenViews(overlay, content, shimmer, closeButton),
+            views = NativeFullscreenViews(overlay, content, shimmer),
             countdownSeconds = countdownSeconds,
             autoSkipDelay = autoSkipDelay,
             loadTimeout = loadTimeout,
@@ -77,18 +75,6 @@ class NativeFullscreenAdController {
 
     /**
      * Hiển thị Native Fullscreen (truyền qua [NativeFullscreenViews]).
-     *
-     * @param activity Activity hiển thị quảng cáo.
-     * @param lifecycleOwner LifecycleOwner (thường là Activity).
-     * @param nativeAdHelper NativeAdHelper quản lý quảng cáo (đã được preload hoặc đang load).
-     * @param enabled Trạng thái bật/tắt quảng cáo (từ Remote Config).
-     * @param views Bộ views giao diện quảng cáo full screen.
-     * @param countdownSeconds Thời gian đếm ngược trước khi hiện nút đóng (mặc định 3s).
-     * @param autoSkipDelay Thời gian tự động bỏ qua sau khi nút "X" xuất hiện (mặc định 4s).
-     * @param loadTimeout Thời gian chờ tải quảng cáo tối đa trước khi bỏ qua (mặc định 10s).
-     * @param hideOverlayOnFinish Có ẩn overlay đi khi ad đóng hay không.
-     *                             Nên đặt là `false` ở SplashActivity để tránh chớp màn hình Splash trước khi sang màn tiếp theo.
-     * @param onFinished Callback gọi khi quảng cáo kết thúc, lỗi, timeout, hoặc bị tắt (gọi duy nhất 1 lần).
      */
     fun show(
         activity: Activity,
@@ -129,32 +115,31 @@ class NativeFullscreenAdController {
         currentViews = views
         currentOnFinished = onFinished
 
-        val (overlay, content, shimmer, closeButton) = views
+        val (overlay, content, shimmer) = views
 
         // 3. Khởi tạo giao diện
         content.removeAllViews()
         overlay.isVisible = true
 
-        closeButton.apply {
-            if (countdownSeconds > 0) {
-                text = "Close in $countdownSeconds"
-                background = null
-                isEnabled = false
+        nativeAdHelper.setShimmerLayoutView(shimmer)
+        nativeAdHelper.setNativeContentView(content)
+
+        fun updateCloseViews(isCountdown: Boolean, sec: Int = 3) {
+            val tvCountdown = content.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
+            val btnClose = content.findViewById<View>(com.ads.admob.R.id.btnClose)
+            if (isCountdown) {
+                tvCountdown?.text = "Close in $sec"
+                tvCountdown?.isVisible = true
+                btnClose?.isVisible = false
+                btnClose?.setOnClickListener(null)
             } else {
-                text = ""
-                setBackgroundResource(com.kt.flashlight.R.drawable.ic_close_button)
-                isEnabled = true
-            }
-            isVisible = true
-            setOnClickListener {
-                if (isEnabled) {
-                    finish()
+                tvCountdown?.isVisible = false
+                btnClose?.isVisible = true
+                btnClose?.setOnClickListener {
+                    if (isShowing) finish()
                 }
             }
         }
-
-        nativeAdHelper.setShimmerLayoutView(shimmer)
-        nativeAdHelper.setNativeContentView(content)
 
         // 4. Hàm đếm ngược: "Close in 3" -> "Close in 2" -> "Close in 1" -> "X"
         fun startCloseTimer() {
@@ -165,15 +150,13 @@ class NativeFullscreenAdController {
                     for (sec in (countdownSeconds - 1) downTo 1) {
                         delay(1_000L)
                         if (!isShowing || !overlay.isVisible) return@launch
-                        closeButton.text = "Close in $sec"
+                        updateCloseViews(isCountdown = true, sec = sec)
                     }
                     delay(1_000L)
                     if (!isShowing || !overlay.isVisible) return@launch
                 }
 
-                closeButton.text = ""
-                closeButton.setBackgroundResource(com.kt.flashlight.R.drawable.ic_close_button)
-                closeButton.isEnabled = true
+                updateCloseViews(isCountdown = false)
 
                 // Tự động bỏ qua sau autoSkipDelay
                 delay(autoSkipDelay)
@@ -181,6 +164,12 @@ class NativeFullscreenAdController {
 
                 finish()
             }
+        }
+
+        if (countdownSeconds > 0) {
+            updateCloseViews(isCountdown = true, sec = countdownSeconds)
+        } else {
+            updateCloseViews(isCountdown = false)
         }
 
         // 5. Nếu ad đã load thành công -> Bắt đầu đếm ngược ngay
@@ -236,9 +225,6 @@ class NativeFullscreenAdController {
             if (hideOverlayOnFinish) {
                 views.overlay.isGone = true
             }
-            views.closeButton.isGone = true
-            views.closeButton.isEnabled = false
-            views.closeButton.setOnClickListener(null)
         }
 
         val callback = currentOnFinished

@@ -3,7 +3,9 @@ package com.example.flashlight.component.onboard
 import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -237,7 +239,8 @@ class OnboardingPagerAdapter(
                 // Đếm ngược 3s: Close in 3 -> Close in 2 -> Close in 1
                 for (sec in 2 downTo 1) {
                     delay(1_000L)
-                    binding.tvClose.text = "Close in $sec"
+                    val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
+                    tvCountdown?.text = "Close in $sec"
                 }
                 delay(1_000L)
 
@@ -266,32 +269,39 @@ class OnboardingPagerAdapter(
         }
 
         private fun applyTopInset(topInset: Int) {
-            val params = binding.tvClose.layoutParams as ViewGroup.MarginLayoutParams
-            params.topMargin = topInset + 12.dpToPx(binding.root.context)
-            binding.tvClose.layoutParams = params
-        }
-
-        private fun initCloseButtonCountdown() {
-            binding.tvClose.apply {
-                text = "Close in 3"
-                background = null
-                isEnabled = false
-                isVisible = true
-                setOnClickListener(null)
+            val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
+            val btnClose = binding.nativeAdContent.findViewById<View>(com.ads.admob.R.id.btnClose)
+            
+            val params1 = tvCountdown?.layoutParams as? ViewGroup.MarginLayoutParams
+            if (params1 != null) {
+                params1.topMargin = topInset + 12.dpToPx(binding.root.context)
+                tvCountdown.layoutParams = params1
+            }
+            val params2 = btnClose?.layoutParams as? ViewGroup.MarginLayoutParams
+            if (params2 != null) {
+                params2.topMargin = topInset + 12.dpToPx(binding.root.context)
+                btnClose.layoutParams = params2
             }
         }
 
+        private fun initCloseButtonCountdown() {
+            val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
+            val btnClose = binding.nativeAdContent.findViewById<View>(com.ads.admob.R.id.btnClose)
+            tvCountdown?.text = "Close in 3"
+            tvCountdown?.isVisible = true
+            btnClose?.isVisible = false
+            btnClose?.setOnClickListener(null)
+        }
+
         private fun showCloseButton() {
-            binding.tvClose.apply {
-                text = ""
-                setBackgroundResource(R.drawable.ic_close_button)
-                isEnabled = true
-                isVisible = true
-                setOnClickListener {
-                    val pos = bindingAdapterPosition
-                    if (pos >= 0) {
-                        onNativeFullscreenCloseClicked(pos)
-                    }
+            val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
+            val btnClose = binding.nativeAdContent.findViewById<View>(com.ads.admob.R.id.btnClose)
+            tvCountdown?.isVisible = false
+            btnClose?.isVisible = true
+            btnClose?.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos >= 0) {
+                    onNativeFullscreenCloseClicked(pos)
                 }
             }
         }

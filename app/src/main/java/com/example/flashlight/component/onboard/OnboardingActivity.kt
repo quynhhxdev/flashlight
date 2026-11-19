@@ -122,9 +122,13 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
                 updateIndicators(position)
                 updatePageInsets(position)
 
-                // Preload các quảng cáo tiếp theo
+                // Preload các quảng cáo tiếp theo nếu chưa load được
                 when (position) {
-                    2 -> NativeAdsUtils.preloadNativeFullscreen2(this@OnboardingActivity)
+                    2 -> {
+                        if (NativeAdsUtils.nativeFullscreen2?.nativeAd == null) {
+                            NativeAdsUtils.preloadNativeFullscreen2(this@OnboardingActivity)
+                        }
+                    }
                     5 -> NativeAdsUtils.preloadNativePermission(this@OnboardingActivity)
                 }
             }

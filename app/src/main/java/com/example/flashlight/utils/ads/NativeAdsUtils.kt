@@ -62,6 +62,68 @@ object NativeAdsUtils {
         homeNative = null
     }
 
+    fun getCustomNativeLayoutId(): Int {
+        return if (FirebaseConfigManager.instance().isPaidUser()) {
+            R.layout.item_native_ad_custom_paid
+        } else {
+            R.layout.item_native_ad_custom
+        }
+    }
+
+    fun getType2NativeLayoutId(): Int {
+        return if (FirebaseConfigManager.instance().isPaidUser()) {
+            R.layout.layout_native_ad_view_type2_paid
+        } else {
+            R.layout.layout_native_ad_view_type2
+        }
+    }
+
+    fun getCustomNativeShimmerLayoutId(): Int {
+        return if (FirebaseConfigManager.instance().isPaidUser()) {
+            R.layout.loading_native_ad_view_collapsible_paid
+        } else {
+            R.layout.loading_native_ad_view_collapsible
+        }
+    }
+
+    fun getType2NativeShimmerLayoutId(): Int {
+        return if (FirebaseConfigManager.instance().isPaidUser()) {
+            R.layout.loading_native_ad_view_type2_paid
+        } else {
+            R.layout.loading_native_ad_view_type2
+        }
+    }
+
+    fun setupShimmerLayout(
+        shimmerContainer: ShimmerFrameLayout,
+        isType2: Boolean = false
+    ): ShimmerFrameLayout {
+        val shimmerLayoutId = if (isType2) {
+            getType2NativeShimmerLayoutId()
+        } else {
+            getCustomNativeShimmerLayoutId()
+        }
+
+        val context = shimmerContainer.context
+        val parent = shimmerContainer.parent as? android.view.ViewGroup
+
+        if (parent != null) {
+            val index = parent.indexOfChild(shimmerContainer)
+            val layoutParams = shimmerContainer.layoutParams
+            parent.removeViewAt(index)
+
+            val newShimmer = android.view.LayoutInflater.from(context)
+                .inflate(shimmerLayoutId, parent, false) as ShimmerFrameLayout
+            newShimmer.layoutParams = layoutParams
+            parent.addView(newShimmer, index)
+            return newShimmer
+        } else {
+            shimmerContainer.removeAllViews()
+            android.view.LayoutInflater.from(context).inflate(shimmerLayoutId, shimmerContainer, true)
+            return shimmerContainer
+        }
+    }
+
     fun preloadNativeLanguage(appActivity: AppCompatActivity) {
         FirebaseConfigManager.instance().doAfterFetch {
             val resolved = AdsIdResolver.resolve("native_language")
@@ -73,7 +135,7 @@ object NativeAdsUtils {
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
-                layoutId = R.layout.item_native_ad_custom,
+                layoutId = getCustomNativeLayoutId(),
                 adPlacement = resolved.placement,
                 reloadIfFirstFail = true
             )
@@ -103,7 +165,7 @@ object NativeAdsUtils {
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
-                layoutId = R.layout.item_native_ad_custom,
+                layoutId = getCustomNativeLayoutId(),
                 adPlacement = resolved.placement,
                 reloadIfFirstFail = true
             )
@@ -196,7 +258,7 @@ object NativeAdsUtils {
 
     fun preloadNativePermission(appActivity: AppCompatActivity) {
         FirebaseConfigManager.instance().doAfterFetch {
-            val resolved = AdsIdResolver.resolve("native_onboarding")
+            val resolved = AdsIdResolver.resolve("native_permission")
             if (resolved == null) return@doAfterFetch
 
             if (nativePermission != null) return@doAfterFetch
@@ -205,7 +267,7 @@ object NativeAdsUtils {
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
-                layoutId = R.layout.item_native_ad_custom,
+                layoutId = getCustomNativeLayoutId(),
                 adPlacement = resolved.placement,
                 reloadIfFirstFail = true
             )
@@ -242,7 +304,7 @@ object NativeAdsUtils {
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
-                layoutId = R.layout.layout_native_ad_view_type2,
+                layoutId = getType2NativeLayoutId(),
                 adPlacement = resolved.placement,
                 reloadIfFirstFail = true
             )
@@ -268,6 +330,7 @@ object NativeAdsUtils {
     ) {
         FirebaseConfigManager.instance().doAfterFetch {
             val resolved = AdsIdResolver.resolve("native_main") ?: return@doAfterFetch
+            val actualShimmer = setupShimmerLayout(shimmerContainerNative, isType2 = true)
             if (homeNative == null) {
                 preloadHomeNative(activity)
             } else {
@@ -281,7 +344,7 @@ object NativeAdsUtils {
             nativeContentView.isVisible = true
             homeNative?.updateActivity(activity, lifecycleOwner)
             homeNative?.setNativeContentView(nativeContentView)
-            homeNative?.setShimmerLayoutView(shimmerContainerNative)
+            homeNative?.setShimmerLayoutView(actualShimmer)
         }
     }
 
@@ -290,10 +353,12 @@ object NativeAdsUtils {
         config: NativeAdConfig,
         lifecycleOwner: LifecycleOwner,
         nativeContentView: FrameLayout,
-        shimmerContainerNative: ShimmerFrameLayout
+        shimmerContainerNative: ShimmerFrameLayout,
+        isType2: Boolean = false
     ) {
         lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             nativeContentView.isVisible = true
+            val actualShimmer = setupShimmerLayout(shimmerContainerNative, isType2 = isType2)
             val nativeAdHelper = NativeAdHelper(
                 activity, lifecycleOwner, config
             ).apply {
@@ -301,7 +366,7 @@ object NativeAdsUtils {
             }
 
             nativeAdHelper.setNativeContentView(nativeContentView)
-            nativeAdHelper.setShimmerLayoutView(shimmerContainerNative)
+            nativeAdHelper.setShimmerLayoutView(actualShimmer)
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 nativeAdHelper.requestAds(NativeAdParam.Request)
             }
@@ -314,18 +379,26 @@ object NativeAdsUtils {
         placement: String,
         nativeContentView: FrameLayout,
         shimmerContainerNative: ShimmerFrameLayout,
-        @LayoutRes layoutId: Int = com.ads.admob.R.layout.item_native_ad_custom
+        @LayoutRes layoutId: Int = 0
     ) {
         FirebaseConfigManager.instance().doAfterFetch {
             val resolved = AdsIdResolver.resolve(placement) ?: return@doAfterFetch
+            val isType2 = (layoutId == com.ads.admob.R.layout.layout_native_ad_view_type2 || layoutId == com.ads.admob.R.layout.layout_native_ad_view_type2_paid)
+            val finalLayoutId = if (layoutId == 0 || layoutId == com.ads.admob.R.layout.item_native_ad_custom) {
+                getCustomNativeLayoutId()
+            } else if (layoutId == com.ads.admob.R.layout.layout_native_ad_view_type2) {
+                getType2NativeLayoutId()
+            } else {
+                layoutId
+            }
             val config = NativeAdConfig(
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
-                layoutId = layoutId,
+                layoutId = finalLayoutId,
                 adPlacement = resolved.placement
             )
-            setNative(activity, config, lifecycleOwner, nativeContentView, shimmerContainerNative)
+            setNative(activity, config, lifecycleOwner, nativeContentView, shimmerContainerNative, isType2 = isType2)
         }
     }
 
@@ -340,7 +413,7 @@ object NativeAdsUtils {
         placement = "native_main",
         nativeContentView = nativeContentView,
         shimmerContainerNative = shimmerContainerNative,
-        layoutId = com.ads.admob.R.layout.layout_native_ad_view_type2
+        layoutId = getType2NativeLayoutId()
     )
 
 }

@@ -27,7 +27,7 @@
                 android:id="@+id/ad_media"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
-                android:background="@drawable/bg_native_media" />
+                android:background="@drawable/radius_media" />
 
             <!-- 2. Ad Information -->
             <LinearLayout
