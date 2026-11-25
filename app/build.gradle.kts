@@ -11,7 +11,6 @@ plugins {
 val adjustAppToken = providers.gradleProperty("ADJUST_APP_TOKEN").orElse("").get()
 val facebookAppId = providers.gradleProperty("FACEBOOK_APP_ID").orElse("").get()
 val facebookClientToken = providers.gradleProperty("FACEBOOK_CLIENT_TOKEN").orElse("").get()
-val appsFlyerDevKey = providers.gradleProperty("APPSFLYER_DEV_KEY").orElse("").get()
 
 android {
     namespace = "com.kt.flashlight"
@@ -31,7 +30,6 @@ android {
         buildConfigField("String", "ADJUST_APP_TOKEN", "\"$adjustAppToken\"")
         buildConfigField("String", "FACEBOOK_APP_ID", "\"$facebookAppId\"")
         buildConfigField("String", "FACEBOOK_CLIENT_TOKEN", "\"$facebookClientToken\"")
-        buildConfigField("String", "APPSFLYER_DEV_KEY", "\"$appsFlyerDevKey\"")
     }
 
     buildTypes {
@@ -187,9 +185,6 @@ dependencies {
     implementation("com.google.firebase:firebase-config")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
-
-    // AppsFlyer SDK
-    implementation("com.appsflyer:af-android-sdk:6.15.2")
 
     // AdMob + UMP
     implementation("com.google.android.gms:play-services-ads:23.6.0")

@@ -1,10 +1,12 @@
 package com.example.flashlight.component.splash
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashlight.component.startup.SplashStartupProgress
 import com.example.flashlight.utils.SpManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,11 +37,21 @@ class SplashViewModel @Inject constructor(
     val uiState: StateFlow<SplashUiState> = _uiState.asStateFlow()
 
     private var splashStartTime = 0L
+    private var splashStartRealtime = 0L
     private var hasNavigated = false
+    private var loadingJob: Job? = null
+
+    companion object {
+        private const val TOTAL_TIMEOUT_MILLIS = 25_000L
+        private const val SMOOTH_FILL_DURATION_MILLIS = 2_000L
+        private const val STAGE_DURATION_MILLIS = 5_000L
+        private const val LOOP_DELAY_MILLIS = 50L
+    }
 
     fun initSplash() {
         if (splashStartTime == 0L) {
             splashStartTime = System.currentTimeMillis()
+            splashStartRealtime = SystemClock.elapsedRealtime()
         }
     }
 
@@ -62,16 +74,25 @@ class SplashViewModel @Inject constructor(
         isSplashAdLoadedProvider: () -> Boolean,
         isNativeFullscreenFinishedProvider: (Boolean, Boolean) -> Boolean
     ) {
-        viewModelScope.launch {
-            val totalTimeoutMillis = 25_000L
-            val smoothFillDurationMillis = 2_000L
-            var timeoutStartTime = 0L
-            var isTimedOut = false
+        if (loadingJob?.isActive == true) return
+
+        loadingJob = viewModelScope.launch {
+            if (splashStartRealtime == 0L) {
+                splashStartRealtime = SystemClock.elapsedRealtime()
+            }
+            if (splashStartTime == 0L) {
+                splashStartTime = System.currentTimeMillis()
+            }
+
+            var stageStartRealtime = splashStartRealtime
+            var currentStage = 1
             var displayedProgress = 0f
+            var timeoutStartTimeRealtime = 0L
+            var isTimedOut = false
 
             while (!hasNavigated) {
-                val currentTime = System.currentTimeMillis()
-                val totalElapsed = currentTime - splashStartTime
+                val currentRealtime = SystemClock.elapsedRealtime()
+                val totalElapsed = currentRealtime - splashStartRealtime
 
                 val rawFetchProgress = SplashStartupProgress.progress.value
                 val isFetchDone = rawFetchProgress >= 100
@@ -89,36 +110,72 @@ class SplashViewModel @Inject constructor(
 
                 val isNormalComplete = isFetchDone && isBannerFinished && isSplashAdLoaded && isNativeFullscreenFinished
 
-                val targetProgress = if (isNormalComplete || totalElapsed >= totalTimeoutMillis) {
-                    if (!isTimedOut && !isNormalComplete && totalElapsed >= totalTimeoutMillis) {
+                val targetProgress: Float = if (isNormalComplete || totalElapsed >= TOTAL_TIMEOUT_MILLIS) {
+                    if (!isTimedOut && !isNormalComplete && totalElapsed >= TOTAL_TIMEOUT_MILLIS) {
                         isTimedOut = true
-                        timeoutStartTime = currentTime
+                        timeoutStartTimeRealtime = currentRealtime
                     }
 
                     if (isNormalComplete) {
-                        100
+                        100f
                     } else {
-                        val elapsedSinceTimeout = currentTime - timeoutStartTime
-                        val progressAtTimeout = displayedProgress.toInt()
-                        val remainingProgress = 100 - progressAtTimeout
-                        val fillPart = ((elapsedSinceTimeout.toFloat() / smoothFillDurationMillis) * remainingProgress).toInt()
-                        (progressAtTimeout + fillPart).coerceIn(0, 100)
+                        val elapsedSinceTimeout = currentRealtime - timeoutStartTimeRealtime
+                        val progressAtTimeout = displayedProgress
+                        val remainingProgress = 100f - progressAtTimeout
+                        val fillPart = (elapsedSinceTimeout.toFloat() / SMOOTH_FILL_DURATION_MILLIS) * remainingProgress
+                        (progressAtTimeout + fillPart).coerceIn(0f, 100f)
                     }
                 } else {
-                    val stage1 = (rawFetchProgress * 0.25f).toInt().coerceIn(0, 25)
-                    val stage2 = if (stage1 >= 25 && isBannerFinished) 50 else if (stage1 >= 25) 37 else stage1
-                    val stage3 = if (stage2 >= 50 && isSplashAdLoaded) 75 else if (stage2 >= 50) 62 else stage2
-                    val stage4 = if (stage3 >= 75 && isNativeFullscreenFinished) 100 else if (stage3 >= 75) 87 else stage3
-                    stage4.coerceIn(0, 99)
+                    val stageMin = (currentStage - 1) * 25f
+                    val stageMax = currentStage * 25f
+
+                    val elapsedInStage = (currentRealtime - stageStartRealtime).coerceAtLeast(0L)
+                    val timeRatio = (elapsedInStage.toFloat() / STAGE_DURATION_MILLIS).coerceIn(0f, 1f)
+                    val timeBasedProgress = stageMin + timeRatio * 25f
+
+                    val taskRatio = when (currentStage) {
+                        1 -> (rawFetchProgress / 100f).coerceIn(0f, 1f)
+                        2 -> if (isBannerFinished) 1f else 0f
+                        3 -> if (isSplashAdLoaded) 1f else 0f
+                        4 -> if (isNativeFullscreenFinished) 1f else 0f
+                        else -> 1f
+                    }
+                    val taskProgress = stageMin + taskRatio * 25f
+
+                    val stageTarget = maxOf(timeBasedProgress, taskProgress).coerceIn(stageMin, stageMax)
+                    maxOf(displayedProgress, stageTarget)
                 }
 
                 if (displayedProgress < targetProgress) {
-                    displayedProgress = (displayedProgress + 1.2f).coerceAtMost(targetProgress.toFloat())
+                    val remainingToTarget = targetProgress - displayedProgress
+                    val step = maxOf(0.25f, remainingToTarget / 15f).coerceAtMost(1.5f)
+                    displayedProgress = (displayedProgress + step).coerceAtMost(targetProgress)
                 } else if (displayedProgress > targetProgress) {
-                    displayedProgress = targetProgress.toFloat()
+                    displayedProgress = targetProgress
                 }
 
                 val currentProgress = displayedProgress.toInt().coerceIn(0, 100)
+
+                val isStageTaskComplete = when (currentStage) {
+                    1 -> isFetchDone
+                    2 -> isBannerFinished
+                    3 -> isSplashAdLoaded
+                    4 -> isNativeFullscreenFinished
+                    else -> true
+                }
+                val isStageTimeBudgetExhausted = (currentRealtime - stageStartRealtime) >= STAGE_DURATION_MILLIS
+                val stageMax = currentStage * 25f
+
+                if (currentStage < 4 && !isNormalComplete && totalElapsed < TOTAL_TIMEOUT_MILLIS) {
+                    if (displayedProgress >= stageMax ||
+                        (isStageTaskComplete && displayedProgress >= stageMax - 0.5f) ||
+                        (isStageTimeBudgetExhausted && displayedProgress >= stageMax - 0.5f)
+                    ) {
+                        displayedProgress = maxOf(displayedProgress, stageMax)
+                        currentStage++
+                        stageStartRealtime = currentRealtime
+                    }
+                }
 
                 val reachedMax = currentProgress >= 100
                 _uiState.update {
@@ -131,7 +188,7 @@ class SplashViewModel @Inject constructor(
                 if (reachedMax) {
                     break
                 }
-                delay(100L)
+                delay(LOOP_DELAY_MILLIS)
             }
         }
     }
@@ -150,3 +207,4 @@ class SplashViewModel @Inject constructor(
         }
     }
 }
+

@@ -257,10 +257,18 @@ object NativeAdsUtils {
         val currentHelper = nativeOnboarding
         if (currentHelper != null && !forceReload) {
             currentHelper.updateActivity(appActivity, processLifecycleOwner)
-            if (currentHelper.nativeAd != null) return
+            if (currentHelper.nativeAd != null) {
+                Logger.e("[NATIVE_PRELOAD][OBD1] cache hit (already loaded)")
+                return
+            }
             val state = currentHelper.getAdNativeState().value
-            if (state is AdNativeState.Loading) return
+            if (state is AdNativeState.Loading) {
+                Logger.e("[NATIVE_PRELOAD][OBD1] already loading - skip duplicate")
+                return
+            }
         }
+
+        Logger.e("[NATIVE_PRELOAD][OBD1] preload started")
 
         val config = NativeAdConfig(
             idAdsPriority = resolved.adUnitIdPriority,
@@ -282,7 +290,7 @@ object NativeAdsUtils {
 
         nativeOnboarding?.requestAds(NativeAdParam.Request)
 
-        Logger.e("preloadNativeOnboarding()")
+        Logger.e("[NATIVE_PRELOAD][OBD1] cache stored")
     }
 
     fun preloadNativeOnboarding3(appActivity: AppCompatActivity, forceReload: Boolean = false) {
@@ -291,10 +299,18 @@ object NativeAdsUtils {
         val currentHelper = nativeOnboarding3
         if (currentHelper != null && !forceReload) {
             currentHelper.updateActivity(appActivity, processLifecycleOwner)
-            if (currentHelper.nativeAd != null) return
+            if (currentHelper.nativeAd != null) {
+                Logger.e("[NATIVE_PRELOAD][OBD3] cache hit (already loaded)")
+                return
+            }
             val state = currentHelper.getAdNativeState().value
-            if (state is AdNativeState.Loading) return
+            if (state is AdNativeState.Loading) {
+                Logger.e("[NATIVE_PRELOAD][OBD3] already loading - skip duplicate")
+                return
+            }
         }
+
+        Logger.e("[NATIVE_PRELOAD][OBD3] preload started")
 
         val config = NativeAdConfig(
             idAdsPriority = resolved.adUnitIdPriority,
@@ -316,7 +332,7 @@ object NativeAdsUtils {
 
         nativeOnboarding3?.requestAds(NativeAdParam.Request)
 
-        Logger.e("preloadNativeOnboarding3()")
+        Logger.e("[NATIVE_PRELOAD][OBD3] cache stored")
     }
 
     fun preloadNativeFullscreen(appActivity: AppCompatActivity, forceReload: Boolean = false) {

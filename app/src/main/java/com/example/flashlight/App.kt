@@ -14,8 +14,6 @@ import com.ads.admob.config.AfAdConfig
 import com.ads.admob.config.AfAdjustConfig
 import com.ads.admob.config.NetworkProvider
 import com.ads.admob.listener.AdmobCallBack
-import com.appsflyer.AppsFlyerConversionListener
-import com.appsflyer.AppsFlyerLib
 import com.example.flashlight.component.startup.SplashStartupProgress
 import com.example.flashlight.data.model.UserAttributionType
 import com.example.flashlight.utils.Constant
@@ -52,21 +50,18 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         // 1. Khôi phục ngôn ngữ đã lưu
         initializeAppLanguage()
 
-        // 2. Khởi tạo AppsFlyer phân loại người dùng (Paid / Organic)
-        initAppsFlyer()
-
-        // 3. Khởi tạo AdMob
+        // 2. Khởi tạo AdMob (bao gồm Adjust SDK và attribution callback)
         initAdmob()
 
-        // 4. Khởi tạo App Resume Ads
+        // 3. Khởi tạo App Resume Ads
         AppResumeAdManager.init(this)
 
-        // 5. Khởi tạo Firebase và fetch Remote Config
+        // 4. Khởi tạo Firebase và fetch Remote Config
         if (FirebaseApp.initializeApp(this) != null) {
-            //build test
-            FirebaseConfigManager.instance().useHardcodedConfig(true)
+            //build test organic / paid
+            FirebaseConfigManager.instance().useHardcodedConfig(false)
 
-            //build production
+            //build production organic / paid
 //            FirebaseConfigManager.instance().fetch(
 //                onFetchProgress = { progress -> SplashStartupProgress.update(progress) }
 //            )
@@ -79,64 +74,40 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         registerActivityLifecycleCallbacks(this)
     }
 
-    private fun initAppsFlyer() {
-        val conversionListener = object : AppsFlyerConversionListener {
-
-            override fun onConversionDataSuccess(
-                conversionData: MutableMap<String, Any>?
-            ) {
-                val status = conversionData?.get("af_status")?.toString()
-                Logger.e("[Attribution] AppsFlyer onConversionDataSuccess af_status: $status")
-
-                val detectedType = when (status) {
-                    "Non-organic" -> UserAttributionType.PAID
-                    "Organic" -> UserAttributionType.ORGANIC
-                    else -> UserAttributionType.UNKNOWN
-                }
-
-                Logger.e("[Attribution] User type detected: $detectedType")
-
-                if (detectedType != UserAttributionType.UNKNOWN) {
-                    val currentType = spManager.getUserAttributionType()
-                    if (currentType != detectedType) {
-                        spManager.setUserAttributionType(detectedType)
-                        Logger.e("[Attribution] User type saved: $detectedType")
-
-                        FirebaseConfigManager.instance().onAttributionUpdated(detectedType)
-                    } else {
-                        Logger.e("[Attribution] Attribution status unchanged ($detectedType). Keeping existing configuration.")
-                    }
-                } else {
-                    Logger.e("[Attribution] Received UNKNOWN status from AppsFlyer. Keeping existing attribution: ${spManager.getUserAttributionType()}")
-                }
-            }
-
-            override fun onConversionDataFail(errorMessage: String?) {
-                Logger.e("[Attribution] AppsFlyer onConversionDataFail: $errorMessage. Keeping previous attribution.")
-            }
-
-            override fun onAppOpenAttribution(
-                attributionData: MutableMap<String, String>?
-            ) {
-                Logger.e("[Attribution] AppsFlyer onAppOpenAttribution: $attributionData")
-            }
-
-            override fun onAttributionFailure(errorMessage: String?) {
-                Logger.e("[Attribution] AppsFlyer onAttributionFailure: $errorMessage. Keeping previous attribution.")
-            }
-        }
-
+    /**
+     * Nhận attribution data từ Adjust SDK (được gọi bởi AdmobFactoryImpl qua AfAdjustConfig.onAttributionChanged).
+     *
+     * Quy tắc phân loại Paid/Organic dựa trên field `network` của AdjustAttribution:
+     *   - ORGANIC: network == "Organic" (case-insensitive) -> Adjust xác nhận lượt cài đặt là Organic
+     *   - PAID   : network không rỗng và khác "Organic" -> cài đặt được quy nguồn từ chiến dịch quảng cáo
+     *   - UNKNOWN: network null/rỗng hoặc callback chưa được gọi -> dữ liệu không đủ để kết luận, giữ nguyên trạng thái trước đó
+     */
+    private fun onAdjustAttributionChanged(network: String?, campaign: String?, costType: String?) {
         try {
-            val devKey = BuildConfig.APPSFLYER_DEV_KEY
-            if (devKey.isNotEmpty()) {
-                AppsFlyerLib.getInstance().init(devKey, conversionListener, this)
-                AppsFlyerLib.getInstance().start(this)
-                Logger.e("[Attribution] AppsFlyer initialized successfully with devKey.")
+            Logger.e("[Attribution] Adjust attribution received: network=$network, campaign=$campaign, costType=$costType")
+
+            val detectedType = when {
+                network.isNullOrBlank() -> UserAttributionType.UNKNOWN
+                network.equals("Organic", ignoreCase = true) -> UserAttributionType.ORGANIC
+                else -> UserAttributionType.PAID
+            }
+
+            Logger.e("[Attribution] Adjust detected type: $detectedType")
+
+            if (detectedType != UserAttributionType.UNKNOWN) {
+                val currentType = spManager.getUserAttributionType()
+                if (currentType != detectedType) {
+                    spManager.setUserAttributionType(detectedType)
+                    Logger.e("[Attribution] Attribution updated: $currentType -> $detectedType")
+                    FirebaseConfigManager.instance().onAttributionUpdated(detectedType)
+                } else {
+                    Logger.e("[Attribution] Attribution unchanged ($detectedType). Keeping existing configuration.")
+                }
             } else {
-                Logger.e("[Attribution] APPSFLYER_DEV_KEY is empty. Skipping AppsFlyer initialization safely.")
+                Logger.e("[Attribution] Adjust returned UNKNOWN/empty network. Keeping existing attribution: ${spManager.getUserAttributionType()}")
             }
         } catch (e: Exception) {
-            Logger.e("[Attribution] initAppsFlyer error: ${e.message}")
+            Logger.e("[Attribution] onAdjustAttributionChanged error: ${e.message}. Keeping previous attribution.")
         }
     }
 
@@ -170,11 +141,19 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
 
     private fun initAdmob() {
         Logger.e("initAdmob")
+        val adjustToken = BuildConfig.ADJUST_APP_TOKEN
+        if (adjustToken.isEmpty()) {
+            Logger.e("[Attribution] ADJUST_APP_TOKEN is empty. Adjust SDK initialized without attribution callback.")
+        }
+        val isProduction = false
+        //val isProduction = BuildConfig.ADJUST_ENVIRONMENT == "production"
         val afAdjustConfig = AfAdjustConfig.Build(
-            adjustToken = "kthfy8dfgkqo",
+            adjustToken = adjustToken,
             adRevenueKey = "",
-            environmentProduct = true
-        ).build()
+            environmentProduct = isProduction
+        ).onAttributionChanged { network, campaign, costType ->
+            onAdjustAttributionChanged(network, campaign, costType)
+        }.build()
 
         val afAdConfig = AfAdConfig.Builder(afAdjustConfig = afAdjustConfig)
             .intervalBetweenInterstitial(1000)

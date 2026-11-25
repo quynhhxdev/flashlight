@@ -53,6 +53,8 @@ class AdmobFactoryImpl : AdmobFactory {
     private val TAG = AdmobFactoryImpl::class.simpleName
     private var isCancelRequestAndShowAllAds = false
     private var previousAdCloseTime = 0L
+    @Volatile
+    private var isAdjustInitialized = false
 
     override fun initAdmob(
         context: Application,
@@ -109,6 +111,15 @@ class AdmobFactoryImpl : AdmobFactory {
     }
 
     private fun setupAdjust(application: Application, adjustConfig: AfAdjustConfig) {
+        if (isAdjustInitialized) {
+            Log.d(TAG, "[Adjust] SDK already initialized. Skipping duplicate initialization.")
+            return
+        }
+        if (adjustConfig.adjustToken.isBlank()) {
+            Log.w(TAG, "[Adjust] ADJUST_APP_TOKEN is empty. Skipping Adjust SDK initialization.")
+            return
+        }
+
         val environment = if (adjustConfig.environmentProduct) {
             AdjustConfig.ENVIRONMENT_PRODUCTION
         } else {
@@ -117,10 +128,14 @@ class AdmobFactoryImpl : AdmobFactory {
         val config = AdjustConfig(application, adjustConfig.adjustToken, environment)
 
         // Change the log level.
-        config.setLogLevel(LogLevel.VERBOSE)
+        config.setLogLevel(if (adjustConfig.environmentProduct) LogLevel.ERROR else LogLevel.VERBOSE)
         config.setOnAttributionChangedListener { attribution ->
-            Log.d(TAG, "Attribution callback called!")
-            Log.d(TAG, "Attribution: $attribution")
+            if (attribution == null) {
+                Log.w(TAG, "[Adjust] Attribution callback received null attribution.")
+                return@setOnAttributionChangedListener
+            }
+            Log.d(TAG, "[Adjust] Attribution callback called! network=${attribution.network}, campaign=${attribution.campaign}, costType=${attribution.costType}")
+            adjustConfig.onAttributionChanged?.invoke(attribution.network, attribution.campaign, attribution.costType)
         }
 
         // Set event success tracking delegate.
@@ -165,6 +180,8 @@ class AdmobFactoryImpl : AdmobFactory {
         }
         application.registerActivityLifecycleCallbacks(AdjustLifecycleCallbacks())
         Adjust.initSdk(config)
+        isAdjustInitialized = true
+        Log.d(TAG, "[Adjust] Adjust SDK initialized successfully (environment=$environment)")
     }
 
     private class AdjustLifecycleCallbacks : Application.ActivityLifecycleCallbacks {

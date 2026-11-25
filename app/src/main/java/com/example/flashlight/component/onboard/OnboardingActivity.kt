@@ -20,6 +20,7 @@ import com.example.flashlight.utils.Utils
 import com.example.flashlight.utils.ads.NativeAdsUtils
 import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.example.flashlight.utils.ads.resolver.AdsIdResolver
+import com.ads.admob.helper.adnative.params.AdNativeState
 import com.example.flashlight.utils.dp
 import com.kt.flashlight.R
 import com.kt.flashlight.databinding.ActivityOnboardingBinding
@@ -40,6 +41,7 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
     private var isNativeOnboarding3Enabled = false
     private var isNativeFullscreenEnabled = false
     private var isNativeFullscreen2Enabled = false
+    private var wasStoppedOnNativeFullscreen = false
 
     private lateinit var pagerAdapter: OnboardingPagerAdapter
 
@@ -79,7 +81,6 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
                 bindNativeFullscreenHolder(pageIndex, holder)
             },
             onNativeFullscreenCloseClicked = { pageIndex ->
-                binding.viewPagerOnboarding.isUserInputEnabled = true
                 navigateToNextPage(pageIndex)
             }
         )
@@ -115,27 +116,80 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
 
                 if (position == 0 && isNativeOnboarding1Enabled) {
                     binding.nativeAdContent.removeAllViews()
-                    NativeAdsUtils.preloadNativeOnboarding(this@OnboardingActivity)
-                    NativeAdsUtils.nativeOnboarding?.let { nativeAdHelper ->
-                        nativeAdHelper.setNativeContentView(binding.nativeAdContent)
-                        nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                    com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] screen entered")
+                    com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] placement enabled")
+
+                    val helper = NativeAdsUtils.nativeOnboarding
+                    if (helper != null && helper.nativeAd != null) {
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] cache hit")
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] render started")
+                        helper.setNativeContentView(binding.nativeAdContent)
+                        helper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] render completed")
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] shimmer hidden")
+                    } else {
+                        val state = helper?.getAdNativeState()?.value
+                        if (state is AdNativeState.Loading) {
+                            com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] already loading - skip duplicate")
+                            helper.setNativeContentView(binding.nativeAdContent)
+                            helper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                        } else {
+                            com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] request started")
+                            NativeAdsUtils.preloadNativeOnboarding(this@OnboardingActivity, forceReload = false)
+                            NativeAdsUtils.nativeOnboarding?.let { nativeAdHelper ->
+                                nativeAdHelper.setNativeContentView(binding.nativeAdContent)
+                                nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+
+                                lifecycleScope.launch {
+                                    nativeAdHelper.getAdNativeState().collect { st ->
+                                        when (st) {
+                                            is AdNativeState.Loaded -> {
+                                                com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] load success")
+                                                com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] render completed")
+                                                com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] shimmer hidden")
+                                            }
+                                            is AdNativeState.Fail -> {
+                                                com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD1] load failed")
+                                            }
+                                            else -> Unit
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Preload OBD3 one screen ahead while on OBD1 (page 0)
+                    if (isNativeOnboarding3Enabled) {
+                        NativeAdsUtils.preloadNativeOnboarding3(this@OnboardingActivity)
+                        com.example.flashlight.utils.Logger.e("[NATIVE_PRELOAD][OBD3] preload started from Onboarding page 0")
                     }
                 } else if (position == 3 && isNativeOnboarding3Enabled) {
                     binding.nativeAdContent.removeAllViews()
-                    NativeAdsUtils.preloadNativeOnboarding3(this@OnboardingActivity)
-                    NativeAdsUtils.nativeOnboarding3?.let { nativeAdHelper ->
-                        nativeAdHelper.setNativeContentView(binding.nativeAdContent)
-                        nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                    com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] screen entered")
+                    com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] placement enabled")
+
+                    val helper = NativeAdsUtils.nativeOnboarding3
+                    if (helper != null && helper.nativeAd != null) {
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] cache hit")
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] render started")
+                        helper.setNativeContentView(binding.nativeAdContent)
+                        helper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] render completed")
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] shimmer hidden")
+                    } else {
+                        com.example.flashlight.utils.Logger.e("[NATIVE_DISPLAY][OBD3] request started")
+                        NativeAdsUtils.preloadNativeOnboarding3(this@OnboardingActivity)
+                        NativeAdsUtils.nativeOnboarding3?.let { nativeAdHelper ->
+                            nativeAdHelper.setNativeContentView(binding.nativeAdContent)
+                            nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                        }
                     }
                 }
 
-                // 3. Khóa vuốt và bắt đầu một visit session mới mỗi lần vào Native Fullscreen
+                // 3. Giữ thao tác vuốt ViewPager2 luôn mở; bắt đầu visit session mới khi vào Native Fullscreen
                 if (isNativePage) {
-                    binding.viewPagerOnboarding.isUserInputEnabled = false
                     pagerAdapter.startNewVisitForPage(position)
-                } else {
-                    // Màn onboarding thông thường: luôn cho phép vuốt bình thường
-                    binding.viewPagerOnboarding.isUserInputEnabled = true
                 }
 
                 updateIndicators(position)
@@ -174,15 +228,15 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
             adEnabled = isEnabled,
             topInset = topSystemBarInset,
             onCountdownDone = {
-                // Đếm xong 3s: MỞ KHÓA vuốt
-                if (currentPagePosition == pageIndex) {
-                    binding.viewPagerOnboarding.isUserInputEnabled = true
-                }
+                // Giữ nguyên thao tác vuốt ViewPager2 (không khóa vuốt trong lúc countdown)
             },
             onAutoNavigate = {
-                // Đủ 7s: tự động lướt qua màn tiếp theo nếu người dùng vẫn chưa chuyển trang
-                if (currentPagePosition == pageIndex) {
-                    binding.viewPagerOnboarding.isUserInputEnabled = true
+                // Đủ 3s + 4s: tự động chuyển trang nếu vẫn đang đứng ở đúng trang và Activity đang hiển thị
+                if (currentPagePosition == pageIndex &&
+                    !isFinishing &&
+                    !isDestroyed &&
+                    lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                ) {
                     navigateToNextPage(pageIndex)
                 }
             }
@@ -281,8 +335,10 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
             isNativeFullscreen2Enabled = AdsIdResolver.resolve("native_fullscreen_2") != null
             if (isNativeFullscreen2Enabled) NativeAdsUtils.preloadNativeFullscreen2(this)
 
-            // Nếu đang đứng tại Native Fullscreen, kích hoạt visit session nếu chưa chạy
-            if (viewModel.isNativeFullscreenPage(currentPagePosition)) {
+            // Nếu đang đứng tại Native Fullscreen mà chưa có visit đang chạy, kích hoạt visit session
+            if (viewModel.isNativeFullscreenPage(currentPagePosition) &&
+                !pagerAdapter.hasActiveVisitForPage(currentPagePosition)
+            ) {
                 pagerAdapter.startNewVisitForPage(currentPagePosition)
             }
         }
@@ -344,7 +400,26 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
         finish()
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (wasStoppedOnNativeFullscreen) {
+            wasStoppedOnNativeFullscreen = false
+            if (viewModel.isNativeFullscreenPage(currentPagePosition)) {
+                pagerAdapter.startNewVisitForPage(currentPagePosition)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (viewModel.isNativeFullscreenPage(currentPagePosition)) {
+            wasStoppedOnNativeFullscreen = true
+            pagerAdapter.stopVisitForPage(currentPagePosition)
+        }
+    }
+
     override fun onDestroy() {
+        pagerAdapter.stopVisitForPage(currentPagePosition)
         super.onDestroy()
     }
 }
