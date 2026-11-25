@@ -44,6 +44,7 @@ object BannerAdsUtils {
             }
 
             val config = BannerAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -64,6 +65,9 @@ object BannerAdsUtils {
 
     fun getBannerHelper(placement: String = "banner_main"): BannerAdHelper? {
         return bannerHelpers[placement]
+            ?: if (placement == "banner_splash") bannerHelpers[AdPlacement.ADS_BANNER_SPLASH_ENABLED]
+            else if (placement == AdPlacement.ADS_BANNER_SPLASH_ENABLED) bannerHelpers["banner_splash"]
+            else null
     }
 
     fun cancelAllAds(isPurchased: Boolean) {
@@ -77,6 +81,13 @@ object BannerAdsUtils {
     fun releaseBanner(placement: String = "banner_main") {
         bannerHelpers[placement]?.cancel()
         bannerHelpers.remove(placement)
+        if (placement == "banner_splash") {
+            bannerHelpers[AdPlacement.ADS_BANNER_SPLASH_ENABLED]?.cancel()
+            bannerHelpers.remove(AdPlacement.ADS_BANNER_SPLASH_ENABLED)
+        } else if (placement == AdPlacement.ADS_BANNER_SPLASH_ENABLED) {
+            bannerHelpers["banner_splash"]?.cancel()
+            bannerHelpers.remove("banner_splash")
+        }
     }
 
     fun releaseBannerMain() {

@@ -44,29 +44,12 @@ class PermissionFragment : BaseFragment<FragmentPermissionBinding>() {
     override fun initViews() {
         checkPermissionState()
         NativeAdsUtils.preloadHomeNative(requireContext())
-        FirebaseConfigManager.instance().doAfterFetch {
-            val resolved = AdsIdResolver.resolve("native_permission")
-            if (resolved == null) {
-                viewBinding.nativeAdContainer.isGone = true
-            } else {
-                viewBinding.nativeAdContainer.isVisible = true
-                if (NativeAdsUtils.nativePermission != null) {
-                    NativeAdsUtils.nativePermission?.let { nativeAdHelper ->
-                        nativeAdHelper.updateActivity(requireActivity(), viewLifecycleOwner)
-                        nativeAdHelper.setNativeContentView(viewBinding.nativeAdContent)
-                        nativeAdHelper.setShimmerLayoutView(viewBinding.shimmerContainerNative.root)
-                    }
-                } else {
-                    NativeAdsUtils.loadAndShowNative(
-                        activity = requireActivity(),
-                        lifecycleOwner = viewLifecycleOwner,
-                        placement = "native_permission",
-                        nativeContentView = viewBinding.nativeAdContent,
-                        shimmerContainerNative = viewBinding.shimmerContainerNative.root
-                    )
-                }
-            }
-        }
+        NativeAdsUtils.bindPermissionNative(
+            activity = requireActivity(),
+            lifecycleOwner = viewLifecycleOwner,
+            nativeContentView = viewBinding.nativeAdContent,
+            shimmerContainerNative = viewBinding.shimmerContainerNative.root
+        )
 
         viewBinding.switchCamera.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {

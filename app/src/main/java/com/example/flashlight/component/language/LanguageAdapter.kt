@@ -43,7 +43,9 @@ class LanguageAdapter(
             val isSelected = selectedCode != null && language.languageCode == selectedCode
 
             binding.imgFlag.setImageResource(language.iconRes)
-            binding.tvLanguageName.text = binding.root.context.getString(language.nameRes)
+            binding.tvLanguageName.text = language.nativeName.ifEmpty {
+                binding.root.context.getString(language.nameRes)
+            }
 
             if (isSelected) {
                 binding.ivSelection.setImageResource(R.drawable.ic_check)
@@ -59,6 +61,10 @@ class LanguageAdapter(
             }
 
             binding.root.setOnClickListener {
+                // Guard: Do not re-select or trigger ad replacement when clicking already-selected language
+                if (selectedCode != null && selectedCode == language.languageCode) {
+                    return@setOnClickListener
+                }
                 selectedCode = language.languageCode
                 notifyDataSetChanged()
                 onLanguageSelected(language)

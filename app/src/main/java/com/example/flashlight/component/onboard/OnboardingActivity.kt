@@ -36,7 +36,8 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
     private var defaultLightStatusBarAppearance = false
     private var defaultLayoutInDisplayCutoutMode: Int? = null
 
-    private var isNativeOnboardingEnabled = false
+    private var isNativeOnboarding1Enabled = false
+    private var isNativeOnboarding3Enabled = false
     private var isNativeFullscreenEnabled = false
     private var isNativeFullscreen2Enabled = false
 
@@ -89,8 +90,14 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
 
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+                val previousPosition = currentPagePosition
                 currentPagePosition = position
                 viewModel.setCurrentPage(position)
+
+                // Hủy visit session cũ nếu vừa rời khỏi trang Native Fullscreen
+                if (viewModel.isNativeFullscreenPage(previousPosition) && previousPosition != position) {
+                    pagerAdapter.stopVisitForPage(previousPosition)
+                }
 
                 val isNativePage = viewModel.isNativeFullscreenPage(position)
 
@@ -99,21 +106,33 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
 
                 // 2. Native Ad Banner ở dưới: chỉ hiển thị ở Màn Onboarding 1 (index 0) và Màn Onboarding 3 (index 3).
                 // Màn Onboarding 2 (index 2) và 4 (index 5) KHÔNG CÓ native ads banner.
-                val hasBottomNativeAd = (position == 0 || position == 3)
-                binding.nativeAdContainer.isVisible = hasBottomNativeAd && isNativeOnboardingEnabled
+                val hasBottomNativeAd = when (position) {
+                    0 -> isNativeOnboarding1Enabled
+                    3 -> isNativeOnboarding3Enabled
+                    else -> false
+                }
+                binding.nativeAdContainer.isVisible = hasBottomNativeAd
 
-                // 3. Khóa/mở vuốt:
-                if (isNativePage) {
-                    val isCountdownDone = viewModel.isCountdownDone(position)
-                    if (isCountdownDone) {
-                        // Đã đếm xong trước đó (người dùng vuốt lại): cho phép vuốt bình thường
-                        binding.viewPagerOnboarding.isUserInputEnabled = true
-                    } else {
-                        // Chưa đếm xong: khóa vuốt không cho lướt qua màn tiếp theo trong 3s
-                        binding.viewPagerOnboarding.isUserInputEnabled = false
+                if (position == 0 && isNativeOnboarding1Enabled) {
+                    binding.nativeAdContent.removeAllViews()
+                    NativeAdsUtils.preloadNativeOnboarding(this@OnboardingActivity)
+                    NativeAdsUtils.nativeOnboarding?.let { nativeAdHelper ->
+                        nativeAdHelper.setNativeContentView(binding.nativeAdContent)
+                        nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
                     }
-                    // Kích hoạt bộ đếm riêng cho trang Native Fullscreen này
-                    pagerAdapter.startCountdownForPage(position)
+                } else if (position == 3 && isNativeOnboarding3Enabled) {
+                    binding.nativeAdContent.removeAllViews()
+                    NativeAdsUtils.preloadNativeOnboarding3(this@OnboardingActivity)
+                    NativeAdsUtils.nativeOnboarding3?.let { nativeAdHelper ->
+                        nativeAdHelper.setNativeContentView(binding.nativeAdContent)
+                        nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                    }
+                }
+
+                // 3. Khóa vuốt và bắt đầu một visit session mới mỗi lần vào Native Fullscreen
+                if (isNativePage) {
+                    binding.viewPagerOnboarding.isUserInputEnabled = false
+                    pagerAdapter.startNewVisitForPage(position)
                 } else {
                     // Màn onboarding thông thường: luôn cho phép vuốt bình thường
                     binding.viewPagerOnboarding.isUserInputEnabled = true
@@ -147,8 +166,6 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
             else -> return
         }
 
-        val countdownAlreadyDone = viewModel.isCountdownDone(pageIndex)
-
         holder.bind(
             pageIndex = pageIndex,
             activity = this,
@@ -156,16 +173,14 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
             nativeAdHelper = nativeAdHelper,
             adEnabled = isEnabled,
             topInset = topSystemBarInset,
-            countdownAlreadyDone = countdownAlreadyDone,
             onCountdownDone = {
-                // Đếm xong 3s: lưu state và MỞ KHÓA vuốt (người dùng có thể vuốt hoặc ấn X)
-                viewModel.markCountdownDone(pageIndex)
+                // Đếm xong 3s: MỞ KHÓA vuốt
                 if (currentPagePosition == pageIndex) {
                     binding.viewPagerOnboarding.isUserInputEnabled = true
                 }
             },
             onAutoNavigate = {
-                // Sau 7s: tự động lướt qua màn tiếp theo nếu người dùng vẫn chưa chuyển trang
+                // Đủ 7s: tự động lướt qua màn tiếp theo nếu người dùng vẫn chưa chuyển trang
                 if (currentPagePosition == pageIndex) {
                     binding.viewPagerOnboarding.isUserInputEnabled = true
                     navigateToNextPage(pageIndex)
@@ -226,16 +241,33 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
     }
 
     private fun preloadAds() {
+        binding.nativeAdContainer.isVisible = (currentPagePosition == 0 || currentPagePosition == 3)
+        binding.shimmerContainerNative.root.isVisible = true
+
         FirebaseConfigManager.instance().doAfterFetch {
             if (isFinishing || isDestroyed) return@doAfterFetch
 
-            // Native Onboarding banner (chỉ hiện ở index 0 và 3)
-            isNativeOnboardingEnabled = AdsIdResolver.resolve("native_onboarding") != null
-            val hasBottomNativeAd = (currentPagePosition == 0 || currentPagePosition == 3)
-            binding.nativeAdContainer.isVisible = hasBottomNativeAd && isNativeOnboardingEnabled
-            if (isNativeOnboardingEnabled) {
+            isNativeOnboarding1Enabled = AdsIdResolver.resolve("native_onboarding") != null
+            isNativeOnboarding3Enabled = AdsIdResolver.resolve("native_onboarding_3") != null
+
+            val hasBottomNativeAd = when (currentPagePosition) {
+                0 -> isNativeOnboarding1Enabled
+                3 -> isNativeOnboarding3Enabled
+                else -> false
+            }
+            binding.nativeAdContainer.isVisible = hasBottomNativeAd
+
+            if (currentPagePosition == 0 && isNativeOnboarding1Enabled) {
+                binding.nativeAdContent.removeAllViews()
                 NativeAdsUtils.preloadNativeOnboarding(this)
                 NativeAdsUtils.nativeOnboarding?.let { nativeAdHelper ->
+                    nativeAdHelper.setNativeContentView(binding.nativeAdContent)
+                    nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
+                }
+            } else if (currentPagePosition == 3 && isNativeOnboarding3Enabled) {
+                binding.nativeAdContent.removeAllViews()
+                NativeAdsUtils.preloadNativeOnboarding3(this)
+                NativeAdsUtils.nativeOnboarding3?.let { nativeAdHelper ->
                     nativeAdHelper.setNativeContentView(binding.nativeAdContent)
                     nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
                 }
@@ -249,9 +281,9 @@ class OnboardingActivity : BaseActivity<ActivityOnboardingBinding>() {
             isNativeFullscreen2Enabled = AdsIdResolver.resolve("native_fullscreen_2") != null
             if (isNativeFullscreen2Enabled) NativeAdsUtils.preloadNativeFullscreen2(this)
 
-            // Nếu đang đứng tại Native Fullscreen, kích hoạt countdown nếu chưa chạy
+            // Nếu đang đứng tại Native Fullscreen, kích hoạt visit session nếu chưa chạy
             if (viewModel.isNativeFullscreenPage(currentPagePosition)) {
-                pagerAdapter.startCountdownForPage(currentPagePosition)
+                pagerAdapter.startNewVisitForPage(currentPagePosition)
             }
         }
     }

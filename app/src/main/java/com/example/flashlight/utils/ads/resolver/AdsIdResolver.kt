@@ -1,6 +1,6 @@
 package com.example.flashlight.utils.ads.resolver
 
-import com.example.flashlight.data.ads.model.ResolvedAds
+import com.example.flashlight.data.model.ResolvedAds
 import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.example.flashlight.utils.ads.AdPlacement
 import com.kt.flashlight.BuildConfig
@@ -16,7 +16,7 @@ object AdsIdResolver {
 
         // Tier 2: Format Switch
         val formatKey = when {
-            placement.contains("banner", ignoreCase = true) -> AdPlacement.ADS_BANNER_ENABLED
+            placement.contains("banner", ignoreCase = true) -> AdPlacement.ADS_BANNER_ALL_ENABLED
             placement.contains("inter", ignoreCase = true) -> AdPlacement.ADS_INTERSTITIAL_ENABLED
             placement.contains("native", ignoreCase = true) -> AdPlacement.ADS_NATIVE_ENABLED
             placement.contains("app_open", ignoreCase = true) || placement.contains("resume", ignoreCase = true) || placement.contains("open", ignoreCase = true) -> AdPlacement.ADS_APP_OPEN_ENABLED
@@ -35,38 +35,31 @@ object AdsIdResolver {
         // OFF / OFF -> null
         if (!normalEnabled && !twoFEnabled) return null
 
-        // Try 2F if twoFEnabled == true
+        val remoteNormalId = remoteManager.getString(config.normalIdKey, "")
+        val resolvedNormalId = if (remoteNormalId.isNotBlank()) remoteNormalId else config.defaultNormalId
+
+        // Nếu 2F bật (twoFEnabled == true), trả về cả adUnitIdPriority (2F High Floor ID) và adUnitId (Normal ID)
+        // để thư viện ads tự động thực thi luồng requestAdsAlternate (thử 2F trước, rớt 2F tự động fallback về Normal)
         if (twoFEnabled) {
             val remoteTwoFId = remoteManager.getString(config.twoFIdKey, "")
             val resolvedTwoFId = if (remoteTwoFId.isNotBlank()) remoteTwoFId else config.defaultTwoFId
             if (resolvedTwoFId.isNotBlank()) {
                 return ResolvedAds(
-                    adUnitId = resolvedTwoFId,
+                    adUnitIdPriority = resolvedTwoFId,
+                    adUnitId = resolvedNormalId,
                     placement = placement,
                     is2F = true
                 )
             }
         }
 
-        // Try Normal if normalEnabled == true
-        if (normalEnabled) {
-            val remoteNormalId = remoteManager.getString(config.normalIdKey, "")
-            val resolvedNormalId = if (remoteNormalId.isNotBlank()) remoteNormalId else config.defaultNormalId
-            if (resolvedNormalId.isNotBlank()) {
-                return ResolvedAds(
-                    adUnitId = resolvedNormalId,
-                    placement = placement,
-                    is2F = false
-                )
-            }
-        }
-
-        // If twoFEnabled was true but failed ID resolution and normal is not available, try defaultTwoFId BuildConfig as last resort
-        if (twoFEnabled && config.defaultTwoFId.isNotBlank()) {
+        // Nếu chỉ bật Normal (normalEnabled == true)
+        if (normalEnabled && resolvedNormalId.isNotBlank()) {
             return ResolvedAds(
-                adUnitId = config.defaultTwoFId,
+                adUnitIdPriority = null,
+                adUnitId = resolvedNormalId,
                 placement = placement,
-                is2F = true
+                is2F = false
             )
         }
 
@@ -124,6 +117,14 @@ object AdsIdResolver {
                 defaultNormalId = BuildConfig.native_language,
                 defaultTwoFId = BuildConfig.native_language_2f
             )
+            AdPlacement.NATIVE_LANGUAGE_SELECT, "native_language_select" -> PlacementConfig(
+                normalSwitch = AdPlacement.ADS_NATIVE_LANGUAGE_SELECT_ENABLED,
+                twoFSwitch = AdPlacement.ADS_NATIVE_LANGUAGE_SELECT_2F_ENABLED,
+                normalIdKey = "native_language_select",
+                twoFIdKey = "native_language_select_2f",
+                defaultNormalId = BuildConfig.native_language,
+                defaultTwoFId = BuildConfig.native_language_2f
+            )
             "native_onboarding" -> PlacementConfig(
                 normalSwitch = AdPlacement.ADS_NATIVE_OBD1_ENABLED,
                 twoFSwitch = AdPlacement.ADS_NATIVE_OBD1_2F_ENABLED,
@@ -131,6 +132,14 @@ object AdsIdResolver {
                 twoFIdKey = "native_onboarding_2f",
                 defaultNormalId = BuildConfig.native_onboarding,
                 defaultTwoFId = BuildConfig.native_onboarding
+            )
+            "native_onboarding_3" -> PlacementConfig(
+                normalSwitch = AdPlacement.ADS_NATIVE_OBD3_ENABLED,
+                twoFSwitch = AdPlacement.ADS_NATIVE_OBD3_2F_ENABLED,
+                normalIdKey = "native_onboarding_3",
+                twoFIdKey = "native_onboarding_3_2f",
+                defaultNormalId = BuildConfig.native_onboarding_3,
+                defaultTwoFId = BuildConfig.native_onboarding_3
             )
             "native_permission" -> PlacementConfig(
                 normalSwitch = AdPlacement.ADS_NATIVE_PERMISSION_ENABLED,

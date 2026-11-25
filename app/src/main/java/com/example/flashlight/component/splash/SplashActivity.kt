@@ -2,11 +2,11 @@ package com.example.flashlight.component.splash
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -52,6 +52,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
             )
             topSystemBarInset = insets.top
+            binding.bannerSlot.updatePadding(bottom = insets.bottom)
             windowInsets
         }
 
@@ -227,7 +228,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 
     override fun onDestroy() {
         nativeFullscreenController.release()
-        BannerAdsUtils.releaseBanner("banner_splash")
+        BannerAdsUtils.releaseBanner(AdPlacement.ADS_BANNER_SPLASH_ENABLED)
         super.onDestroy()
     }
 }

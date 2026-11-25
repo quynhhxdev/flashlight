@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 import com.example.flashlight.App
 import com.example.flashlight.data.model.Language
 import com.example.flashlight.data.model.LanguageOptions
+import com.example.flashlight.data.model.UserAttributionType
 import com.kt.flashlight.R
 import java.util.Locale
 
@@ -110,6 +111,46 @@ class SpManager(private val preferences: SharedPreferences) {
 
     fun isOnboardingCompleted(): Boolean {
         return preferences.getBoolean("KEY_SP_ONBOARDING_COMPLETED", false)
+    }
+
+    // User Attribution (Paid / Organic)
+    fun setUserAttributionType(type: UserAttributionType) {
+        preferences.edit {
+            putString(Constant.KEY_SP_USER_ATTRIBUTION_TYPE, type.name)
+            when (type) {
+                UserAttributionType.PAID -> putBoolean(Constant.KEY_SP_IS_PAID_USER, true)
+                UserAttributionType.ORGANIC -> putBoolean(Constant.KEY_SP_IS_PAID_USER, false)
+                UserAttributionType.UNKNOWN -> remove(Constant.KEY_SP_IS_PAID_USER)
+            }
+        }
+    }
+
+    fun getUserAttributionType(): UserAttributionType {
+        val savedTypeStr = preferences.getString(Constant.KEY_SP_USER_ATTRIBUTION_TYPE, null)
+        if (!savedTypeStr.isNullOrEmpty()) {
+            return try {
+                UserAttributionType.valueOf(savedTypeStr)
+            } catch (e: Exception) {
+                UserAttributionType.UNKNOWN
+            }
+        }
+        if (preferences.contains(Constant.KEY_SP_IS_PAID_USER)) {
+            return if (preferences.getBoolean(Constant.KEY_SP_IS_PAID_USER, false)) {
+                UserAttributionType.PAID
+            } else {
+                UserAttributionType.ORGANIC
+            }
+        }
+        return UserAttributionType.UNKNOWN
+    }
+
+    fun setPaidUser(isPaid: Boolean) {
+        val type = if (isPaid) UserAttributionType.PAID else UserAttributionType.ORGANIC
+        setUserAttributionType(type)
+    }
+
+    fun isPaidUser(): Boolean {
+        return getUserAttributionType() == UserAttributionType.PAID
     }
 
     // Screen Light Color & Brightness

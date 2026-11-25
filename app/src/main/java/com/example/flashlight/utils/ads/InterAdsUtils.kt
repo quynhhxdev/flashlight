@@ -70,11 +70,12 @@ object InterAdsUtils {
         activity: Activity,
         lifecycleOwner: LifecycleOwner,
         idAds: String,
+        idAdsPriority: String,
         adPlacement: String,
         isEnable: Boolean,
         action: () -> Unit
     ) {
-        loadInterAds(activity, idAds = idAds, adPlacement = adPlacement, isEnable = isEnable, isLoadAndShow = true, onAdLoaded = {
+        loadInterAds(activity,idAdsPriority = idAdsPriority, idAds = idAds, adPlacement = adPlacement, isEnable = isEnable, isLoadAndShow = true, onAdLoaded = {
             showInterAds(activity, lifecycleOwner, adPlacement, action = action)
         }, onAdLoadFail = { action.invoke() })
     }

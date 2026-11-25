@@ -784,6 +784,12 @@ class AdmobFactoryImpl : AdmobFactory {
         return System.currentTimeMillis() - previousAdCloseTime > afAdConfig.intervalBetweenInterstitial
     }
 
+    override fun updateIntervalBetweenInterstitial(intervalMs: Long) {
+        if (::afAdConfig.isInitialized) {
+            afAdConfig.intervalBetweenInterstitial = intervalMs
+        }
+    }
+
     override fun getConfig(): AfAdConfig {
         return afAdConfig
     }

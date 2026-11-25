@@ -2,6 +2,7 @@ package com.example.flashlight.utils.ads
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
@@ -34,6 +35,9 @@ object NativeAdsUtils {
     var nativeOnboarding: NativeAdHelper? = null
         private set
 
+    var nativeOnboarding3: NativeAdHelper? = null
+        private set
+
     var nativeFullscreen: NativeAdHelper? = null
         private set
 
@@ -46,20 +50,32 @@ object NativeAdsUtils {
     var homeNative: NativeAdHelper? = null
         private set
 
+    /**
+     * Tracks the native_language_select ad helper (used after the user taps a language).
+     * Kept separate from [nativeLanguage] so both helpers can coexist during the transition,
+     * and so we have a stable reference to call cancel/destroy at the right time.
+     */
+    var nativeLanguageSelect: NativeAdHelper? = null
+        private set
+
     fun destroyAll() {
         nativeLanguage?.cancel()
         nativeOnboarding?.cancel()
+        nativeOnboarding3?.cancel()
         nativeFullscreen?.cancel()
         nativeFullscreen2?.cancel()
         nativePermission?.cancel()
         homeNative?.cancel()
+        nativeLanguageSelect?.cancel()
 
         nativeLanguage = null
         nativeOnboarding = null
+        nativeOnboarding3 = null
         nativeFullscreen = null
         nativeFullscreen2 = null
         nativePermission = null
         homeNative = null
+        nativeLanguageSelect = null
     }
 
     fun getCustomNativeLayoutId(): Int {
@@ -124,14 +140,21 @@ object NativeAdsUtils {
         }
     }
 
-    fun preloadNativeLanguage(appActivity: AppCompatActivity) {
+    fun preloadNativeLanguage(appActivity: AppCompatActivity, forceReload: Boolean = false) {
         FirebaseConfigManager.instance().doAfterFetch {
             val resolved = AdsIdResolver.resolve("native_language")
             if (resolved == null) return@doAfterFetch
 
-            if (nativeLanguage != null) return@doAfterFetch
+            val currentHelper = nativeLanguage
+            if (currentHelper != null && !forceReload) {
+                currentHelper.updateActivity(appActivity, processLifecycleOwner)
+                if (currentHelper.nativeAd != null) return@doAfterFetch
+                val state = currentHelper.getAdNativeState().value
+                if (state is AdNativeState.Loading) return@doAfterFetch
+            }
 
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -154,14 +177,47 @@ object NativeAdsUtils {
         }
     }
 
-    fun preloadNativeOnboarding(appActivity: AppCompatActivity) {
+    /**
+     * Preloads the native_language_select ad.
+     *
+     * Creates or reuses a [NativeAdHelper] and stores it in [nativeLanguageSelect].
+     * Priority / Normal fallback is handled automatically via [NativeAdConfig.idAdsPriority].
+     *
+     * @param appActivity   the current [AppCompatActivity]
+     * @param forceReload   if true, cancels any existing helper and starts fresh
+     * @param onHelperReady invoked when the helper is available to observe its state
+     */
+    fun preloadNativeLanguageSelect(
+        appActivity: AppCompatActivity,
+        forceReload: Boolean = false,
+        onHelperReady: ((NativeAdHelper) -> Unit)? = null
+    ) {
         FirebaseConfigManager.instance().doAfterFetch {
-            val resolved = AdsIdResolver.resolve("native_onboarding")
+            if (appActivity.isFinishing || appActivity.isDestroyed) return@doAfterFetch
+
+            val resolved = AdsIdResolver.resolve("native_language_select")
             if (resolved == null) return@doAfterFetch
 
-            if (nativeOnboarding != null) return@doAfterFetch
+            val currentHelper = nativeLanguageSelect
+            if (currentHelper != null && !forceReload) {
+                currentHelper.updateActivity(appActivity, processLifecycleOwner)
+                if (currentHelper.nativeAd != null) {
+                    onHelperReady?.invoke(currentHelper)
+                    return@doAfterFetch
+                }
+                val state = currentHelper.getAdNativeState().value
+                if (state is AdNativeState.Loading) {
+                    onHelperReady?.invoke(currentHelper)
+                    return@doAfterFetch
+                }
+            }
+
+            if (forceReload && currentHelper != null) {
+                currentHelper.cancel()
+            }
 
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -170,7 +226,7 @@ object NativeAdsUtils {
                 reloadIfFirstFail = true
             )
 
-            nativeOnboarding = NativeAdHelper(
+            val newHelper = NativeAdHelper(
                 activity = appActivity,
                 lifecycleOwner = processLifecycleOwner,
                 config = config
@@ -178,10 +234,89 @@ object NativeAdsUtils {
                 adVisibility = AdOptionVisibility.GONE
             }
 
-            nativeOnboarding?.requestAds(NativeAdParam.Request)
-
-            Logger.e("preloadNativeOnboarding()")
+            nativeLanguageSelect = newHelper
+            newHelper.requestAds(NativeAdParam.Request)
+            onHelperReady?.invoke(newHelper)
+            Logger.e("LanguageNativeAd: preloadNativeLanguageSelect() started (placement=${resolved.placement})")
         }
+    }
+
+    /**
+     * Cancels and destroys the [nativeLanguageSelect] helper, releasing all resources.
+     * Safe to call even if the helper is null.
+     */
+    fun destroyNativeLanguageSelect() {
+        nativeLanguageSelect?.cancel()
+        nativeLanguageSelect = null
+        Logger.e("LanguageNativeAd: destroyNativeLanguageSelect")
+    }
+
+    fun preloadNativeOnboarding(appActivity: AppCompatActivity, forceReload: Boolean = false) {
+        val resolved = AdsIdResolver.resolve("native_onboarding") ?: return
+
+        val currentHelper = nativeOnboarding
+        if (currentHelper != null && !forceReload) {
+            currentHelper.updateActivity(appActivity, processLifecycleOwner)
+            if (currentHelper.nativeAd != null) return
+            val state = currentHelper.getAdNativeState().value
+            if (state is AdNativeState.Loading) return
+        }
+
+        val config = NativeAdConfig(
+            idAdsPriority = resolved.adUnitIdPriority,
+            idAds = resolved.adUnitId,
+            canShowAds = true,
+            canReloadAds = false,
+            layoutId = getCustomNativeLayoutId(),
+            adPlacement = resolved.placement,
+            reloadIfFirstFail = true
+        )
+
+        nativeOnboarding = NativeAdHelper(
+            activity = appActivity,
+            lifecycleOwner = processLifecycleOwner,
+            config = config
+        ).apply {
+            adVisibility = AdOptionVisibility.GONE
+        }
+
+        nativeOnboarding?.requestAds(NativeAdParam.Request)
+
+        Logger.e("preloadNativeOnboarding()")
+    }
+
+    fun preloadNativeOnboarding3(appActivity: AppCompatActivity, forceReload: Boolean = false) {
+        val resolved = AdsIdResolver.resolve("native_onboarding_3") ?: return
+
+        val currentHelper = nativeOnboarding3
+        if (currentHelper != null && !forceReload) {
+            currentHelper.updateActivity(appActivity, processLifecycleOwner)
+            if (currentHelper.nativeAd != null) return
+            val state = currentHelper.getAdNativeState().value
+            if (state is AdNativeState.Loading) return
+        }
+
+        val config = NativeAdConfig(
+            idAdsPriority = resolved.adUnitIdPriority,
+            idAds = resolved.adUnitId,
+            canShowAds = true,
+            canReloadAds = false,
+            layoutId = getCustomNativeLayoutId(),
+            adPlacement = resolved.placement,
+            reloadIfFirstFail = true
+        )
+
+        nativeOnboarding3 = NativeAdHelper(
+            activity = appActivity,
+            lifecycleOwner = processLifecycleOwner,
+            config = config
+        ).apply {
+            adVisibility = AdOptionVisibility.GONE
+        }
+
+        nativeOnboarding3?.requestAds(NativeAdParam.Request)
+
+        Logger.e("preloadNativeOnboarding3()")
     }
 
     fun preloadNativeFullscreen(appActivity: AppCompatActivity, forceReload: Boolean = false) {
@@ -198,6 +333,7 @@ object NativeAdsUtils {
             }
 
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -234,6 +370,7 @@ object NativeAdsUtils {
             }
 
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -256,14 +393,21 @@ object NativeAdsUtils {
         }
     }
 
-    fun preloadNativePermission(appActivity: AppCompatActivity) {
+    fun preloadNativePermission(appActivity: AppCompatActivity, forceReload: Boolean = false) {
         FirebaseConfigManager.instance().doAfterFetch {
             val resolved = AdsIdResolver.resolve("native_permission")
             if (resolved == null) return@doAfterFetch
 
-            if (nativePermission != null) return@doAfterFetch
+            val currentHelper = nativePermission
+            if (currentHelper != null && !forceReload) {
+                currentHelper.updateActivity(appActivity, processLifecycleOwner)
+                if (currentHelper.nativeAd != null) return@doAfterFetch
+                val state = currentHelper.getAdNativeState().value
+                if (state is AdNativeState.Loading) return@doAfterFetch
+            }
 
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -301,6 +445,7 @@ object NativeAdsUtils {
             val act = context as? Activity ?: return@doAfterFetch
 
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,
@@ -348,6 +493,60 @@ object NativeAdsUtils {
         }
     }
 
+    fun bindPermissionNative(
+        activity: FragmentActivity,
+        lifecycleOwner: LifecycleOwner,
+        nativeContentView: FrameLayout,
+        shimmerContainerNative: ShimmerFrameLayout
+    ) {
+        FirebaseConfigManager.instance().doAfterFetch {
+            val resolved = AdsIdResolver.resolve("native_permission")
+            val container = nativeContentView.parent as? ViewGroup
+            if (resolved == null) {
+                container?.isVisible = false
+                return@doAfterFetch
+            }
+            container?.isVisible = true
+            val actualShimmer = setupShimmerLayout(shimmerContainerNative, isType2 = false)
+            nativeContentView.isVisible = true
+
+            val currentHelper = nativePermission
+            if (currentHelper == null) {
+                val config = NativeAdConfig(
+                    idAdsPriority = resolved.adUnitIdPriority,
+                    idAds = resolved.adUnitId,
+                    canShowAds = true,
+                    canReloadAds = false,
+                    layoutId = getCustomNativeLayoutId(),
+                    adPlacement = resolved.placement,
+                    reloadIfFirstFail = true
+                )
+                val helper = NativeAdHelper(
+                    activity = activity,
+                    lifecycleOwner = processLifecycleOwner,
+                    config = config
+                ).apply {
+                    adVisibility = AdOptionVisibility.GONE
+                }
+                nativePermission = helper
+                helper.setNativeContentView(nativeContentView)
+                helper.setShimmerLayoutView(actualShimmer)
+                helper.requestAds(NativeAdParam.Request)
+                Logger.e("bindPermissionNative: Created new helper and requested ad")
+            } else {
+                currentHelper.updateActivity(activity, lifecycleOwner)
+                currentHelper.setNativeContentView(nativeContentView)
+                currentHelper.setShimmerLayoutView(actualShimmer)
+
+                val state = currentHelper.getAdNativeState().value
+                if (currentHelper.nativeAd == null && state !is AdNativeState.Loading) {
+                    currentHelper.requestAds(NativeAdParam.Request)
+                    Logger.e("bindPermissionNative: Retrying request for unloaded native ad")
+                }
+            }
+        }
+    }
+
     private fun setNative(
         activity: FragmentActivity,
         config: NativeAdConfig,
@@ -392,6 +591,7 @@ object NativeAdsUtils {
                 layoutId
             }
             val config = NativeAdConfig(
+                idAdsPriority = resolved.adUnitIdPriority,
                 idAds = resolved.adUnitId,
                 canShowAds = true,
                 canReloadAds = false,

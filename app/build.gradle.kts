@@ -11,6 +11,7 @@ plugins {
 val adjustAppToken = providers.gradleProperty("ADJUST_APP_TOKEN").orElse("").get()
 val facebookAppId = providers.gradleProperty("FACEBOOK_APP_ID").orElse("").get()
 val facebookClientToken = providers.gradleProperty("FACEBOOK_CLIENT_TOKEN").orElse("").get()
+val appsFlyerDevKey = providers.gradleProperty("APPSFLYER_DEV_KEY").orElse("").get()
 
 android {
     namespace = "com.kt.flashlight"
@@ -24,9 +25,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["ad_app_id"] = "ca-app-pub-3940256099942544~3347511713"
+        manifestPlaceholders["facebookAppId"] = if (facebookAppId.isEmpty()) "123456789" else facebookAppId
+        manifestPlaceholders["facebookClientToken"] = if (facebookClientToken.isEmpty()) "123456789" else facebookClientToken
         buildConfigField("String", "ADJUST_APP_TOKEN", "\"$adjustAppToken\"")
         buildConfigField("String", "FACEBOOK_APP_ID", "\"$facebookAppId\"")
         buildConfigField("String", "FACEBOOK_CLIENT_TOKEN", "\"$facebookClientToken\"")
+        buildConfigField("String", "APPSFLYER_DEV_KEY", "\"$appsFlyerDevKey\"")
     }
 
     buildTypes {
@@ -109,6 +114,8 @@ android {
             buildConfigField("String", "native_language", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_language_2f", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_onboarding", "\"ca-app-pub-3940256099942544/2247696110\"")
+            buildConfigField("String", "native_onboarding_3", "\"ca-app-pub-3940256099942544/2247696110\"")
+            buildConfigField("String", "native_onboarding_3_2f", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_onboarding_fullscreen", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_onboarding_fullscreen_2f", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "reward_unlock", "\"ca-app-pub-3940256099942544/5224354917\"")
@@ -129,6 +136,8 @@ android {
             buildConfigField("String", "native_language", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_language_2f", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_onboarding", "\"ca-app-pub-3940256099942544/2247696110\"")
+            buildConfigField("String", "native_onboarding_3", "\"ca-app-pub-3940256099942544/2247696110\"")
+            buildConfigField("String", "native_onboarding_3_2f", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_onboarding_fullscreen", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "native_onboarding_fullscreen_2f", "\"ca-app-pub-3940256099942544/2247696110\"")
             buildConfigField("String", "reward_unlock", "\"ca-app-pub-3940256099942544/5224354917\"")
@@ -178,6 +187,9 @@ dependencies {
     implementation("com.google.firebase:firebase-config")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
+
+    // AppsFlyer SDK
+    implementation("com.appsflyer:af-android-sdk:6.15.2")
 
     // AdMob + UMP
     implementation("com.google.android.gms:play-services-ads:23.6.0")

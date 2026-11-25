@@ -71,4 +71,10 @@ data class AdConfig(
             else -> defaultValue
         }
     }
+
+    companion object {
+        fun normalizeDurationMs(duration: Long): Long {
+            return if (duration in 1..999) duration * 1000L else duration
+        }
+    }
 }

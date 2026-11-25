@@ -39,8 +39,9 @@ class OnboardingPagerAdapter(
     // Giữ reference holders đang active theo position
     private val activeNativeHolders = mutableMapOf<Int, NativeFullscreenViewHolder>()
 
-    // Lưu page đang cần start countdown nếu onPageSelected gọi trước khi onBindViewHolder hoàn tất
-    private var pendingCountdownPageIndex: Int? = null
+    // Lưu page đang cần start visit session nếu onPageSelected gọi trước khi onBindViewHolder hoàn tất
+    private var pendingVisitPageIndex: Int? = null
+    private var pendingVisitId: Long? = null
 
     override fun getItemViewType(position: Int): Int = when (pages[position]) {
         is OnboardingPage.Normal -> VIEW_TYPE_NORMAL
@@ -74,10 +75,12 @@ class OnboardingPagerAdapter(
                 activeNativeHolders[position] = holder
                 onNativeFullscreenPageBound(position, holder)
 
-                // Nếu có yêu cầu countdown đang chờ cho vị trí này, kích hoạt ngay
-                if (pendingCountdownPageIndex == position) {
-                    pendingCountdownPageIndex = null
-                    holder.startCountdownIfNotStarted()
+                // Nếu có yêu cầu visit session đang chờ cho vị trí này, kích hoạt ngay
+                if (pendingVisitPageIndex == position && pendingVisitId != null) {
+                    val visitId = pendingVisitId!!
+                    pendingVisitPageIndex = null
+                    pendingVisitId = null
+                    holder.startNewVisitSession(visitId)
                 }
             }
         }
@@ -95,16 +98,26 @@ class OnboardingPagerAdapter(
     override fun getItemCount(): Int = pages.size
 
     /**
-     * Kích hoạt countdown cho trang Native Fullscreen khi trang thực sự được chọn trên màn hình.
+     * Bắt đầu một lượt truy cập (visit session) mới cho trang Native Fullscreen khi được chọn.
      */
-    fun startCountdownForPage(position: Int) {
+    fun startNewVisitForPage(position: Int): Long {
+        val newVisitId = System.currentTimeMillis()
         val holder = activeNativeHolders[position]
         if (holder != null) {
-            holder.startCountdownIfNotStarted()
+            holder.startNewVisitSession(newVisitId)
         } else {
-            // Lưu lại để chạy ngay khi holder được bind
-            pendingCountdownPageIndex = position
+            pendingVisitPageIndex = position
+            pendingVisitId = newVisitId
         }
+        return newVisitId
+    }
+
+    /**
+     * Dừng lượt truy cập hiện tại của trang Native Fullscreen khi rời khỏi trang đó.
+     */
+    fun stopVisitForPage(position: Int) {
+        val holder = activeNativeHolders[position]
+        holder?.stopVisitSession()
     }
 
     // ─── Normal Page ViewHolder ───────────────────────────────────────────────
@@ -126,15 +139,14 @@ class OnboardingPagerAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private var boundPageIndex: Int = -1
+        private var currentVisitId: Long = 0L
         private var timerJob: Job? = null
         private var loadJob: Job? = null
-        private var isCountdownRunning: Boolean = false
 
         private var activity: Activity? = null
         private var lifecycleOwner: LifecycleOwner? = null
         private var nativeAdHelper: NativeAdHelper? = null
         private var adEnabled: Boolean = false
-        private var countdownAlreadyDone: Boolean = false
         private var onCountdownDoneCallback: (() -> Unit)? = null
         private var onAutoNavigateCallback: (() -> Unit)? = null
 
@@ -145,7 +157,6 @@ class OnboardingPagerAdapter(
             nativeAdHelper: NativeAdHelper?,
             adEnabled: Boolean,
             topInset: Int,
-            countdownAlreadyDone: Boolean,
             onCountdownDone: () -> Unit,
             onAutoNavigate: () -> Unit,
         ) {
@@ -159,7 +170,6 @@ class OnboardingPagerAdapter(
             this.lifecycleOwner = lifecycleOwner
             this.nativeAdHelper = nativeAdHelper
             this.adEnabled = adEnabled
-            this.countdownAlreadyDone = countdownAlreadyDone
             this.onCountdownDoneCallback = onCountdownDone
             this.onAutoNavigateCallback = onAutoNavigate
 
@@ -170,62 +180,59 @@ class OnboardingPagerAdapter(
                 nativeAdHelper.setShimmerLayoutView(binding.shimmerContainerNative.root)
                 nativeAdHelper.setNativeContentView(binding.nativeAdContent)
             }
-
-            if (countdownAlreadyDone) {
-                // Đã đếm xong từ trước: hiện nút Close ngay
-                showCloseButton()
-            } else if (!isCountdownRunning) {
-                // Chưa đếm xong và chưa chạy: chuẩn bị giao diện đếm
-                initCloseButtonCountdown()
-            }
         }
 
         /**
-         * Chỉ bắt đầu đếm khi trang này thực sự hiển thị trên màn hình.
+         * Bắt đầu một visit session mới mỗi lần vào trang Native Fullscreen.
          */
-        fun startCountdownIfNotStarted() {
-            if (countdownAlreadyDone || isCountdownRunning) return
+        fun startNewVisitSession(visitId: Long) {
+            currentVisitId = visitId
+            timerJob?.cancel()
+            timerJob = null
+            loadJob?.cancel()
+            loadJob = null
 
             val currentOwner = lifecycleOwner ?: return
             val helper = nativeAdHelper
 
             if (!adEnabled || helper == null) {
-                Logger.e("NativeFullscreenPage ($boundPageIndex): Ad disabled or null -> skip")
-                finishCountdown(currentOwner, skipImmediately = true)
+                Logger.e("NativeFullscreenPage ($boundPageIndex, visit $visitId): Ad disabled or null -> finish session")
+                finishVisitSession(currentOwner, visitId, skipImmediately = true)
                 return
             }
 
-            isCountdownRunning = true
             initCloseButtonCountdown()
 
             val currentState = helper.getAdNativeState().value
             if (helper.nativeAd != null || currentState is AdNativeState.Loaded) {
-                Logger.e("NativeFullscreenPage ($boundPageIndex): Ad already loaded -> start timer")
-                runCountdownTimer(currentOwner)
+                Logger.e("NativeFullscreenPage ($boundPageIndex, visit $visitId): Ad already loaded -> start countdown")
+                runCountdownTimer(currentOwner, visitId)
                 return
             }
 
             // Ad chưa load xong: chờ ad load hoặc timeout 10s
-            loadJob?.cancel()
             loadJob = currentOwner.lifecycleScope.launch {
                 val timeoutJob = launch {
                     delay(10_000L)
-                    Logger.e("NativeFullscreenPage ($boundPageIndex): Load timeout -> finish")
-                    finishCountdown(currentOwner, skipImmediately = true)
+                    if (currentVisitId == visitId) {
+                        Logger.e("NativeFullscreenPage ($boundPageIndex, visit $visitId): Load timeout -> finish session")
+                        finishVisitSession(currentOwner, visitId, skipImmediately = true)
+                    }
                 }
 
                 helper.getAdNativeState().collect { state ->
+                    if (currentVisitId != visitId) return@collect
                     when (state) {
                         is AdNativeState.Loaded -> {
-                            Logger.e("NativeFullscreenPage ($boundPageIndex): Ad loaded -> start timer")
+                            Logger.e("NativeFullscreenPage ($boundPageIndex, visit $visitId): Ad loaded -> start timer")
                             timeoutJob.cancel()
-                            runCountdownTimer(currentOwner)
+                            runCountdownTimer(currentOwner, visitId)
                         }
                         is AdNativeState.Fail,
                         is AdNativeState.Cancel -> {
-                            Logger.e("NativeFullscreenPage ($boundPageIndex): Ad failed -> finish")
+                            Logger.e("NativeFullscreenPage ($boundPageIndex, visit $visitId): Ad failed -> finish session")
                             timeoutJob.cancel()
-                            finishCountdown(currentOwner, skipImmediately = true)
+                            finishVisitSession(currentOwner, visitId, skipImmediately = true)
                         }
                         else -> Unit
                     }
@@ -233,37 +240,41 @@ class OnboardingPagerAdapter(
             }
         }
 
-        private fun runCountdownTimer(owner: LifecycleOwner) {
+        private fun runCountdownTimer(owner: LifecycleOwner, visitId: Long) {
             timerJob?.cancel()
             timerJob = owner.lifecycleScope.launch {
                 // Đếm ngược 3s: Close in 3 -> Close in 2 -> Close in 1
                 for (sec in 2 downTo 1) {
                     delay(1_000L)
+                    if (currentVisitId != visitId) return@launch
                     val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
                     tvCountdown?.text = "Close in $sec"
                 }
                 delay(1_000L)
+                if (currentVisitId != visitId) return@launch
 
-                // Hết 3s:
-                countdownAlreadyDone = true
-                showCloseButton()
+                // Hết 3s: Hiện nút X và mở khóa vuốt
+                showCloseButton(visitId)
                 onCountdownDoneCallback?.invoke()
 
                 // Chờ tiếp 4s (tổng cộng 3s + 4s = 7s) tự động lướt tiếp
                 delay(4_000L)
+                if (currentVisitId != visitId) return@launch
                 onAutoNavigateCallback?.invoke()
             }
         }
 
-        private fun finishCountdown(owner: LifecycleOwner, skipImmediately: Boolean) {
-            countdownAlreadyDone = true
-            showCloseButton()
+        private fun finishVisitSession(owner: LifecycleOwner, visitId: Long, skipImmediately: Boolean) {
+            if (currentVisitId != visitId) return
+            showCloseButton(visitId)
             onCountdownDoneCallback?.invoke()
 
             if (skipImmediately) {
                 owner.lifecycleScope.launch {
                     delay(300L)
-                    onAutoNavigateCallback?.invoke()
+                    if (currentVisitId == visitId) {
+                        onAutoNavigateCallback?.invoke()
+                    }
                 }
             }
         }
@@ -271,7 +282,7 @@ class OnboardingPagerAdapter(
         private fun applyTopInset(topInset: Int) {
             val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
             val btnClose = binding.nativeAdContent.findViewById<View>(com.ads.admob.R.id.btnClose)
-            
+
             val params1 = tvCountdown?.layoutParams as? ViewGroup.MarginLayoutParams
             if (params1 != null) {
                 params1.topMargin = topInset + 12.dpToPx(binding.root.context)
@@ -293,31 +304,37 @@ class OnboardingPagerAdapter(
             btnClose?.setOnClickListener(null)
         }
 
-        private fun showCloseButton() {
+        private fun showCloseButton(visitId: Long) {
             val tvCountdown = binding.nativeAdContent.findViewById<TextView>(com.ads.admob.R.id.tvCountdown)
             val btnClose = binding.nativeAdContent.findViewById<View>(com.ads.admob.R.id.btnClose)
             tvCountdown?.isVisible = false
             btnClose?.isVisible = true
             btnClose?.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos >= 0) {
-                    onNativeFullscreenCloseClicked(pos)
+                if (currentVisitId == visitId) {
+                    timerJob?.cancel()
+                    timerJob = null
+                    val pos = bindingAdapterPosition
+                    if (pos >= 0) {
+                        onNativeFullscreenCloseClicked(pos)
+                    }
                 }
             }
         }
 
-        fun onRecycled() {
-            loadJob?.cancel()
-            loadJob = null
-        }
-
-        private fun resetState() {
+        fun stopVisitSession() {
+            currentVisitId = 0L
             timerJob?.cancel()
             timerJob = null
             loadJob?.cancel()
             loadJob = null
-            isCountdownRunning = false
-            countdownAlreadyDone = false
+        }
+
+        fun onRecycled() {
+            stopVisitSession()
+        }
+
+        private fun resetState() {
+            stopVisitSession()
             boundPageIndex = -1
         }
 

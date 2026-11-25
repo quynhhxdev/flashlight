@@ -1,9 +1,12 @@
 package com.example.flashlight.utils.ads.manager
 
+import com.ads.admob.admob.AdmobFactory
 import com.ads.admob.billing.factory.IapFactory
 import com.example.flashlight.component.startup.SplashStartupProgress
+import com.example.flashlight.data.model.UserAttributionType
 import com.example.flashlight.domain.layer.AdConfig
 import com.example.flashlight.utils.Logger
+import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.ads.AdPlacement
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
@@ -11,8 +14,12 @@ import com.google.gson.Gson
 class FirebaseConfigManager {
 
     companion object {
+        const val KEY_ADS_CONFIG_ORGANIC = "ad_config_organic"
+        const val KEY_ADS_CONFIG_PAID = "ad_config_paid_user"
+
         const val KEY_REMOTE_CONFIG_OGANIC = "remote_config_flashlight_oganic"
         const val KEY_REMOTE_CONFIG_PAID = "remote_config_flashlight_paid"
+
         const val KEY_VERSION_FORCE = "version_force"
         const val KEY_IS_FORCE_UPDATE = "is_force_update"
 
@@ -112,8 +119,9 @@ class FirebaseConfigManager {
         isUseHardcodedLocalConfigForTest = true
         hardcodedIsPaid = isPaid
         adConfig = if (isPaid) PAID_CONFIG else ORGANIC_CONFIG
-        Logger.e("FirebaseConfigManager: Using hardcoded ${if (isPaid) "PAID" else "ORGANIC"} config for testing")
+        Logger.e("[AdsConfig] Using hardcoded ${if (isPaid) "PAID" else "ORGANIC"} config for testing")
 
+        updateAdmobFactorySettings()
         SplashStartupProgress.update(100)
         onFetchProgress?.invoke(100)
         onFetchFinished(onFetchComplete)
@@ -127,12 +135,19 @@ class FirebaseConfigManager {
         }
     }
 
+    fun getUserAttributionType(): UserAttributionType {
+        if (isUseHardcodedLocalConfigForTest) {
+            return if (hardcodedIsPaid == true) UserAttributionType.PAID else UserAttributionType.ORGANIC
+        }
+        return SpManager.getInstance().getUserAttributionType()
+    }
+
     fun isPaidUser(): Boolean {
-        // Nếu đang dùng hardcoded config (test), ưu tiên dùng giá trị hardcoded
         if (isUseHardcodedLocalConfigForTest) {
             return hardcodedIsPaid ?: false
         }
-        // nếu không có harde code thì gọi từ fire base
+        val type = getUserAttributionType()
+        if (type == UserAttributionType.PAID) return true
         return try {
             IapFactory.getInstance().isProductPurchased()
         } catch (e: Exception) {
@@ -144,52 +159,85 @@ class FirebaseConfigManager {
         if (isUseHardcodedLocalConfigForTest) {
             val isPaid = hardcodedIsPaid ?: isPaidUser()
             adConfig = if (isPaid) PAID_CONFIG else ORGANIC_CONFIG
-            Logger.e("FirebaseConfigManager: Hardcoded config applied (${if (isPaid) "PAID" else "ORGANIC"})")
+            Logger.e("[AdsConfig] Hardcoded config applied (${if (isPaid) "PAID" else "ORGANIC"})")
+            updateAdmobFactorySettings()
             return
         }
 
-        val isPaid = isPaidUser()
-        val configKey = if (isPaid) KEY_REMOTE_CONFIG_PAID else KEY_REMOTE_CONFIG_OGANIC
-        val jsonString = getStringFromRemote(configKey)
+        val attributionType = getUserAttributionType()
+        val isPaid = (attributionType == UserAttributionType.PAID)
 
-        Logger.e("FirebaseConfigManager: Selected configuration type = ${if (isPaid) "Paid" else "Normal"} ($configKey)")
+        val primaryKey = if (isPaid) KEY_ADS_CONFIG_PAID else KEY_ADS_CONFIG_ORGANIC
+        val fallbackKey = if (isPaid) KEY_REMOTE_CONFIG_PAID else KEY_REMOTE_CONFIG_OGANIC
+
+        Logger.e("[AdsConfig] Current attribution status: $attributionType")
+        Logger.e("[AdsConfig] Selected parameter: $primaryKey (fallback: $fallbackKey)")
+
+        var jsonString = getStringFromRemote(primaryKey)
+        if (jsonString.isBlank()) {
+            jsonString = getStringFromRemote(fallbackKey)
+        }
 
         if (jsonString.isNotBlank()) {
             val parsed = parseAndValidateJson(jsonString)
             if (parsed != null) {
                 adConfig = parsed
-                Logger.e("FirebaseConfigManager: JSON parsing succeeded for $configKey. Master switch config_ads = ${adConfig.configAds}")
+                Logger.e("[AdsConfig] Config parsing: SUCCESS")
+                Logger.e("[AdsConfig] Active config: ${if (isPaid) "PAID" else if (attributionType == UserAttributionType.ORGANIC) "ORGANIC" else "UNKNOWN (Default Organic Config)"}")
+                updateAdmobFactorySettings()
                 return
             } else {
-                Logger.e("FirebaseConfigManager: JSON parsing failed for $configKey, falling back")
+                Logger.e("[AdsConfig] JSON parsing failed for $primaryKey, using safe fallback")
             }
         } else {
-            Logger.e("FirebaseConfigManager: Config JSON for $configKey is blank")
+            Logger.e("[AdsConfig] Config JSON for $primaryKey is blank, using safe fallback")
         }
 
         if (isPaid) {
-            val normalJson = getStringFromRemote(KEY_REMOTE_CONFIG_OGANIC)
-            if (normalJson.isNotBlank()) {
-                val parsedNormal = parseAndValidateJson(normalJson)
-                if (parsedNormal != null) {
-                    adConfig = parsedNormal
-                    Logger.e("FirebaseConfigManager: Fallback to Normal JSON for Paid user succeeded")
+            var organicJson = getStringFromRemote(KEY_ADS_CONFIG_ORGANIC)
+            if (organicJson.isBlank()) {
+                organicJson = getStringFromRemote(KEY_REMOTE_CONFIG_OGANIC)
+            }
+            if (organicJson.isNotBlank()) {
+                val parsedOrganic = parseAndValidateJson(organicJson)
+                if (parsedOrganic != null) {
+                    adConfig = parsedOrganic
+                    Logger.e("[AdsConfig] Fallback to Organic Remote JSON for Paid user succeeded")
+                    updateAdmobFactorySettings()
                     return
                 }
             }
         }
 
         adConfig = if (isPaid) PAID_CONFIG else ORGANIC_CONFIG
-        Logger.e("FirebaseConfigManager: Configuration fallback to hardcoded default selected")
+        Logger.e("[AdsConfig] Using safe fallback (Hardcoded default selected: ${if (isPaid) "PAID" else "ORGANIC"})")
+        updateAdmobFactorySettings()
     }
 
     private fun parseAndValidateJson(json: String): AdConfig? {
         return try {
             Gson().fromJson(json, AdConfig::class.java)
         } catch (e: Exception) {
-            Logger.e("FirebaseConfigManager parse error: ${e.message}")
+            Logger.e("[AdsConfig] Invalid JSON parsing error: ${e.message}")
             null
         }
+    }
+
+    fun onAttributionUpdated(newType: UserAttributionType) {
+        Logger.e("[Attribution] Attribution updated to $newType. Refreshing Ads Config...")
+        parseConfigJson()
+    }
+
+    fun invalidateCache() {
+        Logger.e("[AdsConfig] Invalidate cache called. Refreshing active config...")
+        parseConfigJson()
+    }
+
+    fun updateAdmobFactorySettings() {
+        val intervalMs = AdConfig.normalizeDurationMs(adConfig.intervalBetweenInterstitial)
+        AdmobFactory.INSTANCE.updateIntervalBetweenInterstitial(intervalMs)
+        Logger.e("[AdmobFactory] Interstitial interval updated: $intervalMs ms")
+        Logger.e("[AdmobFactory] Ads configuration updated successfully")
     }
 
     fun fetch(
@@ -204,13 +252,13 @@ class FirebaseConfigManager {
             return
         }
 
-        Logger.e("FirebaseConfigManager: Remote Config fetch started")
+        Logger.e("[AdsConfig] Remote Config fetch started")
         val longCache = 15 * 60L
         FirebaseRemoteConfig.getInstance().fetch(longCache).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Logger.e("FirebaseConfigManager: Remote Config fetch succeeded")
+                Logger.e("[AdsConfig] Remote Config fetch succeeded")
                 FirebaseRemoteConfig.getInstance().activate().addOnCompleteListener {
-                    Logger.e("FirebaseConfigManager: Remote Config activation completed")
+                    Logger.e("[AdsConfig] Remote Config activation completed")
                     versionForce = FirebaseRemoteConfig.getInstance().getString(KEY_VERSION_FORCE)
                     isForceUpdate = FirebaseRemoteConfig.getInstance().getBoolean(KEY_IS_FORCE_UPDATE)
 
@@ -221,7 +269,7 @@ class FirebaseConfigManager {
                     onFetchFinished(onFetchComplete)
                 }
             } else {
-                Logger.e("FirebaseConfigManager: Remote Config fetch failed")
+                Logger.e("[AdsConfig] Remote Config fetch failed")
                 tryFetchAgain(onFetchComplete, onFetchProgress)
             }
         }
@@ -232,7 +280,7 @@ class FirebaseConfigManager {
         onFetchComplete?.invoke()
         pendingActions.forEach { it() }
         pendingActions.clear()
-        Logger.e("FirebaseConfigManager: Configuration update completed")
+        Logger.e("[AdsConfig] Configuration update completed")
     }
 
     private fun tryFetchAgain(
@@ -295,7 +343,7 @@ class FirebaseConfigManager {
     }
 
     fun isBannerAdEnabled(placementKey: String): Boolean {
-        return isAdEnabled(AdPlacement.ADS_BANNER_ENABLED, placementKey)
+        return isAdEnabled(AdPlacement.ADS_BANNER_ALL_ENABLED, placementKey)
     }
 
     fun isInterAdEnabled(placementKey: String): Boolean {

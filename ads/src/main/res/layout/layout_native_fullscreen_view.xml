@@ -111,6 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:gravity="center"
+            android:layout_marginTop="28dp"
             android:paddingHorizontal="16dp"
             android:text="Close in 3"
             android:textColor="#FFFFFF"
@@ -122,14 +123,13 @@
         <!-- Close Button (Top Right, 48x48dp) -->
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnClose"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
             android:layout_marginTop="28dp"
-            android:layout_marginEnd="28dp"
-            android:background="@drawable/ic_close_button"
+            android:background="@drawable/ic_close_native_full"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.gms.ads.nativead.NativeAdView>

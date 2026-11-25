@@ -9,11 +9,31 @@ import com.example.flashlight.data.model.LanguageOptions
 import com.example.flashlight.data.model.OnBoarding
 import com.example.flashlight.data.model.PermissionModel
 import com.example.flashlight.utils.Permission as PermissionRequest
+import java.util.Locale
 import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(private val appDatabase: AppDatabase) {
     fun getListLanguage(): List<Language> {
-        return LanguageOptions.all
+        val baseList = LanguageOptions.all
+        val deviceLocale = Locale.getDefault()
+        val deviceLangCode = deviceLocale.language
+
+        val matchedItem = baseList.firstOrNull {
+            it.languageCode.equals(deviceLangCode, ignoreCase = true)
+        }
+
+        return if (matchedItem != null) {
+            val sortedList = ArrayList<Language>(baseList.size)
+            sortedList.add(matchedItem)
+            baseList.forEach { item ->
+                if (!item.languageCode.equals(matchedItem.languageCode, ignoreCase = true)) {
+                    sortedList.add(item)
+                }
+            }
+            sortedList
+        } else {
+            baseList
+        }
     }
 
     fun getListOnBoarding(): List<OnBoarding> {

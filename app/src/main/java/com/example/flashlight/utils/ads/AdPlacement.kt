@@ -10,12 +10,12 @@ object AdPlacement {
 
     const val NATIVE_LANGUAGE = "native_language"
     const val NATIVE_LANGUAGE_2F = "native_language_2f"
+    const val NATIVE_LANGUAGE_SELECT = "native_language_select"
 
     // A. Công tắc tổng
     const val CONFIG_ADS = "config_ads"
 
     // B. Công tắc theo định dạng quảng cáo
-    const val ADS_BANNER_ENABLED = "ads_banner"
     const val ADS_INTERSTITIAL_ENABLED = "ads_interstitial"
     const val ADS_NATIVE_ENABLED = "ads_native"
     const val ADS_APP_OPEN_ENABLED = "ads_app_open"

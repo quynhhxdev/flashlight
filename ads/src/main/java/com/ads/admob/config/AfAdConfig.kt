@@ -9,7 +9,7 @@ class AfAdConfig private constructor(
     val listDevices: List<String> = arrayListOf(),
     val disableAdsResumeByAd: Boolean = true,
     val afAdjustConfig: AfAdjustConfig,
-    val intervalBetweenInterstitial: Long = 10_000,
+    var intervalBetweenInterstitial: Long = 10_000,
     val eventConfig: EventConfig? = null
 ) {
 

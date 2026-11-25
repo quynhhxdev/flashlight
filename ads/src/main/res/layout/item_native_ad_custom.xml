@@ -48,7 +48,7 @@
                 <!-- Ad Content -->
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
@@ -98,7 +98,7 @@
                         android:fontFamily="@font/google_sans_flex_regular"
                         android:textColor="#92939D"
                         android:textSize="12sp"
-                        android:lineSpacingExtra="1dp" />
+                        android:includeFontPadding="false" />
 
                 </LinearLayout>
 

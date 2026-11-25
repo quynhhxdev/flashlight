@@ -93,7 +93,8 @@ object AdsDisplayManager {
             }
 
             // 2. Banner check (Step 1 & Step 2)
-            val bannerHelper = BannerAdsUtils.getBannerHelper("banner_splash")
+            val bannerHelper = BannerAdsUtils.getBannerHelper(com.example.flashlight.utils.ads.AdPlacement.ADS_BANNER_SPLASH_ENABLED)
+                ?: BannerAdsUtils.getBannerHelper("banner_splash")
             if (bannerHelper != null) {
                 Logger.e("SplashAdsFlow: Checking banner status")
                 val bannerReady = withTimeoutOrNull(1000L.milliseconds) {

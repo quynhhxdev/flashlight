@@ -40,6 +40,7 @@ object AppResumeAdManager {
             idAds = resolved.adUnitId,
             networkProvider = NetworkProvider.ADMOB,
             listClassInValid = mutableListOf(
+                com.google.android.gms.ads.AdActivity::class.java,
                 SplashActivity::class.java,
                 LanguageActivity::class.java,
                 OnboardingActivity::class.java,
@@ -49,7 +50,7 @@ object AppResumeAdManager {
             canReloadAds = true,
             adPlacement = AdPlacement.OPEN_RESUME,
             reloadIfFirstFail = true,
-            loadOnResume = false
+            loadOnResume = true
         )
 
         val helper = AppResumeAdHelper(

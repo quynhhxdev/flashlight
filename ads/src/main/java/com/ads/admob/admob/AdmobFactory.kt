@@ -68,6 +68,7 @@ interface AdmobFactory {
     )
 
     fun isShowAdsIntervalValid(): Boolean
+    fun updateIntervalBetweenInterstitial(intervalMs: Long)
 
     fun getConfig(): AfAdConfig
     fun setEventConfig(eventConfig: EventConfig)

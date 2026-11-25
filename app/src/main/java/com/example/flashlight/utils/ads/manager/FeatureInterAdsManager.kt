@@ -134,12 +134,13 @@ object FeatureInterAdsManager {
                 InterAdsUtils.loadAndShowInterAds(
                     activity = activity,
                     lifecycleOwner = lifecycleOwner,
+                    idAdsPriority = resolved.adUnitIdPriority ?: "",
                     idAds = resolved.adUnitId,
                     adPlacement = resolved.placement,
                     isEnable = true,
                     action = {
                         recordAdClosed()
-                        reloadAfterShow(activity, resolved.adUnitId, resolved.placement)
+                        reloadAfterShow(activity, resolved.adUnitIdPriority, resolved.adUnitId, resolved.placement)
                         onAdFinished()
                     }
                 )
@@ -153,7 +154,7 @@ object FeatureInterAdsManager {
                     isReloadWhenClose = false,
                     action = {
                         recordAdClosed()
-                        reloadAfterShow(activity, resolved.adUnitId, resolved.placement)
+                        reloadAfterShow(activity, resolved.adUnitIdPriority, resolved.adUnitId, resolved.placement)
                         onAdFinished()
                     }
                 )
@@ -168,10 +169,11 @@ object FeatureInterAdsManager {
     }
 
     /** Preload lại sau khi show để lần sau sẵn sàng ngay */
-    private fun reloadAfterShow(activity: Activity, adUnitId: String, placement: String) {
+    private fun reloadAfterShow(activity: Activity, adUnitIdPriority: String?, adUnitId: String, placement: String) {
         if (activity.isFinishing || activity.isDestroyed) return
         InterAdsUtils.loadInterAds(
             activity = activity,
+            idAdsPriority = adUnitIdPriority,
             idAds = adUnitId,
             adPlacement = placement,
             isEnable = true,

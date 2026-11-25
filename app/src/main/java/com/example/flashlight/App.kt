@@ -14,13 +14,17 @@ import com.ads.admob.config.AfAdConfig
 import com.ads.admob.config.AfAdjustConfig
 import com.ads.admob.config.NetworkProvider
 import com.ads.admob.listener.AdmobCallBack
+import com.appsflyer.AppsFlyerConversionListener
+import com.appsflyer.AppsFlyerLib
 import com.example.flashlight.component.startup.SplashStartupProgress
+import com.example.flashlight.data.model.UserAttributionType
 import com.example.flashlight.utils.Constant
 import com.example.flashlight.utils.Logger
 import com.example.flashlight.utils.SpManager
 import com.example.flashlight.utils.ads.manager.AppResumeAdManager
 import com.example.flashlight.utils.ads.manager.FirebaseConfigManager
 import com.google.firebase.FirebaseApp
+import com.kt.flashlight.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -48,28 +52,92 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         // 1. Khôi phục ngôn ngữ đã lưu
         initializeAppLanguage()
 
-        // 2. Khởi tạo AdMob
+        // 2. Khởi tạo AppsFlyer phân loại người dùng (Paid / Organic)
+        initAppsFlyer()
+
+        // 3. Khởi tạo AdMob
         initAdmob()
 
-        // 3. Khởi tạo App Resume Ads
+        // 4. Khởi tạo App Resume Ads
         AppResumeAdManager.init(this)
 
-        // 4. Khởi tạo Firebase và fetch Remote Config thay thế bản local tại đây
+        // 5. Khởi tạo Firebase và fetch Remote Config
         if (FirebaseApp.initializeApp(this) != null) {
-
-            //sử dụng bản local remote config
+            //build test
             FirebaseConfigManager.instance().useHardcodedConfig(true)
 
-            //bản gọi từ firebase
+            //build production
 //            FirebaseConfigManager.instance().fetch(
 //                onFetchProgress = { progress -> SplashStartupProgress.update(progress) }
 //            )
+
         } else {
             SplashStartupProgress.update(100)
         }
 
         // Register global Activity lifecycle callbacks for Multi-Activity tracking & Ad coordination
         registerActivityLifecycleCallbacks(this)
+    }
+
+    private fun initAppsFlyer() {
+        val conversionListener = object : AppsFlyerConversionListener {
+
+            override fun onConversionDataSuccess(
+                conversionData: MutableMap<String, Any>?
+            ) {
+                val status = conversionData?.get("af_status")?.toString()
+                Logger.e("[Attribution] AppsFlyer onConversionDataSuccess af_status: $status")
+
+                val detectedType = when (status) {
+                    "Non-organic" -> UserAttributionType.PAID
+                    "Organic" -> UserAttributionType.ORGANIC
+                    else -> UserAttributionType.UNKNOWN
+                }
+
+                Logger.e("[Attribution] User type detected: $detectedType")
+
+                if (detectedType != UserAttributionType.UNKNOWN) {
+                    val currentType = spManager.getUserAttributionType()
+                    if (currentType != detectedType) {
+                        spManager.setUserAttributionType(detectedType)
+                        Logger.e("[Attribution] User type saved: $detectedType")
+
+                        FirebaseConfigManager.instance().onAttributionUpdated(detectedType)
+                    } else {
+                        Logger.e("[Attribution] Attribution status unchanged ($detectedType). Keeping existing configuration.")
+                    }
+                } else {
+                    Logger.e("[Attribution] Received UNKNOWN status from AppsFlyer. Keeping existing attribution: ${spManager.getUserAttributionType()}")
+                }
+            }
+
+            override fun onConversionDataFail(errorMessage: String?) {
+                Logger.e("[Attribution] AppsFlyer onConversionDataFail: $errorMessage. Keeping previous attribution.")
+            }
+
+            override fun onAppOpenAttribution(
+                attributionData: MutableMap<String, String>?
+            ) {
+                Logger.e("[Attribution] AppsFlyer onAppOpenAttribution: $attributionData")
+            }
+
+            override fun onAttributionFailure(errorMessage: String?) {
+                Logger.e("[Attribution] AppsFlyer onAttributionFailure: $errorMessage. Keeping previous attribution.")
+            }
+        }
+
+        try {
+            val devKey = BuildConfig.APPSFLYER_DEV_KEY
+            if (devKey.isNotEmpty()) {
+                AppsFlyerLib.getInstance().init(devKey, conversionListener, this)
+                AppsFlyerLib.getInstance().start(this)
+                Logger.e("[Attribution] AppsFlyer initialized successfully with devKey.")
+            } else {
+                Logger.e("[Attribution] APPSFLYER_DEV_KEY is empty. Skipping AppsFlyer initialization safely.")
+            }
+        } catch (e: Exception) {
+            Logger.e("[Attribution] initAppsFlyer error: ${e.message}")
+        }
     }
 
     private fun initializeAppLanguage() {
