@@ -35,7 +35,7 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file(
-                System.getenv("KEYSTORE_FILE")
+                System.getenv("KEYSTORE_PATH")
                     ?: "D:/keyQuynh"
             )
 
