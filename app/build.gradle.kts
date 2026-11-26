@@ -49,8 +49,8 @@ android {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
 
-            isMinifyEnabled = false
-            isShrinkResources = true // loại bỏ các file không dùng
+            isMinifyEnabled = false //R8 loại code thừa và obfuscate
+            isShrinkResources = false // loại bỏ các tài nguyên không dùng
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
