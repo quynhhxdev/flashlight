@@ -32,23 +32,41 @@ android {
         buildConfigField("String", "FACEBOOK_CLIENT_TOKEN", "\"$facebookClientToken\"")
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(
+                System.getenv("KEYSTORE_FILE")
+                    ?: "D:/keyQuynh"
+            )
+
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
-        release {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+
             isMinifyEnabled = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
 
-        debug {
+        getByName("debug") {
             isMinifyEnabled = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -144,6 +162,8 @@ android {
             buildConfigField("Boolean", "build_debug", "false")
         }
     }
+
+
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
