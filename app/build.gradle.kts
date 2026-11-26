@@ -50,6 +50,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
 
             isMinifyEnabled = false
+            isShrinkResources = true // loại bỏ các file không dùng
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
