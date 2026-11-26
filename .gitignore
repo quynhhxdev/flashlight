@@ -28,6 +28,9 @@ Thumbs.db
 .externalNativeBuild/
 .cxx/
 
+# Local AI Agent configuration
+.agents/
+
 # Environment / secrets
 .env
 .env.*
