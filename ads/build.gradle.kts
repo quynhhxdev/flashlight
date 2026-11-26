@@ -12,6 +12,7 @@ android {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+        consumerProguardFiles("proguard-rules.pro")
     }
 
     buildTypes {
