@@ -28,10 +28,6 @@ Thumbs.db
 .externalNativeBuild/
 .cxx/
 
-# Signing files - never commit private signing credentials
-*.jks
-*.keystore
-
 # Environment / secrets
 .env
 .env.*
