@@ -34,14 +34,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(
-                System.getenv("KEYSTORE_PATH")
-                    ?: "D:/keyQuynh"
-            )
-
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+            storeFile = file("key/key_flashlight.jks")
+            storePassword = "123456"
+            keyAlias = "key"
+            keyPassword = "123456"
         }
     }
 
@@ -49,8 +45,8 @@ android {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
 
-            isMinifyEnabled = false //R8 loại code thừa và obfuscate
-            isShrinkResources = false // loại bỏ các tài nguyên không dùng
+            isMinifyEnabled = true //R8 loại code thừa và obfuscate
+            isShrinkResources = true // loại bỏ các tài nguyên không dùng
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
