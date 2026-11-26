@@ -36,6 +36,13 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
+      # Debug APK output diagnostic
+      - name: Find Debug APK
+        run: |
+          echo "Searching for Debug APK..."
+          find . -type f -name "*.apk" -print
+
+
       # 5. Build Debug APK
       - name: Build Debug APK
         run: ./gradlew assembleDebug
