@@ -33,12 +33,8 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(
-                System.getenv("KEYSTORE_FILE")
-                    ?: "D:/keyQuynh"
-            )
-
+        getByName("release") {
+            storeFile = System.getenv("KEYSTORE_FILE")?.let { file(it) }
             storePassword = System.getenv("KEYSTORE_PASSWORD")
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")
