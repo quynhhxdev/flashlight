@@ -1,8 +1,11 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     alias(libs.plugins.android.application)
     id("org.jetbrains.kotlin.android")
-    id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -14,14 +17,14 @@ val facebookClientToken = providers.gradleProperty("FACEBOOK_CLIENT_TOKEN").orEl
 
 android {
     namespace = "com.kt.flashlight"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.kt.flash.light.led.banner"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["ad_app_id"] = "ca-app-pub-3940256099942544~3347511713"
@@ -30,6 +33,9 @@ android {
         buildConfigField("String", "ADJUST_APP_TOKEN", "\"$adjustAppToken\"")
         buildConfigField("String", "FACEBOOK_APP_ID", "\"$facebookAppId\"")
         buildConfigField("String", "FACEBOOK_CLIENT_TOKEN", "\"$facebookClientToken\"")
+
+        val formattedDate = SimpleDateFormat("MM.dd.yyyy").format(Date())
+        base.archivesName.set("ProjectBase_v${versionName}(${versionCode})_${formattedDate}")
     }
 
     signingConfigs {
@@ -182,8 +188,8 @@ dependencies {
     implementation(project(":ads"))
 
     // Hilt DI
-    implementation("com.google.dagger:hilt-android:2.52")
-    ksp("com.google.dagger:hilt-compiler:2.52")
+    implementation("com.google.dagger:hilt-android:2.60.1")
+    ksp("com.google.dagger:hilt-compiler:2.60.1")
 
     // ViewModel + Coroutines
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
